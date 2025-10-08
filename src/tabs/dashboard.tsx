@@ -2,19 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AILogo } from '../components/AILogo';
 import { ProductivityScore } from '../components/ProductivityScore';
+import type { TabData } from '../types/analytics';
+import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';
 import '../lib/i18n';
 import '../styles/dashboard.css';
-
-interface TabData {
-  id: number;
-  url: string;
-  title: string;
-  domain: string;
-  category: string;
-  lastAccessed: number;
-  accessCount: number;
-}
 
 interface CategoryStats {
   name: string;
@@ -251,22 +243,6 @@ function Dashboard() {
       </div>
     </div>
   );
-}
-
-// Helper function to get color hex values
-function getColorHex(color: string): string {
-  const colorMap: Record<string, string> = {
-    blue: '#3B82F6',
-    cyan: '#06B6D4',
-    green: '#10B981',
-    yellow: '#F59E0B',
-    orange: '#F97316',
-    red: '#EF4444',
-    pink: '#EC4899',
-    purple: '#8B5CF6',
-    grey: '#6B7280',
-  };
-  return colorMap[color] || colorMap.grey;
 }
 
 export default Dashboard;

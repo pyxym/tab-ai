@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import type { TabData } from '../types/analytics';
+import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';
 import { isSystemUrl } from '../utils/tabFilters';
 import { TabTracker } from '../utils/tabTracker';
@@ -11,21 +13,6 @@ import { SimpleLineChart } from './SimpleLineChart';
  */
 interface DashboardModalProps {
   onClose: () => void; // 모달 닫기 핸들러
-}
-
-/**
- * 탭 데이터 타입
- * 개별 탭의 사용 통계 정보
- */
-interface TabData {
-  id: number; // 탭 ID
-  url: string; // 탭 URL
-  title: string; // 탭 제목
-  domain: string; // 도메인
-  category: string; // 카테고리
-  lastAccessed: number; // 마지막 접근 시간
-  accessCount: number; // 접근 횟수
-  totalTimeSpent?: number; // 총 사용 시간 (선택적)
 }
 
 /**
@@ -345,21 +332,6 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
   );
 };
 
-// Helper function to get color hex values
-function getColorHex(color: string): string {
-  const colorMap: Record<string, string> = {
-    blue: '#3B82F6',
-    cyan: '#06B6D4',
-    green: '#10B981',
-    yellow: '#F59E0B',
-    orange: '#F97316',
-    red: '#EF4444',
-    pink: '#EC4899',
-    purple: '#8B5CF6',
-    grey: '#6B7280',
-  };
-  return colorMap[color] || colorMap.grey;
-}
 
 // Helper function to format time duration
 function formatDuration(milliseconds: number): string {

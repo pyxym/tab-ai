@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategoryStore } from '../store/categoryStore';
-import type { Category } from '../types/category';
+import type { Category, ExtendedColorEnum } from '../types/category';
 import { CategoryEditModal } from './CategoryEditModal';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -63,7 +63,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
    * 카테고리 저장 핸들러
    * 기존 카테고리 수정 또는 새 카테고리 추가
    */
-  const handleSave = async (name: string, color: chrome.tabGroups.ColorEnum) => {
+  const handleSave = async (name: string, color: ExtendedColorEnum) => {
     if (editingCategory) {
       // 기존 카테고리 업데이트
       await updateCategory(editingCategory.id, { name, color });
@@ -284,21 +284,32 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
 };
 
 /**
- * Chrome 탭 그룹 색상을 HEX 색상 코드로 변환
- * @param {chrome.tabGroups.ColorEnum} color - Chrome 탭 그룹 색상
+ * 확장된 색상을 HEX 색상 코드로 변환
+ * @param {string} color - 확장된 색상 이름
  * @returns {string} HEX 색상 코드
  */
-function getColorHex(color: chrome.tabGroups.ColorEnum): string {
-  const colorMap: Record<chrome.tabGroups.ColorEnum, string> = {
-    blue: '#3B82F6', // 파란색
-    cyan: '#06B6D4', // 청록색
-    green: '#10B981', // 초록색
-    yellow: '#F59E0B', // 노란색
-    orange: '#F97316', // 주황색
-    red: '#EF4444', // 빨간색
-    pink: '#EC4899', // 분홍색
-    purple: '#8B5CF6', // 보라색
-    grey: '#6B7280', // 회색
+function getColorHex(color: string): string {
+  const colorMap: Record<string, string> = {
+    blue: '#3B82F6',
+    red: '#EF4444',
+    yellow: '#F59E0B',
+    green: '#10B981',
+    pink: '#EC4899',
+    purple: '#8B5CF6',
+    cyan: '#06B6D4',
+    orange: '#F97316',
+    grey: '#6B7280',
+    indigo: '#6366F1',
+    teal: '#14B8A6',
+    lime: '#84CC16',
+    amber: '#F59E0B',
+    rose: '#F43F5E',
+    violet: '#8B5CF6',
+    sky: '#0EA5E9',
+    emerald: '#10B981',
+    fuchsia: '#D946EF',
+    slate: '#64748B',
+    stone: '#78716C',
   };
   return colorMap[color] || colorMap.grey;
 }

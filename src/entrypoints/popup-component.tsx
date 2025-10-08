@@ -16,13 +16,13 @@ import { useTabStore } from '../store/tabStore';
 import '../styles/popup.css';
 import { storageUtils } from '../utils/storage';
 import { calculateProductivityScore } from '../utils/tabAnalyzer';
-import { isSystemUrl, isNewTabUrl } from '../utils/tabFilters';
+import { isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
 import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 
 function IndexPopup() {
   const { t, ready } = useTranslation();
   const { tabs, setTabs } = useTabStore();
-  const { insights, productivityScore, addInsight, removeInsight, setProductivityScore } = useAIStore();
+  const { insights, productivityScore, addInsight, removeInsight, clearInsights, setProductivityScore } = useAIStore();
   const { categories, loadCategories } = useCategoryStore();
   const [analysis, setAnalysis] = useState<any>(null);
   const [isOrganizing, setIsOrganizing] = useState(false);
@@ -564,9 +564,7 @@ function IndexPopup() {
                   <p className="text-xs glass-text opacity-70">{t('stats.activeTabs')}</p>
                 </div>
                 <div className="glass-card !py-2 text-center">
-                  <p className="text-2xl font-bold glass-text">
-                    {analysis?.groupCount ?? 0}
-                  </p>
+                  <p className="text-2xl font-bold glass-text">{analysis?.groupCount ?? 0}</p>
                   <p className="text-xs glass-text opacity-70">{t('stats.categories')}</p>
                 </div>
                 <div className="glass-card !py-2 text-center">

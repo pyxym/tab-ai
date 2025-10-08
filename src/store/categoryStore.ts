@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import type { Category, CategoryMapping } from '../types/category';
 import { DEFAULT_CATEGORIES } from '../types/category';
-import { ErrorBoundary, DataValidator } from '../utils/errorBoundary';
-import { storageUtils, watchCategories, watchCategoryMapping } from '../utils/storage';
+import { DataValidator, ErrorBoundary } from '../utils/errorBoundary';
+import { storageUtils } from '../utils/storage';
 
 /**
  * 카테고리 스토어 인터페이스
@@ -119,7 +119,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
           name: DataValidator.sanitizeString(categoryData.name, 50),
           domains: categoryData.domains.map((d) => d.toLowerCase().replace(/^www\./, '')),
           keywords: categoryData.keywords.map((k) => k.toLowerCase()),
-          color: categoryData.color as chrome.tabGroups.ColorEnum,
+          color: categoryData.color,
         };
 
         const newCategory: Category = {

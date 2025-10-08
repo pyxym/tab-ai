@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AILogo } from '../components/AILogo';
 import { AIInsightCard } from '../components/AIInsightCard';
-import { ProductivityScore } from '../components/ProductivityScore';
-import { CategoryManager } from '../components/CategoryManager';
-import { TabList } from '../components/TabList';
-import { DashboardModal } from '../components/DashboardModal';
-import { InfoTooltip } from '../components/InfoTooltip';
-import { HelpModal } from '../components/HelpModal';
 import { AILearningStatus } from '../components/AILearningStatus';
+import { AILogo } from '../components/AILogo';
+import { CategoryManager } from '../components/CategoryManager';
+import { DashboardModal } from '../components/DashboardModal';
+import { HelpModal } from '../components/HelpModal';
+import { InfoTooltip } from '../components/InfoTooltip';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
-import { useTabStore } from '../store/tabStore';
+import { ProductivityScore } from '../components/ProductivityScore';
+import { TabList } from '../components/TabList';
 import { useAIStore } from '../store/aiStore';
 import { useCategoryStore } from '../store/categoryStore';
-import { calculateProductivityScore } from '../utils/tabAnalyzer';
-import { organizeTabsUnified } from '../utils/unifiedOrganizer';
-import { storageUtils } from '../utils/storage';
+import { useTabStore } from '../store/tabStore';
 import '../styles/popup.css';
+import { storageUtils } from '../utils/storage';
+import { calculateProductivityScore } from '../utils/tabAnalyzer';
+import { isSystemUrl, isNewTabUrl } from '../utils/tabFilters';
+import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 
 function IndexPopup() {
   const { t, ready } = useTranslation();
@@ -88,7 +89,7 @@ function IndexPopup() {
 
   function generateInsights(tabs: chrome.tabs.Tab[], analysis: any) {
     // Clear existing insights
-    insights.forEach((insight) => removeInsight(insight.id));
+    clearInsights();
 
     // Add duplicate tabs insight
     if (analysis.duplicates.length > 0) {
@@ -109,34 +110,27 @@ function IndexPopup() {
 
               const urlMap = new Map<string, chrome.tabs.Tab[]>();
 
-              // Group tabs by URL
+              // Group tabs by URL (include ALL tabs for duplicate detection)
               tabs.forEach((tab) => {
-                if (tab.url && !tab.url.startsWith('chrome-extension://')) {
-                  let normalizedUrl: string;
+                if (!tab.url) return;
 
-                  // Treat all new tabs as the same
-                  if (
-                    tab.url === 'chrome://newtab/' ||
-                    tab.url === 'edge://newtab/' ||
-                    tab.url === 'about:blank' ||
-                    tab.url === 'about:newtab' ||
-                    tab.url.startsWith('chrome://newtab') ||
-                    tab.url.startsWith('edge://newtab')
-                  ) {
-                    normalizedUrl = '__newtab__';
-                  } else if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
-                    // Skip other system pages
-                    return;
-                  } else {
-                    // Normalize regular URLs - remove trailing slash, fragments, and query params
-                    normalizedUrl = tab.url.replace(/\/$/, '').split('#')[0].split('?')[0];
-                  }
+                let normalizedUrl: string;
 
-                  if (!urlMap.has(normalizedUrl)) {
-                    urlMap.set(normalizedUrl, []);
-                  }
-                  urlMap.get(normalizedUrl)!.push(tab);
+                // 모든 새 탭을 동일하게 처리
+                if (isNewTabUrl(tab.url)) {
+                  normalizedUrl = '__newtab__';
+                } else if (isSystemUrl(tab.url)) {
+                  // System URLs are normalized by their full URL
+                  normalizedUrl = tab.url.replace(/\/$/, '');
+                } else {
+                  // 일반 URL 정규화 - 후행 슬래시, 프래그먼트, 쿼리 파라미터 제거
+                  normalizedUrl = tab.url.replace(/\/$/, '').split('#')[0].split('?')[0];
                 }
+
+                if (!urlMap.has(normalizedUrl)) {
+                  urlMap.set(normalizedUrl, []);
+                }
+                urlMap.get(normalizedUrl)!.push(tab);
               });
 
               // Find and close duplicates
@@ -145,7 +139,6 @@ function IndexPopup() {
 
               for (const [url, tabGroup] of urlMap) {
                 if (tabGroup.length > 1) {
-
                   // Sort by id to keep the oldest tab
                   tabGroup.sort((a, b) => (a.id || 0) - (b.id || 0));
 
@@ -207,9 +200,11 @@ function IndexPopup() {
       });
     }
 
-    // Add category insight
+    // Add category insight (exclude uncategorized)
     if (analysis.categoryCounts) {
-      const topCategory = Object.entries(analysis.categoryCounts).sort(([, a], [, b]) => (b as number) - (a as number))[0];
+      const topCategory = Object.entries(analysis.categoryCounts)
+        .filter(([category]) => category !== 'uncategorized') // Exclude uncategorized
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0];
 
       if (topCategory && (topCategory[1] as number) > 5) {
         addInsight({
@@ -217,7 +212,7 @@ function IndexPopup() {
           type: 'pattern',
           title: t('insights.categoryFocus.title', { category: topCategory[0] }),
           description: t('insights.categoryFocus.description', {
-            count: topCategory[1],
+            count: topCategory[1] as number,
             category: topCategory[0],
           }),
           priority: 'low',
@@ -235,11 +230,35 @@ function IndexPopup() {
         categories: categories,
       });
       if (result.success) {
+        // 메시지 국제화 - 상황별 메시지 선택
+        let descriptionKey = 'insights.organizationComplete.description';
+        let params: any = {
+          tabsProcessed: result.tabsProcessed,
+          groupsCreated: result.groupsCreated,
+        };
+
+        if (result.protectedStats) {
+          const { meetingCount, systemCount, domains } = result.protectedStats;
+          const protectedCount = meetingCount + systemCount;
+          const meetingDomains = domains.join(', ');
+
+          if (meetingCount > 0 && systemCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithBoth';
+            params = { ...params, meetingCount, systemCount, protectedCount, meetingDomains };
+          } else if (meetingCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithMeeting';
+            params = { ...params, meetingCount, meetingDomains };
+          } else if (systemCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithSystem';
+            params = { ...params, systemCount };
+          }
+        }
+
         addInsight({
           id: `organize-success-${Date.now()}`,
           type: 'tip',
-          title: '✨ Smart Organization Complete!',
-          description: result.message || `Created ${result.groupsCreated} groups`,
+          title: t('insights.organizationComplete.title') as string,
+          description: t(descriptionKey, params) as string,
           priority: 'medium',
           timestamp: Date.now(),
         });
@@ -255,6 +274,8 @@ function IndexPopup() {
             timestamp: Date.now() + 1,
           });
         }
+
+        // 보호된 탭 정보는 메인 메시지에 이미 포함되어 있으므로 별도 카드 제거
       }
     } catch (error) {
       console.error('Failed to organize tabs:', error);
@@ -276,7 +297,6 @@ function IndexPopup() {
     setIsOrganizing(true);
 
     try {
-
       // Use the unified organization function
       const result = await organizeTabsUnified(categories);
 
@@ -285,20 +305,35 @@ function IndexPopup() {
       }
 
       if (result.success) {
-        // Create detailed insight about AI organization
-        let description = result.message;
-        if ((result as any).details && (result as any).details.length > 0) {
-          description += '\n\nAI Classification Summary:';
-          (result as any).details.forEach((group: any) => {
-            description += `\n• ${group.category}: ${group.tabCount} tabs (avg confidence: ${group.avgConfidence})`;
-          });
+        // 메시지 국제화 - 상황별 메시지 선택
+        let descriptionKey = 'insights.organizationComplete.description';
+        let params: any = {
+          tabsProcessed: result.tabsProcessed,
+          groupsCreated: result.groupsCreated,
+        };
+
+        if (result.protectedStats) {
+          const { meetingCount, systemCount, domains } = result.protectedStats;
+          const protectedCount = meetingCount + systemCount;
+          const meetingDomains = domains.join(', ');
+
+          if (meetingCount > 0 && systemCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithBoth';
+            params = { ...params, meetingCount, systemCount, protectedCount, meetingDomains };
+          } else if (meetingCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithMeeting';
+            params = { ...params, meetingCount, meetingDomains };
+          } else if (systemCount > 0) {
+            descriptionKey = 'insights.organizationComplete.descriptionWithSystem';
+            params = { ...params, systemCount };
+          }
         }
 
         addInsight({
           id: `ai-organize-${Date.now()}`,
           type: 'tip',
-          title: '🤖 Smart Organization Complete!',
-          description,
+          title: t('insights.organizationComplete.title') as string,
+          description: t(descriptionKey, params) as string,
           priority: 'high',
           timestamp: Date.now(),
         });
@@ -314,6 +349,8 @@ function IndexPopup() {
             timestamp: Date.now() + 1000,
           });
         }
+
+        // 보호된 탭 정보는 메인 메시지에 이미 포함되어 있으므로 별도 카드 제거
       } else {
         addInsight({
           id: `ai-organize-error-${Date.now()}`,
@@ -422,7 +459,7 @@ function IndexPopup() {
             <div className="p-4 border-b border-white/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <AILogo size="medium" />
+                  <AILogo size="large" />
                   <div>
                     <h1 className="font-bold text-lg ai-gradient-text">TabQuest</h1>
                     <p className="text-xs glass-text opacity-70">{t('header.subtitle')}</p>
@@ -528,7 +565,7 @@ function IndexPopup() {
                 </div>
                 <div className="glass-card !py-2 text-center">
                   <p className="text-2xl font-bold glass-text">
-                    {analysis?.categoryCounts ? Object.keys(analysis.categoryCounts).length : 0}
+                    {analysis?.groupCount ?? 0}
                   </p>
                   <p className="text-xs glass-text opacity-70">{t('stats.categories')}</p>
                 </div>

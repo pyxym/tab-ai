@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategoryStore } from '../store/categoryStore';
+import { filterProtectedTabs } from '../utils/tabFilters';
+import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 import { FavIcon } from './FavIcon';
 import { InfoTooltip } from './InfoTooltip';
-import type { Category } from '../types/category';
-import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 
 /**
  * 탭 목록 컴포넌트의 Props
@@ -46,10 +46,13 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
 
   /**
    * 현재 창의 모든 탭을 로드하고 카테고리 정보 추가
+   * 보호된 탭(화상회의, 시스템 페이지)은 제외
    */
   const loadTabs = async () => {
     const allTabs = await chrome.tabs.query({ currentWindow: true });
-    const tabsWithCategories = allTabs.map((tab) => {
+    // 보호된 탭(Google Meet, Teams, 시스템 페이지 등) 필터링
+    const filteredTabs = filterProtectedTabs(allTabs);
+    const tabsWithCategories = filteredTabs.map((tab) => {
       if (tab.url) {
         try {
           // 도메인 추출 및 카테고리 확인

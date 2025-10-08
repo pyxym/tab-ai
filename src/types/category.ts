@@ -1,7 +1,78 @@
+// Extended color palette (20 colors)
+export type ExtendedColorEnum =
+  | 'blue'
+  | 'red'
+  | 'yellow'
+  | 'green'
+  | 'pink'
+  | 'purple'
+  | 'cyan'
+  | 'orange'
+  | 'grey'
+  | 'indigo'
+  | 'teal'
+  | 'lime'
+  | 'amber'
+  | 'rose'
+  | 'violet'
+  | 'sky'
+  | 'emerald'
+  | 'fuchsia'
+  | 'slate'
+  | 'stone';
+
+// Map extended colors to Chrome tab group colors
+export const COLOR_TO_CHROME_GROUP: Record<ExtendedColorEnum, chrome.tabGroups.ColorEnum> = {
+  blue: 'blue',
+  red: 'red',
+  yellow: 'yellow',
+  green: 'green',
+  pink: 'pink',
+  purple: 'purple',
+  cyan: 'cyan',
+  orange: 'orange',
+  grey: 'grey',
+  indigo: 'purple',
+  teal: 'cyan',
+  lime: 'green',
+  amber: 'yellow',
+  rose: 'pink',
+  violet: 'purple',
+  sky: 'cyan',
+  emerald: 'green',
+  fuchsia: 'pink',
+  slate: 'grey',
+  stone: 'grey',
+};
+
+// Tailwind CSS color classes for UI display
+export const COLOR_CLASSES: Record<ExtendedColorEnum, string> = {
+  blue: 'bg-blue-500',
+  red: 'bg-red-500',
+  yellow: 'bg-yellow-500',
+  green: 'bg-green-500',
+  pink: 'bg-pink-500',
+  purple: 'bg-purple-500',
+  cyan: 'bg-cyan-500',
+  orange: 'bg-orange-500',
+  grey: 'bg-gray-500',
+  indigo: 'bg-indigo-500',
+  teal: 'bg-teal-500',
+  lime: 'bg-lime-500',
+  amber: 'bg-amber-500',
+  rose: 'bg-rose-500',
+  violet: 'bg-violet-500',
+  sky: 'bg-sky-500',
+  emerald: 'bg-emerald-500',
+  fuchsia: 'bg-fuchsia-500',
+  slate: 'bg-slate-500',
+  stone: 'bg-stone-500',
+};
+
 export interface Category {
   id: string;
   name: string;
-  color: chrome.tabGroups.ColorEnum;
+  color: ExtendedColorEnum;
   domains: string[];
   keywords: string[];
   isDefault: boolean;
@@ -17,7 +88,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'work',
     name: 'Work',
-    color: 'blue',
+    color: 'indigo',
     domains: [
       'github.com',
       'gitlab.com',
@@ -39,7 +110,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'social',
     name: 'Social',
-    color: 'pink',
+    color: 'rose',
     domains: [
       'twitter.com',
       'x.com',
@@ -59,7 +130,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'entertainment',
     name: 'Entertainment',
-    color: 'purple',
+    color: 'red',
     domains: [
       'youtube.com',
       'netflix.com',
@@ -79,7 +150,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'shopping',
     name: 'Shopping',
-    color: 'yellow',
+    color: 'emerald',
     domains: [
       'amazon.com',
       'ebay.com',
@@ -99,7 +170,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'news',
     name: 'News & Media',
-    color: 'orange',
+    color: 'amber',
     domains: [
       'cnn.com',
       'bbc.com',
@@ -120,7 +191,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'education',
     name: 'Education',
-    color: 'cyan',
+    color: 'yellow',
     domains: [
       'coursera.org',
       'udemy.com',
@@ -140,7 +211,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'finance',
     name: 'Finance',
-    color: 'green',
+    color: 'teal',
     domains: [
       'bankofamerica.com',
       'chase.com',
@@ -160,7 +231,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'productivity',
     name: 'Productivity',
-    color: 'red',
+    color: 'sky',
     domains: [
       'google.com',
       'outlook.com',
@@ -180,7 +251,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'research',
     name: 'Research',
-    color: 'purple',
+    color: 'slate',
     domains: [
       'scholar.google.com',
       'pubmed.ncbi.nlm.nih.gov',
@@ -191,6 +262,72 @@ export const DEFAULT_CATEGORIES: Category[] = [
       'sciencedirect.com',
     ],
     keywords: ['research', 'paper', 'academic', 'study', 'journal', 'science'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'ai',
+    name: 'AI & Tools',
+    color: 'violet',
+    domains: [
+      'openai.com',
+      'anthropic.com',
+      'claude.ai',
+      'chatgpt.com',
+      'chat.openai.com',
+      'gemini.google.com',
+      'bard.google.com',
+      'huggingface.co',
+      'midjourney.com',
+      'stability.ai',
+      'cohere.com',
+    ],
+    keywords: ['ai', 'chatbot', 'assistant', 'gpt', 'claude', 'gemini', 'llm', 'ml', 'artificial'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'gaming',
+    name: 'Gaming',
+    color: 'fuchsia',
+    domains: ['steam.com', 'epicgames.com', 'gog.com', 'itch.io', 'playstation.com', 'xbox.com', 'nintendo.com', 'riotgames.com', 'blizzard.com', 'ea.com'],
+    keywords: ['game', 'gaming', 'play', 'steam', 'esports', 'gamer', 'console'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'health',
+    name: 'Health & Fitness',
+    color: 'lime',
+    domains: ['fitbit.com', 'myfitnesspal.com', 'webmd.com', 'healthline.com', 'mayoclinic.org', 'nih.gov', 'strava.com', 'peloton.com'],
+    keywords: ['health', 'fitness', 'medical', 'workout', 'exercise', 'nutrition', 'wellness'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'travel',
+    name: 'Travel',
+    color: 'blue',
+    domains: ['booking.com', 'airbnb.com', 'expedia.com', 'tripadvisor.com', 'kayak.com', 'hotels.com', 'skyscanner.com', 'lonely planet.com'],
+    keywords: ['travel', 'hotel', 'flight', 'booking', 'trip', 'vacation', 'tourism'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'food',
+    name: 'Food & Delivery',
+    color: 'orange',
+    domains: ['ubereats.com', 'doordash.com', 'grubhub.com', 'deliveroo.com', 'yelp.com', 'zomato.com', 'foodpanda.com', 'seamless.com'],
+    keywords: ['food', 'restaurant', 'delivery', 'recipe', 'cooking', 'dining', 'meal'],
+    isDefault: true,
+    createdAt: Date.now(),
+  },
+  {
+    id: 'reference',
+    name: 'Reference & Docs',
+    color: 'stone',
+    domains: ['stackoverflow.com', 'github.com', 'developer.mozilla.org', 'w3schools.com', 'devdocs.io', 'docs.python.org', 'react.dev', 'nodejs.org'],
+    keywords: ['documentation', 'reference', 'docs', 'manual', 'guide', 'api', 'spec'],
     isDefault: true,
     createdAt: Date.now(),
   },

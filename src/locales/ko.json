@@ -46,6 +46,13 @@
       "title": "탭 정리가 필요합니다",
       "description": "{{count}}개의 탭을 {{categoryCount}}개 카테고리로 정리하여 생산성을 높여보세요.",
       "action": "지금 정리"
+    },
+    "organizationComplete": {
+      "title": "🧹 스마트 정리 완료!",
+      "description": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다",
+      "descriptionWithMeeting": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{meetingCount}}개)\n• 회의: {{meetingCount}}개（{{meetingDomains}}）",
+      "descriptionWithSystem": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{systemCount}}개)\n• 시스템 페이지: {{systemCount}}개",
+      "descriptionWithBoth": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{protectedCount}}개)\n• 회의: {{meetingCount}}개（{{meetingDomains}}）\n• 시스템 페이지: {{systemCount}}개"
     }
   },
   "categories": {
@@ -154,7 +161,7 @@
       "domain": "도메인",
       "category": "카테고리",
       "selectCategory": "카테고리 선택",
-      "assignTabsToCategories": "탭을 카테고리에 할당",
+      "assignTabsToCategories": "탭 카테고리 할당",
       "applyGrouping": "그룹핑 적용",
       "applying": "적용 중...",
       "applyButtonTooltip": "브라우저에 탭 그룹을 적용합니다",

@@ -70,8 +70,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <p className="text-sm glass-text opacity-70">{t('modal.help.subtitle')}</p>
             </div>
           </div>
-          <button onClick={onClose} className="glass-button-primary !p-2 !px-4">
-            {t('actions.close')}
+          {/* 닫기 버튼 */}
+          <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
+            ✕
           </button>
         </div>
 

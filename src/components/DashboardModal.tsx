@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ProductivityScore } from './ProductivityScore';
+import { storageUtils } from '../utils/storage';
+import { isSystemUrl } from '../utils/tabFilters';
 import { TabTracker } from '../utils/tabTracker';
+import { ProductivityScore } from './ProductivityScore';
 import { SimpleBarChart } from './SimpleBarChart';
 import { SimpleLineChart } from './SimpleLineChart';
-import { storageUtils } from '../utils/storage';
 
 /**
  * 대시보드 모달 컴포넌트의 Props
@@ -167,7 +168,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
       try {
         const urlCounts: Record<string, number> = {};
         allTabs.forEach((tab) => {
-          if (tab.url && !tab.url.startsWith('chrome-extension://')) {
+          if (tab.url && !isSystemUrl(tab.url)) {
             const normalizedUrl = tab.url.replace(/\/$/, '').split('#')[0].split('?')[0];
             urlCounts[normalizedUrl] = (urlCounts[normalizedUrl] || 0) + 1;
           }

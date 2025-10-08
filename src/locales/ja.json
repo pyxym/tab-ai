@@ -8,7 +8,7 @@
   },
   "stats": {
     "activeTabs": "アクティブタブ",
-    "categories": "カテゴリー",
+    "categories": "カテゴリ",
     "duplicates": "重複"
   },
   "insights": {
@@ -44,8 +44,15 @@
     },
     "organizationAvailable": {
       "title": "タブの整理が利用可能",
-      "description": "{{count}}個のタブを{{categoryCount}}個のカテゴリーに整理して生産性を向上させましょう。",
+      "description": "{{count}}個のタブを{{categoryCount}}個のカテゴリに整理して生産性を向上させましょう。",
       "action": "今すぐ整理"
+    },
+    "organizationComplete": {
+      "title": "🧹 スマート整理完了！",
+      "description": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました",
+      "descriptionWithMeeting": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{meetingCount}}個)\n• 会議: {{meetingCount}}個（{{meetingDomains}}）",
+      "descriptionWithSystem": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{systemCount}}個)\n• システムページ: {{systemCount}}個",
+      "descriptionWithBoth": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{protectedCount}}個)\n• 会議: {{meetingCount}}個（{{meetingDomains}}）\n• システムページ: {{systemCount}}個"
     }
   },
   "categories": {
@@ -72,7 +79,7 @@
     "smartOrganize": "スマート整理",
     "viewAnalytics": "分析",
     "analytics": "分析",
-    "categories": "カテゴリー",
+    "categories": "カテゴリ",
     "assign": "割り当て",
     "help": "ヘルプ",
     "close": "閉じる",
@@ -93,9 +100,9 @@
     "organizationError": "タブの整理に失敗しました",
     "duplicatesRemoved": "{{count}}個の重複タブを削除しました",
     "noTabsToOrganize": "整理するタブがありません",
-    "categoryAdded": "カテゴリーが正常に追加されました",
-    "categoryDeleted": "カテゴリーが削除されました",
-    "categoryUpdated": "カテゴリーが更新されました",
+    "categoryAdded": "カテゴリが正常に追加されました",
+    "categoryDeleted": "カテゴリが削除されました",
+    "categoryUpdated": "カテゴリが更新されました",
     "error": "エラーが発生しました",
     "success": "成功"
   },
@@ -106,23 +113,18 @@
       "features": ["重複タブの検出と整理提案", "カテゴリ別使用パターン分析", "生産性向上のためのパーソナライズされたヒント"]
     },
     "categoryManager": {
-      "title": "カテゴリー管理",
-      "description": "効率的なタブ整理のためのカテゴリーを管理します。",
-      "features": [
-        "カテゴリー名と色の編集",
-        "ドラッグ＆ドロップで順序変更",
-        "カテゴリー順にタブグループをソート",
-        "未分類は常に最後に配置"
-      ],
+      "title": "カテゴリ管理",
+      "description": "効率的なタブ整理のためのカテゴリを管理します。",
+      "features": ["カテゴリ名と色の編集", "ドラッグ＆ドロップで順序変更", "カテゴリ順にタブグループをソート", "未分類は常に最後に配置"],
       "tips": {
-        "dragTip": "カテゴリーをドラッグして順序を変更できます。",
+        "dragTip": "カテゴリをドラッグして順序を変更できます。",
         "editTip": "鉛筆アイコンをクリックして名前と色を編集します。",
-        "orderTip": "カテゴリー順にタブグループがソートされます。"
+        "orderTip": "カテゴリ順にタブグループがソートされます。"
       },
       "system": "（システム）",
-      "cannotEditSystem": "未分類カテゴリーは編集できません。",
-      "cannotDeleteSystem": "未分類カテゴリーは削除できません。",
-      "defaultCannotDelete": "デフォルトカテゴリーは削除できません。"
+      "cannotEditSystem": "未分類カテゴリは編集できません。",
+      "cannotDeleteSystem": "未分類カテゴリは削除できません。",
+      "defaultCannotDelete": "デフォルトカテゴリは削除できません。"
     },
     "smartOrganize": {
       "title": "スマート整理",
@@ -130,48 +132,48 @@
       "features": ["カテゴリ順にタブグループを作成", "ドメインベースの自動分類", "ワンクリックですべてのタブを整理"]
     },
     "analytics": "詳細なタブ使用分析を表示",
-    "categories": "タブカテゴリーを管理",
-    "assign": "ドメインをカテゴリーに手動で割り当て",
+    "categories": "タブカテゴリを管理",
+    "assign": "ドメインをカテゴリに手動で割り当て",
     "help": "ヘルプとドキュメントを表示",
     "settings": "設定",
     "language": "言語"
   },
   "modal": {
     "categoryManager": {
-      "title": "カテゴリー管理",
-      "description": "タブ用のカテゴリーを作成・管理",
-      "addCategory": "カテゴリー追加",
-      "addNewCategory": "+ 新しいカテゴリーを追加",
-      "editCategory": "カテゴリー編集",
-      "deleteConfirm": "このカテゴリーを削除しますか？",
-      "categoryName": "カテゴリー名",
+      "title": "カテゴリ管理",
+      "description": "タブ用のカテゴリを作成・管理",
+      "addCategory": "カテゴリ追加",
+      "addNewCategory": "+ 新しいカテゴリを追加",
+      "editCategory": "カテゴリ編集",
+      "deleteConfirm": "このカテゴリを削除しますか？",
+      "categoryName": "カテゴリ名",
       "categoryColor": "色",
       "dragToReorder": "ドラッグして並べ替え"
     },
     "tabAssignment": {
-      "title": "タブをカテゴリーに割り当て",
-      "description": "各タブを適切なカテゴリーに分類して効率的に管理しましょう。",
+      "title": "タブとカテゴリの設定",
+      "description": "各タブを適切なカテゴリに分類して効率的に管理しましょう。",
       "domain": "ドメイン",
-      "category": "カテゴリー",
-      "selectCategory": "カテゴリーを選択",
-      "assignTabsToCategories": "タブをカテゴリーに割り当て",
+      "category": "カテゴリ",
+      "selectCategory": "カテゴリを選択",
+      "assignTabsToCategories": "タブとカテゴリの設定",
       "applyGrouping": "適用",
       "applying": "適用中...",
       "applyButtonTooltip": "ブラウザにタブグループを適用します",
       "untitled": "タイトルなし",
       "features": [
-        "ドメイン単位でカテゴリーを割り当て",
-        "同じドメインのすべてのタブは同じカテゴリーを使用",
+        "ドメイン単位でカテゴリを割り当て",
+        "同じドメインのすべてのタブは同じカテゴリを使用",
         "適用ボタンでブラウザにタブグループを作成"
       ],
-      "tip": "カテゴリーはドメインごとに割り当てられます。タブのカテゴリーを変更すると、同じドメインのすべてのタブ（例：すべてのgithub.comタブ）が同じカテゴリーを使用します。"
+      "tip": "カテゴリはドメインごとに割り当てられます。タブのカテゴリを変更すると、同じドメインのすべてのタブ（例：すべてのgithub.comタブ）が同じカテゴリを使用します。"
     },
     "dashboard": {
       "title": "分析ダッシュボード",
       "description": "ブラウジングパターンと生産性インサイト",
       "dailyStats": "日次統計",
       "weeklyTrend": "週次トレンド",
-      "categoryBreakdown": "カテゴリー内訳",
+      "categoryBreakdown": "カテゴリ内訳",
       "topDomains": "トップドメイン",
       "timeSpent": "滞在時間",
       "visits": "訪問数"
@@ -199,14 +201,14 @@
           ]
         },
         "categoryManagement": {
-          "title": "カテゴリー管理",
-          "description": "独自のカテゴリーを作成し、色とアイコンをカスタマイズしましょう。",
-          "details": ["ドラッグ＆ドロップで簡単なタブ分類", "ドメイン別の自動カテゴリーマッピング", "AIが学習するカテゴリーパターン"]
+          "title": "カテゴリ管理",
+          "description": "独自のカテゴリを作成し、色とアイコンをカスタマイズしましょう。",
+          "details": ["ドラッグ＆ドロップで簡単なタブ分類", "ドメイン別の自動カテゴリマッピング", "AIが学習するカテゴリパターン"]
         },
         "productivityInsights": {
           "title": "生産性インサイト",
           "description": "AIが分析したブラウジングパターンと生産性スコアを確認しましょう。",
-          "details": ["時間帯別の使用パターン分析", "カテゴリー別の時間追跡", "生産性向上のためのAI提案"]
+          "details": ["時間帯別の使用パターン分析", "カテゴリ別の時間追跡", "生産性向上のためのAI提案"]
         },
         "smartCleanup": {
           "title": "スマートクリーンアップ",
@@ -218,7 +220,7 @@
         "title": "プロのヒント",
         "tips": [
           "タブを手動で再分類すると、AIがあなたの好みを学習します",
-          "仕事時間とプライベート時間で異なるカテゴリーを使うと、AIが時間帯ごとに区別します",
+          "仕事時間とプライベート時間で異なるカテゴリを使うと、AIが時間帯ごとに区別します",
           "関連するタブを一緒に開くと、AIがコンテキストを理解してより正確に分類します"
         ]
       }
@@ -231,12 +233,12 @@
     "betaNotice": "この機能は実験的でベータテスト中です",
     "stats": {
       "totalTabs": "総タブ数",
-      "categories": "カテゴリー",
+      "categories": "カテゴリ",
       "duplicates": "重複タブ",
       "trackedTabs": "追跡済みタブ"
     },
     "sections": {
-      "categoryDistribution": "カテゴリー分布",
+      "categoryDistribution": "カテゴリ分布",
       "mostVisited": "よく訪問するサイト",
       "activityByHour": "時間別アクティビティ",
       "aiInsights": "AIインサイト",

@@ -1,13 +1,16 @@
 import { defineBackground } from 'wxt/utils/define-background';
-import { TabTracker } from '../utils/tabTracker';
 import { storageUtils } from '../utils/storage';
+import { filterProtectedTabs, getProtectedTabStats, isSystemUrl, isNewTabUrl } from '../utils/tabFilters';
+import { TabTracker } from '../utils/tabTracker';
+import { DOMAIN_CATEGORIES } from '../utils/configs';
+import { categorizeByDomain } from '../utils/tabAnalyzer';
+import { COLOR_TO_CHROME_GROUP, type Category } from '../types/category';
 
 export default defineBackground(() => {
   // Initialize tab tracking
-  TabTracker.initialize()
-    .catch((error) => {
-      console.error('[TabQuest] Failed to initialize tab tracking:', error);
-    });
+  TabTracker.initialize().catch((error) => {
+    console.error('[TabQuest] Failed to initialize tab tracking:', error);
+  });
 
   // Clean up old data daily
   setInterval(
@@ -62,7 +65,10 @@ export default defineBackground(() => {
 // Simple tab organization function
 async function organizeTabsSimple() {
   try {
-    const tabs = await chrome.tabs.query({ currentWindow: true });
+    const allTabs = await chrome.tabs.query({ currentWindow: true });
+
+    // 🆕 Filter out protected tabs (Meet, Zoom, etc.)
+    const tabs = filterProtectedTabs(allTabs);
 
     // Ungroup all tabs first
     const allTabIds = tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
@@ -81,8 +87,8 @@ async function organizeTabsSimple() {
     for (const tab of tabs) {
       if (!tab.id || !tab.url) continue;
 
-      // Skip special URLs
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://')) {
+      // Skip system URLs
+      if (isSystemUrl(tab.url)) {
         continue;
       }
 
@@ -141,30 +147,25 @@ async function organizeTabsSimple() {
 // Get tabs analysis
 async function getTabsAnalysis() {
   try {
-    const tabs = await chrome.tabs.query({ currentWindow: true });
+    const allTabs = await chrome.tabs.query({ currentWindow: true });
+
+    // 🆕 Filter out protected tabs from analysis
+    const tabs = filterProtectedTabs(allTabs);
 
     // Count by domain
     const domainCounts: Record<string, number> = {};
-    const categoryCounts: Record<string, number> = {
-      work: 0,
-      productivity: 0,
-      entertainment: 0,
-      social: 0,
-      uncategorized: 0,
-    };
+    // Initialize categoryCounts with all available categories
+    const categoryCounts: Record<string, number> = {};
+    Object.keys(DOMAIN_CATEGORIES).forEach((category) => {
+      categoryCounts[category] = 0;
+    });
+    categoryCounts.uncategorized = 0;
 
     for (const tab of tabs) {
       if (!tab.url) continue;
 
-      // Handle new tabs
-      if (tab.url === 'chrome://newtab/' || tab.url === 'edge://newtab/' || tab.url === 'about:blank' || tab.url === 'about:newtab') {
-        domainCounts['New Tab'] = (domainCounts['New Tab'] || 0) + 1;
-        categoryCounts.uncategorized++;
-        continue;
-      }
-
-      // Skip other special URLs
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://')) {
+      // Skip all system URLs (including newtabs)
+      if (isSystemUrl(tab.url)) {
         continue;
       }
 
@@ -173,36 +174,28 @@ async function getTabsAnalysis() {
         const domain = url.hostname.replace(/^www\./, '');
         domainCounts[domain] = (domainCounts[domain] || 0) + 1;
 
-        // Simple categorization
-        if (domain.includes('github') || domain.includes('gitlab')) {
-          categoryCounts.work++;
-        } else if (domain.includes('google') || domain.includes('notion')) {
-          categoryCounts.productivity++;
-        } else if (domain.includes('youtube') || domain.includes('netflix')) {
-          categoryCounts.entertainment++;
-        } else if (domain.includes('facebook') || domain.includes('twitter')) {
-          categoryCounts.social++;
-        } else {
-          categoryCounts.uncategorized++;
-        }
+        // Use categorizeByDomain from tabAnalyzer for consistent categorization
+        const category = categorizeByDomain(domain);
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
       } catch (e) {
         // Skip invalid URLs
       }
     }
 
-    // Find duplicates
+    // Find duplicates (include ALL tabs including system tabs for duplicate detection)
     const urlCounts: Record<string, chrome.tabs.Tab[]> = {};
 
-    for (const tab of tabs) {
-      if (!tab.url || tab.url.startsWith('chrome-extension://')) continue;
+    for (const tab of allTabs) {
+      if (!tab.url) continue;
 
       let normalizedUrl: string;
 
-      // Treat all new tabs as the same
-      if (tab.url === 'chrome://newtab/' || tab.url === 'edge://newtab/' || tab.url === 'about:blank' || tab.url === 'about:newtab') {
+      // 모든 새 탭을 동일하게 처리
+      if (isNewTabUrl(tab.url)) {
         normalizedUrl = '__newtab__';
-      } else if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
-        continue;
+      } else if (isSystemUrl(tab.url)) {
+        // System URLs are normalized by their full URL
+        normalizedUrl = tab.url.replace(/\/$/, '');
       } else {
         normalizedUrl = tab.url.replace(/\/$/, '').split('#')[0].split('?')[0];
       }
@@ -222,11 +215,16 @@ async function getTabsAnalysis() {
         tabs,
       }));
 
+    // Count actual tab groups in current window
+    const groups = await chrome.tabGroups.query({ windowId: chrome.windows.WINDOW_ID_CURRENT });
+    const groupCount = groups.length;
+
     return {
       totalTabs: tabs.length,
       domainCounts,
       categoryCounts,
       duplicates,
+      groupCount, // Add actual tab group count
     };
   } catch (error) {
     console.error('[TabQuest] Analysis failed:', error);
@@ -235,9 +233,13 @@ async function getTabsAnalysis() {
 }
 
 // Organize tabs by categories
-async function organizeTabsByCategories(categories: any[]) {
+async function organizeTabsByCategories(categories: Category[]) {
   try {
-    const tabs = await chrome.tabs.query({ currentWindow: true });
+    const allTabs = await chrome.tabs.query({ currentWindow: true });
+
+    // 🆕 Filter out protected tabs and get stats
+    const tabs = filterProtectedTabs(allTabs);
+    const protectedStats = getProtectedTabStats(allTabs);
 
     // Ungroup all tabs first
     const allTabIds = tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
@@ -262,7 +264,7 @@ async function organizeTabsByCategories(categories: any[]) {
       let categoryId = 'uncategorized';
 
       // Skip system URLs
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
+      if (isSystemUrl(tab.url)) {
         continue;
       }
 
@@ -312,7 +314,7 @@ async function organizeTabsByCategories(categories: any[]) {
 
         await chrome.tabGroups.update(groupId, {
           title: abbreviation,
-          color: category.color,
+          color: COLOR_TO_CHROME_GROUP[category.color],
           collapsed: false,
         });
 
@@ -329,6 +331,7 @@ async function organizeTabsByCategories(categories: any[]) {
       message: groupsCreated > 0 ? `Successfully organized tabs into ${groupsCreated} category groups` : 'No groups created',
       groupsCreated,
       tabsProcessed: tabs.length,
+      protectedStats, // 🆕 상세 통계 추가
     };
   } catch (error) {
     console.error('[TabQuest] Category organization failed:', error);

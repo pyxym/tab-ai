@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategoryStore } from '../store/categoryStore';
-import { InfoTooltip } from './InfoTooltip';
-import { CategoryEditModal } from './CategoryEditModal';
 import type { Category } from '../types/category';
+import { CategoryEditModal } from './CategoryEditModal';
+import { InfoTooltip } from './InfoTooltip';
 
 /**
  * 카테고리 관리자 컴포넌트의 Props

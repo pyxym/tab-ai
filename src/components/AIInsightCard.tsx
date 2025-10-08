@@ -128,9 +128,10 @@ const DismissButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 /**
  * 인사이트 설명 컴포넌트
+ * 개행 문자(\n)를 <br> 태그로 변환하여 여러 줄 표시 지원
  */
 const InsightDescription: React.FC<{ description: string }> = ({ description }) => (
-  <p className="text-xs glass-text opacity-70 mt-1 leading-relaxed">{description}</p>
+  <p className="text-xs glass-text opacity-70 mt-1 leading-relaxed whitespace-pre-line">{description}</p>
 );
 
 /**

@@ -1,6 +1,9 @@
 // Direct tab organization without background script
 import { storageUtils } from './storage';
-export async function organizeTabsDirectly(categories: any[]) {
+import { isSystemUrl } from './tabFilters';
+import { COLOR_TO_CHROME_GROUP, type Category } from '../types/category';
+
+export async function organizeTabsDirectly(categories: Category[]) {
   try {
     const tabs = await chrome.tabs.query({ currentWindow: true });
 
@@ -27,8 +30,8 @@ export async function organizeTabsDirectly(categories: any[]) {
       // Default to uncategorized
       let categoryId = 'uncategorized';
 
-      // Skip chrome:// and edge:// URLs but keep chrome-extension://
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
+      // Skip system URLs (chrome://, edge://, etc.)
+      if (isSystemUrl(tab.url)) {
         // These system URLs will remain ungrouped
         continue;
       }
@@ -75,7 +78,7 @@ export async function organizeTabsDirectly(categories: any[]) {
         const groupId = await chrome.tabs.group({ tabIds });
         await chrome.tabGroups.update(groupId, {
           title: category.name,
-          color: category.color,
+          color: COLOR_TO_CHROME_GROUP[category.color],
           collapsed: false,
         });
 
@@ -124,8 +127,8 @@ export async function organizeTabsByDomain() {
     for (const tab of tabs) {
       if (!tab.id || !tab.url) continue;
 
-      // Skip special URLs
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://')) {
+      // Skip system URLs
+      if (isSystemUrl(tab.url)) {
         continue;
       }
 

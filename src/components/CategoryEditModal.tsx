@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ColorPicker } from './ColorPicker';
-import type { Category } from '../types/category';
+import type { Category, ExtendedColorEnum } from '../types/category';
 
 /**
  * 카테고리 편집 모달의 Props 타입 정의
@@ -8,7 +8,7 @@ import type { Category } from '../types/category';
 interface CategoryEditModalProps {
   isOpen: boolean; // 모달 표시 여부
   onClose: () => void; // 모달 닫기 핸들러
-  onSave: (name: string, color: chrome.tabGroups.ColorEnum) => void; // 저장 핸들러
+  onSave: (name: string, color: ExtendedColorEnum) => void; // 저장 핸들러
   category?: Category | null; // 편집할 카테고리 (없으면 신규 생성)
   title?: string; // 모달 제목
 }
@@ -24,7 +24,7 @@ export const CategoryEditModal: React.FC<CategoryEditModalProps> = ({ isOpen, on
   // 카테고리 이름 상태
   const [name, setName] = useState('');
   // 카테고리 색상 상태
-  const [color, setColor] = useState<chrome.tabGroups.ColorEnum>('blue');
+  const [color, setColor] = useState<ExtendedColorEnum>('blue');
 
   // 카테고리 데이터가 변경될 때 폼 필드 업데이트
   useEffect(() => {

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCategoryStore } from '../../store/categoryStore';
+import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
 import { filterProtectedTabs } from '../../utils/tabFilters';
 import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
-import { InfoTooltip } from '../ui/InfoTooltip';
 import { TabListItem } from '../items/TabListItem';
+import { InfoTooltip } from '../ui/InfoTooltip';
 
 interface TabListProps {
   onClose: () => void;
@@ -23,7 +23,12 @@ interface TabWithCategory extends chrome.tabs.Tab {
  */
 export const TabList: React.FC<TabListProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const { categories, getCategoryForDomain, assignDomainToCategory, loadCategories } = useCategoryStore();
+
+  // 최적화된 선택자 사용 - 카테고리 데이터만 구독
+  const categories = useCategoryStore(categorySelectors.categories);
+  const getCategoryForDomain = useCategoryStore((state) => state.getCategoryForDomain);
+  const assignDomainToCategory = useCategoryStore((state) => state.assignDomainToCategory);
+  const loadCategories = useCategoryStore((state) => state.loadCategories);
 
   const [tabs, setTabs] = useState<TabWithCategory[]>([]);
   const [selectedTab, setSelectedTab] = useState<number | null>(null);

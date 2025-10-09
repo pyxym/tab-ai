@@ -1,24 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AIInsightCard } from '../components/shared/AIInsightCard';
 import { CategoryManager } from '../components/pages/CategoryManager';
 import { DashboardModal } from '../components/pages/DashboardModal';
 import { HelpModal } from '../components/pages/HelpModal';
-import { InfoTooltip } from '../components/ui/InfoTooltip';
-import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { TabGroupsModal } from '../components/pages/TabGroupsModal';
 import { TabList } from '../components/pages/TabList';
 import { PopupHeader } from '../components/popup/PopupHeader';
 import { PopupStats } from '../components/popup/PopupStats';
-import { useAIStore } from '../store/aiStore';
-import { useCategoryStore } from '../store/categoryStore';
-import { useTabStore } from '../store/tabStore';
+import { AIInsightCard } from '../components/shared/AIInsightCard';
+import { InfoTooltip } from '../components/ui/InfoTooltip';
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { useInsightsGenerator } from '../hooks/useInsightsGenerator';
 import { useSmartOrganize } from '../hooks/useSmartOrganize';
 import { useTabsData } from '../hooks/useTabsData';
-import { hasSnapshot, restoreSnapshot } from '../utils/undoManager';
-import { storageUtils } from '../utils/storage';
+import { aiSelectors, useAIStore } from '../store/aiStore';
+import { useCategoryStore } from '../store/categoryStore';
+import { tabSelectors, useTabStore } from '../store/tabStore';
 import '../styles/popup.css';
+import { storageUtils } from '../utils/storage';
+import { hasSnapshot, restoreSnapshot } from '../utils/undoManager';
 
 /**
  * Optimized popup component with separated concerns
@@ -28,9 +28,13 @@ import '../styles/popup.css';
  */
 function IndexPopup() {
   const { t, ready } = useTranslation();
-  const { tabs } = useTabStore();
-  const { insights, addInsight, removeInsight } = useAIStore();
-  const { loadCategories } = useCategoryStore();
+
+  // 최적화된 선택자 사용 - 필요한 데이터만 구독
+  const tabs = useTabStore(tabSelectors.tabs);
+  const insights = useAIStore(aiSelectors.insights);
+  const addInsight = useAIStore((state) => state.addInsight);
+  const removeInsight = useAIStore((state) => state.removeInsight);
+  const loadCategories = useCategoryStore((state) => state.loadCategories);
 
   // Custom hooks
   const { analysis, isLoading, loadTabsAndAnalyze } = useTabsData();
@@ -166,9 +170,7 @@ function IndexPopup() {
 
   // Memoized stats
   const stats = useMemo(() => {
-    const duplicateCount = analysis?.duplicates
-      ? analysis.duplicates.reduce((sum: number, d: any) => sum + d.count - 1, 0)
-      : 0;
+    const duplicateCount = analysis?.duplicates ? analysis.duplicates.reduce((sum: number, d: any) => sum + d.count - 1, 0) : 0;
 
     return {
       tabCount: tabs.length,

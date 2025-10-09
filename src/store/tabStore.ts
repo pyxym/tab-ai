@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ErrorBoundary, DataValidator } from '../utils/errorBoundary';
+import { DataValidator, ErrorBoundary } from '../utils/errorBoundary';
 
 export interface TabInfo {
   id: number;
@@ -206,3 +206,48 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
   setLoading: (isLoading) => set({ isLoading }),
 }));
+
+/**
+ * 최적화된 선택자 함수들
+ * 불필요한 리렌더링을 방지하기 위해 필요한 데이터만 선택
+ * 전체 스토어를 구조분해하는 대신 이 선택자들을 사용하세요
+ */
+export const tabSelectors = {
+  // 탭 배열만 선택
+  tabs: (state: TabStore) => state.tabs,
+
+  // 그룹 배열만 선택
+  groups: (state: TabStore) => state.groups,
+
+  // 활성 탭 ID만 선택
+  activeTabId: (state: TabStore) => state.activeTabId,
+
+  // 로딩 상태만 선택
+  isLoading: (state: TabStore) => state.isLoading,
+
+  // 탭 개수만 선택
+  tabCount: (state: TabStore) => state.tabs.length,
+
+  // 그룹 개수만 선택
+  groupCount: (state: TabStore) => state.groups.length,
+
+  // 특정 ID의 탭 선택
+  tabById: (id: number) => (state: TabStore) => state.tabs.find((tab) => tab.id === id),
+
+  // 특정 그룹 ID의 탭들 선택
+  tabsByGroupId: (groupId: number) => (state: TabStore) => state.tabs.filter((tab) => tab.groupId === groupId),
+
+  // 액션만 선택 (데이터 변경 시 리렌더링되지 않음)
+  actions: (state: TabStore) => ({
+    setTabs: state.setTabs,
+    addTab: state.addTab,
+    removeTab: state.removeTab,
+    updateTab: state.updateTab,
+    setGroups: state.setGroups,
+    addGroup: state.addGroup,
+    removeGroup: state.removeGroup,
+    updateGroup: state.updateGroup,
+    setActiveTab: state.setActiveTab,
+    setLoading: state.setLoading,
+  }),
+};

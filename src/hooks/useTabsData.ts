@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAIStore } from '../store/aiStore';
-import { useCategoryStore } from '../store/categoryStore';
+import { categorySelectors, useCategoryStore } from '../store/categoryStore';
 import { useTabStore } from '../store/tabStore';
 import { calculateProductivityScore } from '../utils/tabAnalyzer';
 
@@ -9,9 +9,10 @@ import { calculateProductivityScore } from '../utils/tabAnalyzer';
  * Separates data fetching logic from UI components for better performance
  */
 export function useTabsData() {
-  const { setTabs } = useTabStore();
-  const { setProductivityScore } = useAIStore();
-  const { categories } = useCategoryStore();
+  // 최적화된 선택자 사용 - 액션만 구독
+  const setTabs = useTabStore((state) => state.setTabs);
+  const setProductivityScore = useAIStore((state) => state.setProductivityScore);
+  const categories = useCategoryStore(categorySelectors.categories);
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 

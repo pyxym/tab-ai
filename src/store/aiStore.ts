@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ErrorBoundary, DataValidator } from '../utils/errorBoundary';
+import { DataValidator, ErrorBoundary } from '../utils/errorBoundary';
 
 export interface AIInsight {
   id: string;
@@ -181,3 +181,46 @@ export const useAIStore = create<AIStore>((set, get) => ({
   setAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setLastAnalysis: (lastAnalysis) => set({ lastAnalysis }),
 }));
+
+/**
+ * 최적화된 선택자 함수들
+ * 불필요한 리렌더링을 방지하기 위해 필요한 데이터만 선택
+ * 전체 스토어를 구조분해하는 대신 이 선택자들을 사용하세요
+ */
+export const aiSelectors = {
+  // 인사이트 배열만 선택
+  insights: (state: AIStore) => state.insights,
+
+  // 패턴 배열만 선택
+  patterns: (state: AIStore) => state.patterns,
+
+  // 생산성 점수만 선택
+  productivityScore: (state: AIStore) => state.productivityScore,
+
+  // 분석 중 상태만 선택
+  isAnalyzing: (state: AIStore) => state.isAnalyzing,
+
+  // 마지막 분석 타임스탬프만 선택
+  lastAnalysis: (state: AIStore) => state.lastAnalysis,
+
+  // 인사이트 개수만 선택
+  insightCount: (state: AIStore) => state.insights.length,
+
+  // 높은 우선순위 인사이트만 선택
+  highPriorityInsights: (state: AIStore) => state.insights.filter((i) => i.priority === 'high'),
+
+  // 특정 ID의 인사이트 선택
+  insightById: (id: string) => (state: AIStore) => state.insights.find((insight) => insight.id === id),
+
+  // 액션만 선택 (데이터 변경 시 리렌더링되지 않음)
+  actions: (state: AIStore) => ({
+    addInsight: state.addInsight,
+    removeInsight: state.removeInsight,
+    clearInsights: state.clearInsights,
+    setPatterns: state.setPatterns,
+    updatePattern: state.updatePattern,
+    setProductivityScore: state.setProductivityScore,
+    setAnalyzing: state.setAnalyzing,
+    setLastAnalysis: state.setLastAnalysis,
+  }),
+};

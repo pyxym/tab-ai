@@ -420,3 +420,40 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     set({ categories: sorted });
   },
 }));
+
+/**
+ * 최적화된 선택자 함수들
+ * 불필요한 리렌더링을 방지하기 위해 필요한 데이터만 선택
+ * 전체 스토어를 구조분해하는 대신 이 선택자들을 사용하세요
+ */
+export const categorySelectors = {
+  // 카테고리 배열만 선택
+  categories: (state: CategoryStore) => state.categories,
+
+  // 카테고리 매핑만 선택
+  categoryMapping: (state: CategoryStore) => state.categoryMapping,
+
+  // 특정 ID의 카테고리 선택
+  categoryById: (id: string) => (state: CategoryStore) => state.categories.find((cat) => cat.id === id),
+
+  // 사용자 정의 카테고리만 선택 (시스템 카테고리 제외)
+  userCategories: (state: CategoryStore) => state.categories.filter((cat) => !cat.isSystem),
+
+  // 카테고리 개수만 선택
+  categoryCount: (state: CategoryStore) => state.categories.length,
+
+  // 액션만 선택 (데이터 변경 시 리렌더링되지 않음)
+  actions: (state: CategoryStore) => ({
+    loadCategories: state.loadCategories,
+    addCategory: state.addCategory,
+    updateCategory: state.updateCategory,
+    deleteCategory: state.deleteCategory,
+    assignDomainToCategory: state.assignDomainToCategory,
+    getCategoryForDomain: state.getCategoryForDomain,
+    resetToDefaults: state.resetToDefaults,
+    resetToMinimal: state.resetToMinimal,
+    applyRecommendedCategories: state.applyRecommendedCategories,
+    reorderCategories: state.reorderCategories,
+    clearCache: state.clearCache,
+  }),
+};

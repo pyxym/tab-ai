@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAIStore } from '../store/aiStore';
-import { useCategoryStore } from '../store/categoryStore';
+import { categorySelectors, useCategoryStore } from '../store/categoryStore';
 import { createSnapshot, saveSnapshot } from '../utils/undoManager';
 import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 
@@ -11,8 +11,10 @@ import { organizeTabsUnified } from '../utils/unifiedOrganizer';
  */
 export function useSmartOrganize() {
   const { t } = useTranslation();
-  const { categories } = useCategoryStore();
-  const { addInsight } = useAIStore();
+
+  // 최적화된 선택자 사용
+  const categories = useCategoryStore(categorySelectors.categories);
+  const addInsight = useAIStore((state) => state.addInsight);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
   const organize = useCallback(

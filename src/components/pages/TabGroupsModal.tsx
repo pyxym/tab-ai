@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCategoryStore } from '../../store/categoryStore';
+import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
 import { COLOR_TO_CHROME_GROUP } from '../../types/category';
 import type { TabGroupSnapshot } from '../../types/snapshot';
 import { createSnapshotFromGroup, deleteSnapshot, getAllSnapshots, restoreSnapshotAsGroup } from '../../utils/snapshotStorage';
@@ -33,7 +33,9 @@ interface TabGroupsModalProps {
  */
 export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const { categories } = useCategoryStore();
+
+  // 최적화된 선택자 사용 - 카테고리 데이터만 구독
+  const categories = useCategoryStore(categorySelectors.categories);
   const [activeTab, setActiveTab] = useState<'current' | 'saved'>('current');
   const [groups, setGroups] = useState<TabGroup[]>([]);
   const [ungroupedTabs, setUngroupedTabs] = useState<chrome.tabs.Tab[]>([]);
@@ -468,7 +470,11 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                             className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 hover:border-l-2 hover:border-purple-400/50 transition-all cursor-pointer group ml-2"
                             onClick={() => tab.id && activateTab(tab.id)}
                           >
-                            <FavIcon url={tab.favIconUrl || tab.url} size={12} className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+                            <FavIcon
+                              url={tab.favIconUrl || tab.url}
+                              size={12}
+                              className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                            />
                             <div className="flex-1 min-w-0">
                               <p className="text-[11px] glass-text truncate group-hover:text-purple-300 group-hover:font-medium transition-all leading-tight">
                                 {tab.title || t('modal.tabAssignment.untitled')}
@@ -508,7 +514,9 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                         <div className="flex items-center gap-1.5">
                           <FavIcon url={tab.favIconUrl || tab.url} size={10} className="flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] glass-text truncate leading-tight">{tab.title || t('modal.tabAssignment.untitled')}</p>
+                            <p className="text-[10px] glass-text truncate leading-tight">
+                              {tab.title || t('modal.tabAssignment.untitled')}
+                            </p>
                           </div>
                           {tab.active && <span className="w-1 h-1 bg-green-400 rounded-full flex-shrink-0 animate-pulse"></span>}
                         </div>
@@ -619,7 +627,11 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                             key={index}
                             className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 hover:border-l-2 hover:border-purple-400/50 transition-all group ml-2"
                           >
-                            <FavIcon url={tab.favIconUrl || tab.url} size={12} className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+                            <FavIcon
+                              url={tab.favIconUrl || tab.url}
+                              size={12}
+                              className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                            />
                             <div className="flex-1 min-w-0">
                               <p className="text-[11px] glass-text truncate group-hover:text-purple-300 group-hover:font-medium transition-all leading-tight">
                                 {tab.title}

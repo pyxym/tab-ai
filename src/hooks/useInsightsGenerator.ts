@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAIStore } from '../store/aiStore';
+import { aiSelectors, useAIStore } from '../store/aiStore';
 import { isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
 
 /**
@@ -9,7 +9,11 @@ import { isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
  */
 export function useInsightsGenerator() {
   const { t } = useTranslation();
-  const { insights, addInsight, removeInsight } = useAIStore();
+
+  // 최적화된 선택자 사용
+  const insights = useAIStore(aiSelectors.insights);
+  const addInsight = useAIStore((state) => state.addInsight);
+  const removeInsight = useAIStore((state) => state.removeInsight);
 
   const generateInsights = useCallback(
     (tabs: chrome.tabs.Tab[], analysis: any) => {

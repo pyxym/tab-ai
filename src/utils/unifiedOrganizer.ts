@@ -11,7 +11,6 @@ export async function organizeTabsUnified(categories: Category[]) {
     const tabs = filterProtectedTabs(allTabs);
     const protectedStats = getProtectedTabStats(allTabs);
 
-
     // Separate system/new tabs that should stay at the end
     const systemTabIds: number[] = [];
     const organizableTabs = tabs.filter((tab) => {

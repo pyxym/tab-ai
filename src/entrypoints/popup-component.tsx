@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AIInsightCard } from '../components/AIInsightCard';
-import { AILearningStatus } from '../components/AILearningStatus';
 import { AILogo } from '../components/AILogo';
 import { CategoryManager } from '../components/CategoryManager';
 import { DashboardModal } from '../components/DashboardModal';
 import { HelpModal } from '../components/HelpModal';
 import { InfoTooltip } from '../components/InfoTooltip';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
-import { ProductivityScore } from '../components/ProductivityScore';
+import { TabGroupsModal } from '../components/TabGroupsModal';
 import { TabList } from '../components/TabList';
 import { useAIStore } from '../store/aiStore';
 import { useCategoryStore } from '../store/categoryStore';
@@ -17,12 +16,13 @@ import '../styles/popup.css';
 import { storageUtils } from '../utils/storage';
 import { calculateProductivityScore } from '../utils/tabAnalyzer';
 import { isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
+import { createSnapshot, hasSnapshot, restoreSnapshot, saveSnapshot } from '../utils/undoManager';
 import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 
 function IndexPopup() {
   const { t, ready } = useTranslation();
   const { tabs, setTabs } = useTabStore();
-  const { insights, productivityScore, addInsight, removeInsight, clearInsights, setProductivityScore } = useAIStore();
+  const { insights, addInsight, removeInsight, setProductivityScore } = useAIStore();
   const { categories, loadCategories } = useCategoryStore();
   const [analysis, setAnalysis] = useState<any>(null);
   const [isOrganizing, setIsOrganizing] = useState(false);
@@ -30,13 +30,20 @@ function IndexPopup() {
   const [showTabList, setShowTabList] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showTabGroups, setShowTabGroups] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [hasUndoSnapshot, setHasUndoSnapshot] = useState(false);
+  const [showUndoModal, setShowUndoModal] = useState(false);
 
   useEffect(() => {
     async function init() {
       await loadCategories();
       await loadTabsAndAnalyze();
       checkFirstTimeUser();
+
+      // Undo 스냅샷 존재 여부 확인
+      const undoAvailable = await hasSnapshot();
+      setHasUndoSnapshot(undoAvailable);
     }
     init();
   }, [loadCategories]);
@@ -88,8 +95,14 @@ function IndexPopup() {
   }
 
   function generateInsights(tabs: chrome.tabs.Tab[], analysis: any) {
-    // Clear existing insights
-    clearInsights();
+    // Remove only analysis-based insights (duplicates, high-tab-count, category-focus)
+    // Keep user action results (organize-success, undo-success, etc.)
+    const analysisInsightIds = ['duplicates', 'high-tab-count', 'category-focus'];
+    analysisInsightIds.forEach((id) => {
+      if (insights.some((i) => i.id === id)) {
+        removeInsight(id);
+      }
+    });
 
     // Add duplicate tabs insight
     if (analysis.duplicates.length > 0) {
@@ -195,7 +208,7 @@ function IndexPopup() {
         timestamp: Date.now(),
         actionable: {
           label: t('insights.highTabCount.action'),
-          action: handleSmartOrganize,
+          action: handleSmartOrganizeClick,
         },
       });
     }
@@ -222,13 +235,20 @@ function IndexPopup() {
     }
   }
 
-  async function handleSmartOrganize() {
+  // Smart Organize 버튼 클릭 - 바로 실행
+  async function handleSmartOrganizeClick() {
     setIsOrganizing(true);
+
     try {
-      const result = await chrome.runtime.sendMessage({
-        action: 'organizeByCategories',
-        categories: categories,
-      });
+      // 스냅샷 생성 및 저장
+      const snapshot = await createSnapshot();
+      await saveSnapshot(snapshot);
+
+      // Use the unified organization function (same as Apply button)
+      const result = await organizeTabsUnified(categories);
+
+      console.log('[TabQuest] Organize result:', result);
+
       if (result.success) {
         // 메시지 국제화 - 상황별 메시지 선택
         let descriptionKey = 'insights.organizationComplete.description';
@@ -254,34 +274,94 @@ function IndexPopup() {
           }
         }
 
-        addInsight({
-          id: `organize-success-${Date.now()}`,
-          type: 'tip',
-          title: t('insights.organizationComplete.title') as string,
-          description: t(descriptionKey, params) as string,
-          priority: 'medium',
-          timestamp: Date.now(),
+        const translatedTitle = t('insights.organizationComplete.title') as string;
+        const translatedDescription = t(descriptionKey, params) as string;
+
+        console.log('[TabQuest] Translation check:', {
+          descriptionKey,
+          params,
+          translatedTitle,
+          translatedDescription,
+          titleValid: translatedTitle && translatedTitle.length > 0,
+          descriptionValid: translatedDescription && translatedDescription.length > 0,
         });
 
-        // Add specific insights based on actions taken
-        if (result.closedDuplicates > 0) {
-          addInsight({
-            id: `duplicates-closed-${Date.now()}`,
-            type: 'tip',
-            title: '🗑️ Duplicates Removed',
-            description: `Closed ${result.closedDuplicates} duplicate tabs to reduce clutter`,
-            priority: 'low',
-            timestamp: Date.now() + 1,
-          });
-        }
+        const insightToAdd = {
+          id: `organize-success-${Date.now()}`,
+          type: 'tip' as const,
+          title: translatedTitle,
+          description: translatedDescription,
+          priority: 'medium' as const,
+          timestamp: Date.now(),
+        };
 
-        // 보호된 탭 정보는 메인 메시지에 이미 포함되어 있으므로 별도 카드 제거
+        console.log('[TabQuest] Calling addInsight with:', insightToAdd);
+        addInsight(insightToAdd);
+
+        // Check after a short delay to see if state updated
+        setTimeout(() => {
+          console.log('[TabQuest] After 100ms, insights count:', insights.length);
+          console.log('[TabQuest] Insights:', insights);
+        }, 100);
+
+        // Undo 버튼 표시
+        setHasUndoSnapshot(true);
       }
     } catch (error) {
       console.error('Failed to organize tabs:', error);
+      alert('탭 정리에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsOrganizing(false);
-      loadTabsAndAnalyze();
+      await loadTabsAndAnalyze();
+    }
+  }
+
+  // Undo 핸들러
+  async function handleUndo() {
+    setShowUndoModal(true);
+  }
+
+  // Undo 실행
+  async function confirmUndo() {
+    setShowUndoModal(false);
+    setIsOrganizing(true);
+
+    try {
+      const success = await restoreSnapshot();
+
+      if (success) {
+        addInsight({
+          id: `undo-success-${Date.now()}`,
+          type: 'tip',
+          title: `↶ ${t('actions.undo')}`,
+          description: t('messages.undoSuccess'),
+          priority: 'medium',
+          timestamp: Date.now(),
+        });
+        setHasUndoSnapshot(false);
+      } else {
+        addInsight({
+          id: `undo-failed-${Date.now()}`,
+          type: 'alert',
+          title: `❌ ${t('messages.error')}`,
+          description: t('messages.undoFailed'),
+          priority: 'high',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      console.error('Undo 실패:', error);
+      addInsight({
+        id: `undo-error-${Date.now()}`,
+        type: 'alert',
+        title: `❌ ${t('messages.error')}`,
+        description: t('messages.undoError'),
+        priority: 'high',
+        timestamp: Date.now(),
+      });
+    } finally {
+      setIsOrganizing(false);
+      await loadTabsAndAnalyze();
     }
   }
 
@@ -436,7 +516,7 @@ function IndexPopup() {
 
   if (!ready) {
     return (
-      <div className="w-[480px] h-[600px] flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="w-[540px] h-[600px] flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -444,14 +524,14 @@ function IndexPopup() {
 
   return (
     <>
-      <div className="w-[480px] h-[600px] relative overflow-hidden">
+      <div className="w-[540px] h-[600px] relative overflow-hidden">
         {/* Dynamic gradient background - dark theme */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"></div>
 
         {/* Animated gradient orbs - subtle for dark theme */}
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        {/* <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
         <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div> */}
         {/* Glass container */}
         <div className="absolute inset-0 p-4">
           <div className="h-full glass-main rounded-[24px] flex flex-col">
@@ -477,23 +557,37 @@ function IndexPopup() {
                     </svg>
                   </button>
                   <button
-                    onClick={() => setShowTabList(true)}
+                    onClick={() => setShowTabGroups(true)}
                     className="glass-card p-2 transition-all hover:scale-105"
-                    title="Assign Tabs to Categories"
+                    title={t('tooltips.tabGroups')}
                   >
                     <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setShowTabList(true)}
+                    className="glass-card p-2 transition-all hover:scale-105"
+                    title={t('tooltips.assign')}
+                  >
+                    <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 4 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                       />
                     </svg>
                   </button>
                   <button
                     onClick={() => setShowCategoryManager(true)}
                     className="glass-card p-2 transition-all hover:scale-105"
-                    title="Manage Categories"
+                    title={t('tooltips.categories')}
                   >
                     <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -524,9 +618,9 @@ function IndexPopup() {
                     {showSettingsDropdown && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowSettingsDropdown(false)} />
-                        <div className="absolute right-0 mt-2 w-48 glass-card rounded-lg shadow-xl z-50 border border-white/20">
+                        <div className="absolute right-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl z-50 border border-white/30 py-2">
                           <LanguageSwitcher inDropdown={true} onLanguageChange={() => setShowSettingsDropdown(false)} />
-                          <div className="border-t border-white/10 mx-2"></div>
+                          <div className="border-t border-white/20 mx-2 my-2"></div>
                           <button
                             onClick={async () => {
                               if (confirm(t('settings.clearData.confirm'))) {
@@ -543,7 +637,7 @@ function IndexPopup() {
                               }
                               setShowSettingsDropdown(false);
                             }}
-                            className="w-full text-left px-4 py-2 text-sm glass-text hover:bg-white/20 transition-colors flex items-center gap-2 rounded-lg"
+                            className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/20 transition-colors flex items-center gap-2"
                           >
                             <span>🗑️</span>
                             <span>{t('settings.clearData.label')}</span>
@@ -575,10 +669,28 @@ function IndexPopup() {
                 </div>
               </div>
 
-              {/* AI Learning Status and Productivity Score */}
+              {/* Coming Soon Features */}
               <div className="grid grid-cols-2 gap-3">
-                <AILearningStatus compact />
-                <ProductivityScore score={productivityScore} trend="up" compact />
+                <div className="glass-card !py-2 px-3 opacity-60 relative">
+                  <div className="absolute top-1 right-1 text-[8px] bg-purple-500/30 px-1.5 py-0.5 rounded-full glass-text">Soon</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-2xl">🧠</div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold glass-text">AI Learning</p>
+                      <p className="text-[10px] glass-text opacity-70">0 domains</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="glass-card !py-2 px-3 opacity-60 relative">
+                  <div className="absolute top-1 right-1 text-[8px] bg-purple-500/30 px-1.5 py-0.5 rounded-full glass-text">Soon</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-2xl">💯</div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold glass-text">Productivity</p>
+                      <p className="text-[10px] glass-text opacity-70">Score ↑</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -634,27 +746,39 @@ function IndexPopup() {
                     position="auto"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    className="glass-button-primary text-sm disabled:opacity-50 glass-text flex items-center justify-center gap-2 py-2.5"
-                    onClick={handleAIOrganize}
-                    disabled={isOrganizing || tabs.length < 2}
-                  >
-                    {isOrganizing ? (
-                      <>
-                        <span className="animate-spin">⏳</span>
-                        <span>{t('actions.organizing')}</span>
-                      </>
-                    ) : (
-                      <>🤖 {t('actions.smartOrganize')}</>
-                    )}
-                  </button>
-                  <button
-                    className="glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
-                    onClick={handleViewDashboard}
-                  >
-                    📊 {t('actions.viewAnalytics')}
-                  </button>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      className="glass-button-primary text-sm disabled:opacity-50 glass-text flex items-center justify-center gap-2 py-2.5"
+                      onClick={handleSmartOrganizeClick}
+                      disabled={isOrganizing || tabs.length < 2}
+                    >
+                      {isOrganizing ? (
+                        <>
+                          <span className="animate-spin">⏳</span>
+                          <span>{t('actions.organizing')}</span>
+                        </>
+                      ) : (
+                        <>🧹 {t('actions.smartOrganize')}</>
+                      )}
+                    </button>
+                    <button
+                      className="glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
+                      onClick={handleViewDashboard}
+                    >
+                      📊 {t('actions.viewAnalytics') + ' (Beta)'}
+                    </button>
+                  </div>
+                  {hasUndoSnapshot && (
+                    <button
+                      className="w-full glass-button text-xs glass-text py-2 opacity-80 hover:opacity-100 transition-opacity"
+                      onClick={handleUndo}
+                      disabled={isOrganizing}
+                      title={t('actions.undo')}
+                    >
+                      ↶ {t('actions.undoLastOrganization')}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -666,9 +790,29 @@ function IndexPopup() {
 
       {showTabList && <TabList onClose={() => setShowTabList(false)} />}
 
+      {showTabGroups && <TabGroupsModal onClose={() => setShowTabGroups(false)} />}
+
       {showDashboard && <DashboardModal onClose={() => setShowDashboard(false)} />}
 
       {showHelp && <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />}
+
+      {/* Undo 확인 모달 */}
+      {showUndoModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000]">
+          <div className="glass-main rounded-[20px] w-[400px] p-6">
+            <h3 className="text-lg font-semibold glass-text mb-3">↶ {t('actions.undo')}</h3>
+            <p className="glass-text opacity-80 mb-6 whitespace-pre-line">{t('messages.undoConfirm')}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowUndoModal(false)} className="glass-button-primary flex-1 py-2">
+                {t('actions.cancel')}
+              </button>
+              <button onClick={confirmUndo} className="glass-button-primary flex-1 py-2 bg-purple-500/20 hover:bg-purple-500/30">
+                {t('actions.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

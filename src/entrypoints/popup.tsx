@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import IndexPopup from './popup-component';
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
 import enTranslations from '../locales/en.json';
-import koTranslations from '../locales/ko.json';
 import jaTranslations from '../locales/ja.json';
+import koTranslations from '../locales/ko.json';
+import IndexPopup from './popup-component';
 
 /**
  * 저장된 언어 설정을 가져오는 함수
@@ -78,10 +77,7 @@ function Popup() {
 
     // 스토리지의 언어 변경 감지
     const storageListener = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (changes.language && changes.language.newValue) {
-        // 스토리지 변경 시 i18n 언어 업데이트
-        i18n.changeLanguage(changes.language.newValue);
-      }
+      if (changes.language && changes.language.newValue) i18n.changeLanguage(changes.language.newValue);
     };
 
     chrome.storage.onChanged.addListener(storageListener);

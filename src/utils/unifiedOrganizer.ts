@@ -2,56 +2,59 @@
 import { useCategoryStore } from '../store/categoryStore';
 import { filterProtectedTabs, getProtectedTabStats, isSystemUrl } from './tabFilters';
 import { COLOR_TO_CHROME_GROUP, type Category } from '../types/category';
+import {
+  filterValidTabIds,
+  moveTabsBatch,
+  safeUngroup,
+  createAndConfigureGroup,
+  extractDomain,
+} from './chromeTabHelpers';
 
-export async function organizeTabsUnified(categories: Category[]) {
+interface OrganizeResult {
+  success: boolean;
+  message: string;
+  groupsCreated: number;
+  tabsProcessed: number;
+  protectedCount: number;
+  protectedStats: ReturnType<typeof getProtectedTabStats>;
+}
+
+export async function organizeTabsUnified(categories: Category[]): Promise<OrganizeResult> {
   try {
+    // 1. 현재 창의 모든 탭 가져오기
     const allTabs = await chrome.tabs.query({ currentWindow: true });
 
-    // 🆕 보호된 탭 필터링 (Meet, Zoom 등)
+    // 2. 보호된 탭 필터링 (Meet, Zoom 등)
     const tabs = filterProtectedTabs(allTabs);
     const protectedStats = getProtectedTabStats(allTabs);
 
-    // Separate system/new tabs that should stay at the end
+    // 3. 시스템 탭과 정리 가능한 탭 분리 (한 번의 순회로 처리)
     const systemTabIds: number[] = [];
-    const organizableTabs = tabs.filter((tab) => {
+    const organizableTabs: chrome.tabs.Tab[] = [];
+
+    for (const tab of tabs) {
       if (!tab.url || isSystemUrl(tab.url)) {
         if (tab.id !== undefined) {
           systemTabIds.push(tab.id);
         }
-        return false;
-      }
-      return true;
-    });
-
-    // 먼저 모든 탭 그룹 해제 (보호되지 않은 탭만)
-    const allTabIds = tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
-
-    if (allTabIds.length > 0) {
-      try {
-        await chrome.tabs.ungroup(allTabIds);
-      } catch (e) {
-        // 일부 탭이 이미 그룹 해제됨
+      } else {
+        organizableTabs.push(tab);
       }
     }
 
-    // 카테고리 스토어 인스턴스 가져오기
-    const { getCategoryForDomain } = useCategoryStore.getState();
+    // 4. 모든 탭 그룹 해제 (보호되지 않은 탭만)
+    const allTabIds = filterValidTabIds(tabs);
+    await safeUngroup(allTabIds);
 
-    // 단계 1: 모든 탭 분석 및 분류
+    // 5. 카테고리별로 탭 분류 (한 번의 순회로 처리)
+    const { getCategoryForDomain } = useCategoryStore.getState();
     const categorizedTabs = new Map<string, chrome.tabs.Tab[]>();
 
     for (const tab of organizableTabs) {
       if (!tab.id || !tab.url) continue;
 
-      let categoryId = 'uncategorized';
-
-      try {
-        const domain = new URL(tab.url).hostname.replace(/^www\./, '');
-        // 스토어의 getCategoryForDomain 사용 (매핑과 카테고리 도메인 모두 확인)
-        categoryId = getCategoryForDomain(domain);
-      } catch (error) {
-        categoryId = 'uncategorized';
-      }
+      const domain = extractDomain(tab.url);
+      const categoryId = domain ? getCategoryForDomain(domain) : 'uncategorized';
 
       if (!categorizedTabs.has(categoryId)) {
         categorizedTabs.set(categoryId, []);
@@ -59,69 +62,64 @@ export async function organizeTabsUnified(categories: Category[]) {
       categorizedTabs.get(categoryId)!.push(tab);
     }
 
-    // 단계 2: 카테고리 순서대로 탭 재정렬
-    // 그룹화하기 전에 탭들이 올바른 순서로 물리적으로 배열되도록 보장
-    let currentPosition = 0;
+    // 6. 탭 재정렬을 위한 ID 수집
     const reorderedTabIds: number[] = [];
-
     for (const category of categories) {
       const categoryTabs = categorizedTabs.get(category.id);
-      if (!categoryTabs || categoryTabs.length === 0) continue;
-
-      for (const tab of categoryTabs) {
-        if (tab.id) {
-          reorderedTabIds.push(tab.id);
-        }
+      if (categoryTabs) {
+        reorderedTabIds.push(...filterValidTabIds(categoryTabs));
       }
     }
 
-    // 모든 탭을 올바른 위치로 이동
-    for (let i = 0; i < reorderedTabIds.length; i++) {
-      try {
-        await chrome.tabs.move(reorderedTabIds[i], { index: i });
-      } catch (error) {
-        // 탭 이동 실패, 다른 탭 계속 처리
-      }
+    // 7. 병렬로 탭 이동 (성능 개선)
+    if (reorderedTabIds.length > 0) {
+      await moveTabsBatch(reorderedTabIds, 0);
     }
 
-    // 단계 3: 순서대로 그룹 생성 (탭들이 이미 올바른 위치에 있음)
+    // 8. 카테고리별 그룹 생성 (병렬 처리로 성능 개선)
     let groupsCreated = 0;
     let tabsProcessed = 0;
 
-    for (const category of categories) {
+    // Promise.allSettled를 사용하여 병렬 처리하되, 실패해도 계속 진행
+    const groupPromises = categories.map(async (category) => {
       const categoryTabs = categorizedTabs.get(category.id);
-      if (!categoryTabs || categoryTabs.length === 0) continue;
+      if (!categoryTabs || categoryTabs.length === 0) return null;
 
-      const tabIds = categoryTabs.map((t) => t.id).filter((id): id is number => id !== undefined);
+      const tabIds = filterValidTabIds(categoryTabs);
+      const groupId = await createAndConfigureGroup(
+        tabIds,
+        category.name,
+        COLOR_TO_CHROME_GROUP[category.color],
+        false
+      );
 
-      try {
-        const groupId = await chrome.tabs.group({ tabIds });
+      if (groupId !== null) {
+        return { groupsCreated: 1, tabsProcessed: tabIds.length };
+      }
+      return null;
+    });
 
-        await chrome.tabGroups.update(groupId, {
-          title: category.name,
-          color: COLOR_TO_CHROME_GROUP[category.color],
-          collapsed: false,
-        });
+    const results = await Promise.allSettled(groupPromises);
 
-        groupsCreated++;
-        tabsProcessed += tabIds.length;
-      } catch (error) {
-        console.error(`[TabQuest] Failed to create group for ${category.name}:`, error);
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        groupsCreated += result.value.groupsCreated;
+        tabsProcessed += result.value.tabsProcessed;
       }
     }
 
-    // 🆕 Move system/new tabs to the end
+    // 9. 시스템 탭을 끝으로 이동 (병렬 처리로 성능 개선)
     if (systemTabIds.length > 0) {
-      for (const tabId of systemTabIds) {
-        try {
-          await chrome.tabs.move(tabId, { index: -1 });
-        } catch (error) {
-          console.error(`[TabQuest] Failed to move system tab ${tabId}:`, error);
-        }
-      }
+      await Promise.all(
+        systemTabIds.map((tabId) =>
+          chrome.tabs.move(tabId, { index: -1 }).catch(() => {
+            // 개별 실패는 무시
+          })
+        )
+      );
     }
 
-    // 🆕 메시지에 보호된 탭 정보 추가
+    // 10. 결과 메시지 생성
     const message =
       groupsCreated > 0
         ? `Successfully organized ${tabsProcessed} tabs into ${groupsCreated} groups` +
@@ -133,8 +131,8 @@ export async function organizeTabsUnified(categories: Category[]) {
       message,
       groupsCreated,
       tabsProcessed: organizableTabs.length,
-      protectedCount: protectedStats.count, // 🆕 추가 정보
-      protectedStats, // 🆕 상세 통계 (meetingCount, systemCount, domains)
+      protectedCount: protectedStats.count,
+      protectedStats,
     };
   } catch (error) {
     throw error;

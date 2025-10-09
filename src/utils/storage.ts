@@ -1,5 +1,12 @@
 import { storage } from 'wxt/utils/storage';
 import type { Category } from '../types/category';
+import type {
+  TabUsageData,
+  DailyStats,
+  UserPattern,
+  CategoryHistory,
+  TabData,
+} from '../types/storage';
 
 /**
  * 스토리지 스키마 정의
@@ -11,12 +18,12 @@ export interface StorageSchema {
   'sync:categoryMapping': Record<string, string>; // 도메인-카테고리 매핑
 
   // 로컬 스토리지 항목 (현재 기기에만 저장)
-  'local:tabUsageData': Record<string, any>; // 탭 사용 데이터
-  'local:dailyStats': Record<string, any>; // 일별 통계
+  'local:tabUsageData': Record<string, TabUsageData>; // 탭 사용 데이터
+  'local:dailyStats': Record<string, DailyStats>; // 일별 통계
   'local:hasSeenWelcome': boolean; // 환영 메시지 표시 여부
-  'local:userPatterns': Record<string, any>; // 사용자 패턴 데이터
-  'local:categoryHistory': Record<string, any>; // 카테고리 히스토리
-  'local:tabsData': any[]; // 탭 데이터 배열
+  'local:userPatterns': Record<string, UserPattern>; // 사용자 패턴 데이터
+  'local:categoryHistory': Record<string, CategoryHistory>; // 카테고리 히스토리
+  'local:tabsData': TabData[]; // 탭 데이터 배열
 }
 
 /**
@@ -60,13 +67,13 @@ export const storageUtils = {
    * 탭 사용 데이터 가져오기
    */
   async getTabUsageData() {
-    return (await storage.getItem<Record<string, any>>('local:tabUsageData')) || {};
+    return (await storage.getItem<Record<string, TabUsageData>>('local:tabUsageData')) || {};
   },
 
   /**
    * 탭 사용 데이터 저장
    */
-  async setTabUsageData(data: Record<string, any>) {
+  async setTabUsageData(data: Record<string, TabUsageData>) {
     await storage.setItem('local:tabUsageData', data);
   },
 
@@ -74,13 +81,13 @@ export const storageUtils = {
    * 일별 통계 데이터 가져오기
    */
   async getDailyStats() {
-    return (await storage.getItem<Record<string, any>>('local:dailyStats')) || {};
+    return (await storage.getItem<Record<string, DailyStats>>('local:dailyStats')) || {};
   },
 
   /**
    * 일별 통계 데이터 저장
    */
-  async setDailyStats(stats: Record<string, any>) {
+  async setDailyStats(stats: Record<string, DailyStats>) {
     await storage.setItem('local:dailyStats', stats);
   },
 
@@ -102,13 +109,13 @@ export const storageUtils = {
    * 사용자 패턴 데이터 가져오기
    */
   async getUserPatterns() {
-    return (await storage.getItem<Record<string, any>>('local:userPatterns')) || {};
+    return (await storage.getItem<Record<string, UserPattern>>('local:userPatterns')) || {};
   },
 
   /**
    * 사용자 패턴 데이터 저장
    */
-  async setUserPatterns(patterns: Record<string, any>) {
+  async setUserPatterns(patterns: Record<string, UserPattern>) {
     await storage.setItem('local:userPatterns', patterns);
   },
 
@@ -116,13 +123,13 @@ export const storageUtils = {
    * 카테고리 히스토리 가져오기
    */
   async getCategoryHistory() {
-    return (await storage.getItem<Record<string, any>>('local:categoryHistory')) || {};
+    return (await storage.getItem<Record<string, CategoryHistory>>('local:categoryHistory')) || {};
   },
 
   /**
    * 카테고리 히스토리 저장
    */
-  async setCategoryHistory(history: Record<string, any>) {
+  async setCategoryHistory(history: Record<string, CategoryHistory>) {
     await storage.setItem('local:categoryHistory', history);
   },
 
@@ -137,10 +144,10 @@ export const storageUtils = {
 
   // Get tabs data
   async getTabsData() {
-    return (await storage.getItem<any[]>('local:tabsData')) || [];
+    return (await storage.getItem<TabData[]>('local:tabsData')) || [];
   },
 
-  async setTabsData(data: any[]) {
+  async setTabsData(data: TabData[]) {
     await storage.setItem('local:tabsData', data);
   },
 

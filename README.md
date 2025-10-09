@@ -9,25 +9,28 @@ TabQuest is an intelligent browser tab management extension for Chrome and Edge 
 ## ✨ Key Features
 
 ### 📊 Smart Tab Organization
-- **Automatic Grouping**: Organize tabs into Chrome tab groups based on custom categories
-- **Category Management**: Create, edit, and reorder categories with drag-and-drop
-- **Domain Mapping**: Automatically assign domains to categories for consistent organization
+- **Category-based Organization**: Create custom categories and organize tabs automatically
+- **Tab Groups Integration**: Seamlessly works with Chrome's native tab groups
+- **Undo/Redo**: Full undo/redo support for all organization actions
+- **Snapshot Management**: Save and restore tab states
 
 ### 📈 Usage Analytics
-- **Tab Tracking**: Monitor time spent, access frequency, and usage patterns
+- **Tab Tracking**: Monitor time spent and access frequency per tab
 - **Daily Statistics**: Track productivity with daily breakdowns and trends
-- **Productivity Score**: Real-time productivity scoring based on browsing habits
+- **Productivity Score**: Real-time scoring based on browsing habits
+- **Visual Charts**: Interactive charts showing usage patterns
 
-### 🎯 Intelligent Insights
-- **Duplicate Detection**: Identify and remove duplicate tabs with one click
-- **Usage Patterns**: Discover browsing habits and optimization opportunities
-- **Smart Recommendations**: Get actionable suggestions to improve productivity
+### 🎯 Intelligent Features
+- **Smart Tab Filtering**: Filter by domain, title, or usage patterns
+- **AI Insights**: Get suggestions to improve productivity
+- **Tab Group Management**: View and manage existing tab groups
+- **Custom Color Themes**: Choose from 10+ vibrant colors for categories
 
 ### 🎨 Modern UI/UX
-- **Glass Morphism Design**: Beautiful, modern interface with blur effects and gradients
+- **Glass Morphism Design**: Beautiful interface with blur effects and gradients
 - **Multi-language Interface**: Switch between English, Korean, and Japanese
-- **Responsive Layout**: Adapts to different screen sizes and contexts
-- **Smooth Animations**: Polished interactions with careful attention to detail
+- **Responsive Layout**: Optimized for different screen sizes
+- **Smooth Animations**: Polished interactions and transitions
 
 ## 🛠️ Technology Stack
 
@@ -112,23 +115,32 @@ The production build will be in `.output/chrome-mv3/`
 ```
 tab-quest/
 ├── src/
-│   ├── entrypoints/      # WXT entry points
-│   │   ├── popup.tsx     # Main popup entry
-│   │   ├── options.tsx   # Options page
-│   │   └── background.ts # Service worker
-│   ├── components/       # React components
-│   ├── lib/              # Core libraries
-│   │   ├── i18n.ts       # Internationalization
-│   │   └── tabClassifier.ts
-│   ├── locales/          # Translation files
-│   │   ├── en.json       # English
-│   │   ├── ko.json       # Korean
-│   │   └── ja.json       # Japanese
-│   ├── store/            # State management
-│   ├── utils/            # Utilities
-│   └── types/            # TypeScript types
-├── public/               # Static assets
-├── wxt.config.ts         # WXT configuration
+│   ├── entrypoints/           # WXT entry points
+│   │   ├── popup.tsx          # Popup entry point
+│   │   ├── popup-component.tsx # Main popup UI
+│   │   ├── options.tsx        # Options page
+│   │   └── background.ts      # Background service worker
+│   ├── components/
+│   │   ├── charts/            # Chart components
+│   │   ├── modals/            # Modal dialogs
+│   │   ├── pages/             # Page components
+│   │   ├── shared/            # Shared components (AI, Score)
+│   │   └── ui/                # UI primitives
+│   ├── lib/                   # Core libraries
+│   │   ├── i18n.ts            # Internationalization
+│   │   └── tabClassifier.ts   # Tab classification
+│   ├── locales/               # Translation files (en, ko, ja)
+│   ├── store/                 # Zustand stores
+│   │   ├── categoryStore.ts   # Category management
+│   │   ├── tabStore.ts        # Tab state
+│   │   └── aiStore.ts         # AI features
+│   ├── utils/                 # Utility functions
+│   ├── types/                 # TypeScript definitions
+│   └── tabs/                  # Full tab pages
+│       └── dashboard.tsx      # Analytics dashboard
+├── public/
+│   └── icon/                  # Extension icons
+├── wxt.config.ts              # WXT configuration
 └── package.json
 ```
 
@@ -183,37 +195,35 @@ We welcome contributions! Please follow these steps:
 
 ## 📝 Roadmap
 
-### Near Term
+### ✅ Completed
 - [x] Multi-language support (EN, KO, JA)
-- [ ] Keyboard shortcuts support
-- [ ] Export/import settings
-- [ ] Session management
-- [ ] Advanced search and filtering
+- [x] Category management with drag-and-drop
+- [x] Tab usage tracking and analytics
+- [x] Undo/Redo functionality
+- [x] Snapshot management
+- [x] Glass morphism design system
+- [x] Interactive charts and visualizations
 
-### Long Term
+### 🚧 In Progress
+- [ ] Advanced AI insights
+- [ ] Keyboard shortcuts support
+
+### 🔮 Future
+- [ ] Export/import settings
 - [ ] Firefox and Safari support
 - [ ] Cloud synchronization
-- [ ] Team collaboration features
-- [ ] AI-powered auto-categorization
-- [ ] Natural language commands
 - [ ] More language support (Chinese, Spanish, French)
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details
+MIT License
 
 ## 🙏 Acknowledgments
 
-- Built with [WXT](https://wxt.dev/) framework
-- Icons from [Heroicons](https://heroicons.com/)
-- UI inspiration from modern glass morphism designs
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/tab-quest/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/tab-quest/discussions)
-- **Email**: support@tabquest.app
+- Built with [WXT](https://wxt.dev/) - Modern web extension framework
+- UI inspired by modern glass morphism designs
+- Charts and visualizations using custom implementations
 
 ---
 
-Made with ❤️ by the TabQuest Team
+Made with ❤️ by YonYonWare

@@ -38,48 +38,73 @@ npm run package
 ```
 tab-quest/
 ├── src/
-│   ├── entrypoints/      # WXT entry points
-│   │   ├── popup.tsx     # Main popup entry
-│   │   ├── popup-component.tsx  # Popup UI component
-│   │   ├── options.tsx   # Options page
-│   │   └── background.ts # Background service worker
-│   ├── components/       # Shared React components
-│   │   ├── CategoryManager.tsx  # Category management UI
-│   │   ├── TabList.tsx          # Tab listing component
-│   │   ├── HelpModal.tsx        # Help documentation
-│   │   ├── LanguageSwitcher.tsx # Language selector
-│   │   ├── DashboardModal.tsx   # Analytics dashboard
-│   │   └── AIInsightCard.tsx    # AI insights display
-│   ├── lib/             # Core libraries
-│   │   ├── i18n.ts             # Internationalization setup
+│   ├── entrypoints/           # WXT entry points
+│   │   ├── popup.tsx          # Popup entry point
+│   │   ├── popup-component.tsx # Main popup UI component
+│   │   ├── options.tsx        # Options page
+│   │   └── background.ts      # Background service worker
+│   ├── components/
+│   │   ├── charts/            # Chart components
+│   │   │   ├── SimpleBarChart.tsx
+│   │   │   └── SimpleLineChart.tsx
+│   │   ├── modals/            # Modal dialogs
+│   │   │   └── CategoryEditModal.tsx
+│   │   ├── pages/             # Page-level components
+│   │   │   ├── CategoryManager.tsx  # Category management
+│   │   │   ├── DashboardModal.tsx   # Analytics dashboard
+│   │   │   ├── HelpModal.tsx        # Help documentation
+│   │   │   ├── TabGroupsModal.tsx   # Tab groups view
+│   │   │   └── TabList.tsx          # Tab listing
+│   │   ├── shared/            # Shared components
+│   │   │   ├── AIInsightCard.tsx    # AI insights display
+│   │   │   ├── AILogo.tsx           # AI logo component
+│   │   │   └── ProductivityScore.tsx # Score display
+│   │   └── ui/                # UI primitives
+│   │       ├── ColorPicker.tsx      # Color selection
+│   │       ├── ConfirmModal.tsx     # Confirmation dialog
+│   │       ├── CustomSelect.tsx     # Custom dropdown
+│   │       ├── FavIcon.tsx          # Favicon display
+│   │       ├── InfoTooltip.tsx      # Tooltip component
+│   │       └── LanguageSwitcher.tsx # Language selector
+│   ├── lib/                   # Core libraries
+│   │   ├── i18n.ts            # i18next configuration
 │   │   └── tabClassifier.ts   # Tab classification logic
-│   ├── locales/         # Translation files
-│   │   ├── en.json      # English translations
-│   │   ├── ko.json      # Korean translations
-│   │   └── ja.json      # Japanese translations
-│   ├── store/           # Zustand stores
-│   │   ├── categoryStore.ts  # Category state management
-│   │   ├── tabStore.ts       # Tab state management
-│   │   └── aiStore.ts        # AI features state
-│   ├── utils/           # Utility functions
-│   │   ├── storage.ts        # Chrome storage utilities
-│   │   ├── tabTracker.ts     # Tab usage tracking
-│   │   ├── tabAnalyzer.ts    # Tab analysis logic
-│   │   ├── directOrganizer.ts # Direct tab organization
-│   │   ├── unifiedOrganizer.ts # Unified organization logic
-│   │   └── smartGrouping.ts  # Smart grouping algorithms
-│   ├── types/           # TypeScript definitions
-│   │   ├── category.ts  # Category types
-│   │   └── css.d.ts     # CSS module types
-│   └── tabs/            # Tab pages
-│       └── dashboard.tsx # Dashboard tab page
-├── public/              # Static assets
-│   ├── icon/           # Extension icons (16, 32, 48, 128px)
-│   └── _favicon/       # Favicon files
-├── wxt.config.ts       # WXT configuration
-├── tailwind.config.js  # Tailwind CSS configuration
-├── tsconfig.json      # TypeScript configuration
-└── package.json       # Project dependencies
+│   ├── locales/               # Translation files
+│   │   ├── en.json            # English
+│   │   ├── ko.json            # Korean
+│   │   └── ja.json            # Japanese
+│   ├── store/                 # Zustand state stores
+│   │   ├── categoryStore.ts   # Category management
+│   │   ├── tabStore.ts        # Tab state and operations
+│   │   └── aiStore.ts         # AI features state
+│   ├── utils/                 # Utility functions
+│   │   ├── chromeTabHelpers.ts    # Chrome API helpers
+│   │   ├── colorUtils.ts          # Color utilities
+│   │   ├── configs.ts             # Configuration constants
+│   │   ├── errorBoundary.ts       # Error handling
+│   │   ├── preflightCheck.ts      # Pre-operation checks
+│   │   ├── snapshotStorage.ts     # Snapshot management
+│   │   ├── storage.ts             # Chrome storage wrapper
+│   │   ├── tabAnalyzer.ts         # Tab analysis logic
+│   │   ├── tabFilters.ts          # Tab filtering utilities
+│   │   ├── tabTracker.ts          # Usage tracking
+│   │   ├── undoManager.ts         # Undo/Redo system
+│   │   └── unifiedOrganizer.ts    # Tab organization logic
+│   ├── types/                 # TypeScript definitions
+│   │   ├── analytics.ts       # Analytics types
+│   │   ├── category.ts        # Category types
+│   │   ├── css.d.ts           # CSS module types
+│   │   ├── organize.ts        # Organization types
+│   │   ├── snapshot.ts        # Snapshot types
+│   │   └── storage.ts         # Storage types
+│   └── tabs/                  # Full tab pages
+│       └── dashboard.tsx      # Analytics dashboard page
+├── public/
+│   └── icon/                  # Extension icons (16, 32, 48, 128)
+├── wxt.config.ts              # WXT framework configuration
+├── tailwind.config.js         # Tailwind CSS configuration
+├── tsconfig.json              # TypeScript configuration
+└── package.json               # Dependencies and scripts
 ```
 
 ## Architecture Overview
@@ -114,14 +139,16 @@ tab-quest/
 
 ## Key Features
 
-1. **Smart Tab Organization**: AI-powered tab grouping based on domains and categories
-2. **Usage Tracking**: Track time spent, access frequency, and productivity metrics
-3. **Category Management**: Custom categories with drag-and-drop organization
-4. **Duplicate Detection**: Automatically identify and remove duplicate tabs
-5. **Productivity Insights**: Daily statistics and usage patterns
-6. **Multi-language Support**: Available in English, Korean, and Japanese
-7. **Direct Chrome API Integration**: Fast tab management without background script delays
-8. **Real-time Analytics**: Monitor browsing patterns and productivity scores
+1. **Category-based Tab Organization**: Custom categories with automatic tab grouping
+2. **Tab Usage Tracking**: Monitor time spent, access frequency, and productivity metrics
+3. **Undo/Redo System**: Full undo/redo support for all organization actions
+4. **Snapshot Management**: Save and restore tab states with timestamps
+5. **Tab Filtering**: Filter by domain, title, or usage patterns
+6. **Interactive Charts**: Bar and line charts showing usage patterns
+7. **AI Insights**: AI-generated suggestions for productivity improvement
+8. **Multi-language Support**: English, Korean, and Japanese with i18next
+9. **Glass Morphism Design**: Modern UI with backdrop blur and gradients
+10. **Tab Groups Integration**: View and manage existing Chrome tab groups
 
 ## Chrome Extension Permissions
 
@@ -203,19 +230,61 @@ The extension supports multiple languages using i18next:
 - Persistent language preference in sync storage
 - Supports: English (en), Korean (ko), Japanese (ja)
 
-## Recent Updates
+## Key Components
 
-- Added full i18n support for multi-language interface
-- Refactored to use WXT framework for better development experience
-- Implemented glass morphism design system
-- Added real-time tab tracking and analytics
-- Improved tab organization algorithms
+### State Management (Zustand Stores)
+- **categoryStore**: Category CRUD, reordering, color management
+- **tabStore**: Tab operations, filters, undo/redo, snapshots
+- **aiStore**: AI insights generation and management
 
-## Future Considerations
+### Core Utilities
+- **unifiedOrganizer**: Main tab organization logic
+- **undoManager**: Undo/redo stack management
+- **snapshotStorage**: Snapshot save/restore with compression
+- **tabTracker**: Usage tracking with time and frequency metrics
+- **tabAnalyzer**: Tab analysis and productivity scoring
+- **chromeTabHelpers**: Chrome API wrapper functions
 
-- Migration to more advanced AI features
-- Cross-browser support (Firefox, Safari)
-- Cloud sync capabilities
-- Advanced analytics dashboard
-- Keyboard shortcuts support
-- More languages support
+### UI Components
+- **CategoryManager**: Category list with drag-and-drop
+- **TabList**: Tab display with filtering and actions
+- **DashboardModal**: Analytics dashboard with charts
+- **TabGroupsModal**: Existing tab groups viewer
+- **Chart components**: Custom bar and line charts
+
+## Development Best Practices
+
+1. **Type Safety**: Use strict TypeScript with proper type guards
+2. **Chrome API**: Always check for undefined values from Chrome APIs
+3. **Error Handling**: Wrap Chrome API calls in try-catch blocks
+4. **State Management**: Use Zustand stores, avoid prop drilling
+5. **i18n**: Use `useTranslation` hook, add keys to all locale files
+6. **Styling**: Use Tailwind utilities, follow glass morphism patterns
+7. **Performance**: Batch Chrome API calls, use React.memo when needed
+
+## Common Patterns
+
+### Chrome API Usage
+```typescript
+// Always check for runtime errors
+const tabs = await chrome.tabs.query({});
+if (chrome.runtime.lastError) {
+  console.error(chrome.runtime.lastError);
+  return;
+}
+```
+
+### Store Updates
+```typescript
+// Use Zustand's set with immer-style updates
+set((state) => {
+  state.categories.push(newCategory);
+});
+```
+
+### i18n Keys
+```typescript
+// Use translation hook with proper keys
+const { t } = useTranslation();
+return <div>{t('tabs.organize')}</div>;
+```

@@ -92,7 +92,10 @@
     "ordering": "순서",
     "loading": "로딩 중...",
     "search": "검색",
-    "filter": "필터"
+    "filter": "필터",
+    "confirm": "확인",
+    "undo": "실행 취소",
+    "undoLastOrganization": "마지막 정리 되돌리기"
   },
   "messages": {
     "organizingTabs": "탭 정리 중...",
@@ -103,8 +106,19 @@
     "categoryAdded": "카테고리가 성공적으로 추가되었습니다",
     "categoryDeleted": "카테고리가 삭제되었습니다",
     "categoryUpdated": "카테고리가 업데이트되었습니다",
+    "maxCategoriesReached": "최대 20개까지 카테고리를 등록할 수 있습니다",
     "error": "오류가 발생했습니다",
-    "success": "성공"
+    "success": "성공",
+    "undoConfirm": "마지막 Smart Organize를 되돌리시겠습니까?",
+    "undoSuccess": "탭을 이전 상태로 성공적으로 복원했습니다",
+    "undoFailed": "되돌리기 실패. 스냅샷이 없거나 복원할 수 없습니다.",
+    "undoError": "되돌리기 실패",
+    "snapshotSaved": "스냅샷이 저장되었습니다",
+    "snapshotRestored": "스냅샷이 복원되었습니다",
+    "snapshotRestoreFailed": "스냅샷 복원에 실패했습니다",
+    "snapshotError": "스냅샷 작업 중 오류가 발생했습니다",
+    "snapshotDeleteConfirm": "이 스냅샷을 삭제하시겠습니까?",
+    "snapshotSaveConfirm": "현재 탭을 스냅샷으로 저장하시겠습니까?\n\n{{tabCount}}개의 탭과 {{groupCount}}개의 그룹을 스냅샷으로 생성합니다."
   },
   "tooltips": {
     "insights": {
@@ -140,6 +154,7 @@
     "categories": "탭 카테고리 관리",
     "assign": "도메인을 카테고리에 수동 할당",
     "help": "도움말 및 문서 보기",
+    "tabGroups": "탭 그룹 보기",
     "settings": "설정",
     "language": "언어"
   },
@@ -153,7 +168,14 @@
       "deleteConfirm": "이 카테고리를 삭제하시겠습니까?",
       "categoryName": "카테고리 이름",
       "categoryColor": "색상",
-      "dragToReorder": "드래그하여 순서 변경"
+      "dragToReorder": "드래그하여 순서 변경",
+      "reset": "초기화",
+      "resetTooltip": "모든 카테고리를 삭제하고 미분류만 남김",
+      "resetConfirm": "정말 모든 카테고리를 초기화하시겠습니까?\n\n(미분류만 남습니다)",
+      "applyRecommended": "추천 카테고리",
+      "applyRecommendedTooltip": "엄선된 10개 카테고리 프리셋 적용",
+      "recommendedConfirm": "탭 정리를 위해 추천 카테고리 10개를 추가합니다.",
+      "recommendedCategories": "추가될 카테고리"
     },
     "tabAssignment": {
       "title": "탭 카테고리 할당",
@@ -169,6 +191,20 @@
       "features": ["도메인 단위로 카테고리 할당", "같은 도메인의 모든 탭은 동일한 카테고리 사용", "Apply 버튼으로 브라우저에 탭 그룹 생성"],
       "tip": "카테고리는 도메인별로 할당됩니다. 탭의 카테고리를 변경하면 같은 도메인의 모든 탭(예: 모든 github.com 탭)이 동일한 카테고리를 사용합니다."
     },
+    "tabGroups": {
+      "title": "탭 그룹 일람",
+      "currentTabs": "현재 탭",
+      "savedGroups": "저장된 그룹",
+      "untitledGroup": "제목 없는 그룹",
+      "tabs": "개 탭",
+      "noGroups": "탭 그룹이 없습니다",
+      "ungrouped": "그룹화되지 않은 탭",
+      "takeSnapshot": "스냅샷 저장",
+      "restoreSnapshot": "스냅샷 복원",
+      "noSnapshots": "저장된 스냅샷이 없습니다",
+      "noSnapshotsTip": "현재 탭 그룹의 📸 버튼을 클릭하여 스냅샷을 저장할 수 있습니다.",
+      "tip": "그룹 헤더를 클릭하여 접기/펼치기를 전환하거나, 탭을 클릭하여 활성화할 수 있습니다."
+    },
     "dashboard": {
       "title": "분석 대시보드",
       "description": "브라우징 패턴과 생산성 인사이트",
@@ -181,7 +217,6 @@
     },
     "help": {
       "title": "도움말 & 가이드",
-      "subtitle": "AI 기반 탭 관리의 모든 것",
       "gettingStarted": "시작하기",
       "shortcuts": "키보드 단축키",
       "faq": "자주 묻는 질문",
@@ -214,7 +249,7 @@
         }
       },
       "proTips": {
-        "title": "Pro Tips",
+        "title": "Tips",
         "tips": [
           "탭을 수동으로 재분류하면 AI가 당신의 선호도를 학습합니다",
           "업무 시간과 개인 시간에 다른 카테고리를 사용하면 AI가 시간대별로 구분합니다",
@@ -260,10 +295,10 @@
   },
   "settings": {
     "clearData": {
-      "label": "AI 데이터 초기화",
+      "label": "데이터 초기화",
       "confirm": "AI 학습 데이터를 초기화하시겠습니까?\n\n카테고리 설정은 유지되며, AI가 학습한 패턴만 초기화됩니다.",
       "success": {
-        "title": "✨ AI 데이터 초기화 완료",
+        "title": "✨ 데이터 초기화 완료",
         "description": "AI가 새로운 패턴을 학습할 준비가 되었습니다."
       }
     }

@@ -92,7 +92,10 @@
     "organizing": "Organizing...",
     "loading": "Loading...",
     "search": "Search",
-    "filter": "Filter"
+    "filter": "Filter",
+    "confirm": "Confirm",
+    "undo": "Undo",
+    "undoLastOrganization": "Undo Last Organization"
   },
   "messages": {
     "organizingTabs": "Organizing tabs...",
@@ -103,8 +106,19 @@
     "categoryAdded": "Category added successfully",
     "categoryDeleted": "Category deleted successfully",
     "categoryUpdated": "Category updated successfully",
+    "maxCategoriesReached": "Maximum 20 categories allowed",
     "error": "An error occurred",
-    "success": "Success"
+    "success": "Success",
+    "undoConfirm": "Do you want to undo the last Smart Organize?",
+    "undoSuccess": "Successfully restored tabs to previous state",
+    "undoFailed": "Undo failed. No snapshot available or cannot restore.",
+    "undoError": "Undo failed",
+    "snapshotSaved": "Snapshot saved successfully",
+    "snapshotRestored": "Snapshot restored successfully",
+    "snapshotRestoreFailed": "Failed to restore snapshot",
+    "snapshotError": "An error occurred during snapshot operation",
+    "snapshotDeleteConfirm": "Are you sure you want to delete this snapshot?",
+    "snapshotSaveConfirm": "Save current tabs as a snapshot?\n\nThis will create a snapshot with {{tabCount}} tabs and {{groupCount}} groups."
   },
   "tooltips": {
     "insights": {
@@ -144,6 +158,7 @@
     "categories": "Manage your tab categories",
     "assign": "Manually assign domains to categories",
     "help": "View help and documentation",
+    "tabGroups": "View Tab Groups",
     "settings": "Settings",
     "language": "Language"
   },
@@ -157,7 +172,14 @@
       "deleteConfirm": "Delete this category?",
       "categoryName": "Category Name",
       "categoryColor": "Color",
-      "dragToReorder": "Drag to reorder"
+      "dragToReorder": "Drag to reorder",
+      "reset": "Reset",
+      "resetTooltip": "Clear all categories and keep only Uncategorized",
+      "resetConfirm": "Are you sure you want to reset all categories?\n\n(Only Uncategorized will remain)",
+      "applyRecommended": "Recommended",
+      "applyRecommendedTooltip": "Apply 10 curated category presets",
+      "recommendedConfirm": "Add 10 recommended categories to help organize your tabs.",
+      "recommendedCategories": "Categories to add"
     },
     "tabAssignment": {
       "title": "Assign Tabs to Categories",
@@ -177,6 +199,20 @@
       ],
       "tip": "Categories are assigned by domain. When you change a tab's category, all tabs from the same domain (e.g., all github.com tabs) will use the same category."
     },
+    "tabGroups": {
+      "title": "Tab Groups Overview",
+      "untitledGroup": "Untitled Group",
+      "tabs": "tabs",
+      "noGroups": "No tab groups found",
+      "ungrouped": "Ungrouped Tabs",
+      "tip": "Click on group headers to toggle collapse/expand, or click on tabs to activate them.",
+      "currentTabs": "Current Tabs",
+      "savedGroups": "Saved Groups",
+      "takeSnapshot": "Take Snapshot",
+      "restoreSnapshot": "Restore Snapshot",
+      "noSnapshots": "No saved snapshots",
+      "noSnapshotsTip": "Click the 📸 button on current tab groups to save snapshots."
+    },
     "dashboard": {
       "title": "Analytics Dashboard",
       "description": "Your browsing patterns and productivity insights",
@@ -189,7 +225,6 @@
     },
     "help": {
       "title": "Help & Guide",
-      "subtitle": "Everything about AI-powered tab management",
       "gettingStarted": "Getting Started",
       "shortcuts": "Keyboard Shortcuts",
       "faq": "FAQ",
@@ -230,7 +265,7 @@
         }
       },
       "proTips": {
-        "title": "Pro Tips",
+        "title": "Tips",
         "tips": [
           "When you manually recategorize tabs, AI learns your preferences",
           "Using different categories during work and personal time helps AI distinguish by time period",
@@ -276,10 +311,10 @@
   },
   "settings": {
     "clearData": {
-      "label": "Clear AI Data",
+      "label": "Clear Data",
       "confirm": "Clear AI learning data?\n\nCategory settings will be preserved, only AI-learned patterns will be reset.",
       "success": {
-        "title": "✨ AI Data Cleared",
+        "title": "✨ Data Cleared",
         "description": "AI is ready to learn new patterns."
       }
     }

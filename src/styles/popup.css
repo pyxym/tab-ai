@@ -222,6 +222,51 @@
   }
 }
 
+/* 전역 스크롤바 스타일 - 모든 요소에 자동 적용 */
+* {
+  /* Firefox용 스크롤바 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.4) rgba(255, 255, 255, 0.05);
+}
+
+/* Webkit 브라우저용 스크롤바 (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin: 2px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(236, 72, 153, 0.5));
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 0 6px rgba(255, 255, 255, 0.1),
+    0 0 6px rgba(139, 92, 246, 0.3);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.7), rgba(236, 72, 153, 0.7));
+  box-shadow:
+    inset 0 0 6px rgba(255, 255, 255, 0.2),
+    0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(236, 72, 153, 0.9));
+}
+
+/* 스크롤바 코너 스타일 (가로/세로 스크롤이 함께 있을 때) */
+*::-webkit-scrollbar-corner {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
 /* Keyframe animations */
 @keyframes gradient {
   0%,

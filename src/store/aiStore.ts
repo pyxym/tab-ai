@@ -56,31 +56,22 @@ export const useAIStore = create<AIStore>((set, get) => ({
   addInsight: (insight) =>
     ErrorBoundary.wrapSync(
       () => {
-        console.log('[aiStore] addInsight called with:', insight);
-
         if (!DataValidator.validateInsight(insight)) {
           console.error('[aiStore] Invalid insight data:', insight);
           return;
         }
 
-        console.log('[aiStore] Insight validation passed');
-
         // Sanitize strings
         insight.title = DataValidator.sanitizeString(insight.title, 200);
         insight.description = DataValidator.sanitizeString(insight.description, 500);
 
-        console.log('[aiStore] After sanitization:', { title: insight.title, description: insight.description });
-
         // Prevent duplicate insights
         const state = get();
-        console.log('[aiStore] Current insights:', state.insights);
 
         if (state.insights.some((i) => i.id === insight.id)) {
           console.warn('[aiStore] Insight already exists:', insight.id);
           return;
         }
-
-        console.log('[aiStore] Adding insight to store...');
 
         // Add insight with priority-based sorting
         set((state) => {
@@ -92,11 +83,8 @@ export const useAIStore = create<AIStore>((set, get) => ({
             if (priorityDiff !== 0) return priorityDiff;
             return b.timestamp - a.timestamp;
           });
-          console.log('[aiStore] New insights array:', newInsights);
           return { insights: newInsights.slice(0, MAX_INSIGHTS) };
         });
-
-        console.log('[aiStore] Insight added successfully, new count:', get().insights.length);
       },
       undefined,
       'aiStore.addInsight',

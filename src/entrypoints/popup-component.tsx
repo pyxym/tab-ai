@@ -247,8 +247,6 @@ function IndexPopup() {
       // Use the unified organization function (same as Apply button)
       const result = await organizeTabsUnified(categories);
 
-      console.log('[TabQuest] Organize result:', result);
-
       if (result.success) {
         // 메시지 국제화 - 상황별 메시지 선택
         let descriptionKey = 'insights.organizationComplete.description';
@@ -277,15 +275,6 @@ function IndexPopup() {
         const translatedTitle = t('insights.organizationComplete.title') as string;
         const translatedDescription = t(descriptionKey, params) as string;
 
-        console.log('[TabQuest] Translation check:', {
-          descriptionKey,
-          params,
-          translatedTitle,
-          translatedDescription,
-          titleValid: translatedTitle && translatedTitle.length > 0,
-          descriptionValid: translatedDescription && translatedDescription.length > 0,
-        });
-
         const insightToAdd = {
           id: `organize-success-${Date.now()}`,
           type: 'tip' as const,
@@ -295,14 +284,7 @@ function IndexPopup() {
           timestamp: Date.now(),
         };
 
-        console.log('[TabQuest] Calling addInsight with:', insightToAdd);
         addInsight(insightToAdd);
-
-        // Check after a short delay to see if state updated
-        setTimeout(() => {
-          console.log('[TabQuest] After 100ms, insights count:', insights.length);
-          console.log('[TabQuest] Insights:', insights);
-        }, 100);
 
         // Undo 버튼 표시
         setHasUndoSnapshot(true);

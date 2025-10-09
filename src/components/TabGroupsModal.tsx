@@ -78,18 +78,14 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
 
       // 모든 창의 탭 그룹 가져오기 (현재 창뿐만 아니라 모든 창)
       const tabGroups = await chrome.tabGroups.query({});
-      console.log('[TabGroupsModal] All tab groups (all windows):', tabGroups);
-      console.log('[TabGroupsModal] Group count:', tabGroups.length);
 
       // 모든 탭 가져오기
       const allTabs = await chrome.tabs.query({});
-      console.log('[TabGroupsModal] All tabs:', allTabs.length);
 
       // 각 그룹에 속한 탭들 수집
       const groupsWithTabs: TabGroup[] = await Promise.all(
         tabGroups.map(async (group) => {
           const groupTabs = allTabs.filter((tab) => tab.groupId === group.id);
-          console.log(`[TabGroupsModal] Group ${group.id} (${group.title}, collapsed: ${group.collapsed}):`, groupTabs.length, 'tabs');
 
           // 그룹 제목에서 카테고리 찾기
           let displayTitle = group.title || t('modal.tabGroups.untitledGroup');

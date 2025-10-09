@@ -95,7 +95,6 @@ export class TabTracker {
 
       // 보호된 탭 건너뛰기 (Meet, Zoom 등)
       if (isProtectedTab(tab)) {
-        console.log('[TabTracker] 보호된 탭 건너뛰기:', tab.url);
         return;
       }
 
@@ -123,10 +122,6 @@ export class TabTracker {
       // 임계값 체크 - 30초 이상만 저장
       if (timeSpent >= TAB_TRACKING_CONFIG.MIN_ACTIVE_TIME) {
         await this.updateTabUsage(this.activeTabId, timeSpent);
-      } else {
-        console.log(
-          `[TabTracker] 짧은 활성화 시간 무시: ${Math.round(timeSpent / 1000)}초 (최소: ${TAB_TRACKING_CONFIG.MIN_ACTIVE_TIME / 1000}초)`
-        );
       }
     }
 
@@ -161,7 +156,6 @@ export class TabTracker {
       // 최소 저장 간격 체크 (3초)
       const now = Date.now();
       if (now - this.lastSaveTime < TAB_TRACKING_CONFIG.DEBOUNCE_DELAY) {
-        console.log('[TabTracker] 너무 빈번한 저장 요청 무시 (Debounce)');
         return;
       }
 

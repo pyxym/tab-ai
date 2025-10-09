@@ -11,12 +11,6 @@ export async function organizeTabsUnified(categories: Category[]) {
     const tabs = filterProtectedTabs(allTabs);
     const protectedStats = getProtectedTabStats(allTabs);
 
-    if (protectedStats.count > 0) {
-      console.log(
-        `[TabQuest] Protected ${protectedStats.count} tabs from organization:`,
-        protectedStats.domains
-      );
-    }
 
     // Separate system/new tabs that should stay at the end
     const systemTabIds: number[] = [];
@@ -119,7 +113,6 @@ export async function organizeTabsUnified(categories: Category[]) {
 
     // 🆕 Move system/new tabs to the end
     if (systemTabIds.length > 0) {
-      console.log('[TabQuest] Moving system tabs to end:', systemTabIds);
       for (const tabId of systemTabIds) {
         try {
           await chrome.tabs.move(tabId, { index: -1 });

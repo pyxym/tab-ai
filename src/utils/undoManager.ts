@@ -35,7 +35,6 @@ export async function createSnapshot(): Promise<TabSnapshot> {
  */
 export async function saveSnapshot(snapshot: TabSnapshot): Promise<void> {
   await chrome.storage.local.set({ [UNDO_STORAGE_KEY]: snapshot });
-  console.log('[UndoManager] 스냅샷 저장됨:', snapshot.timestamp);
 }
 
 /**
@@ -47,7 +46,6 @@ export async function restoreSnapshot(): Promise<boolean> {
     const snapshot = result[UNDO_STORAGE_KEY] as TabSnapshot | undefined;
 
     if (!snapshot) {
-      console.log('[UndoManager] 복원할 스냅샷이 없습니다.');
       return false;
     }
 
@@ -108,7 +106,6 @@ export async function restoreSnapshot(): Promise<boolean> {
       }
     }
 
-    console.log('[UndoManager] 스냅샷 복원 완료');
     return true;
   } catch (error) {
     console.error('[UndoManager] 스냅샷 복원 실패:', error);
@@ -129,5 +126,4 @@ export async function hasSnapshot(): Promise<boolean> {
  */
 export async function clearSnapshot(): Promise<void> {
   await chrome.storage.local.remove(UNDO_STORAGE_KEY);
-  console.log('[UndoManager] 스냅샷 삭제됨');
 }

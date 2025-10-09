@@ -40,8 +40,15 @@ export const FavIcon: React.FC<FavIconProps> = ({ url, size = 20, className = ''
     }
   };
 
-  // URL이 없거나 로드 에러가 발생한 경우 대체 아이콘 렌더링
-  if (!url || hasError) {
+  /**
+   * chrome:// URL이나 다른 내부 URL인지 확인
+   */
+  const isInternalUrl = (url: string): boolean => {
+    return url.startsWith('chrome://') || url.startsWith('chrome-extension://') || url.startsWith('edge://') || url.startsWith('about:');
+  };
+
+  // URL이 없거나 로드 에러가 발생한 경우 또는 내부 URL인 경우 대체 아이콘 렌더링
+  if (!url || hasError || isInternalUrl(url)) {
     return (
       <div
         className={`flex items-center justify-center rounded-md glass-card !p-0 text-gray-600 dark:text-gray-300 font-semibold text-xs ${className}`}

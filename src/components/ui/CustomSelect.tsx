@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Category } from '../../types/category';
 import { getColorHex } from '../../utils/colorUtils';
 
@@ -10,59 +10,76 @@ interface CustomSelectProps {
   className?: string;
 }
 
-export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onChange, disabled, className = '' }) => {
+export const CustomSelect = React.memo<CustomSelectProps>(function CustomSelect({ value, options, onChange, disabled, className = '' }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const parentCardRef = useRef<HTMLElement | null>(null);
 
-  const selectedOption = options.find((opt) => opt.id === value);
+  // Memoize selected option lookup
+  const selectedOption = useMemo(() => options.find((opt) => opt.id === value), [options, value]);
 
-  // Close dropdown when clicking outside
+  // Combined effect for click outside and z-index management
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Cache parent card reference
+    if (!parentCardRef.current) {
+      parentCardRef.current = dropdownRef.current?.closest('.glass-card') as HTMLElement;
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Update parent z-index when dropdown opens
-  useEffect(() => {
-    if (dropdownRef.current) {
-      const parentCard = dropdownRef.current.closest('.glass-card');
-      if (parentCard) {
-        if (isOpen) {
-          (parentCard as HTMLElement).style.zIndex = '100';
-        } else {
-          (parentCard as HTMLElement).style.zIndex = '';
-        }
-      }
+    // Update z-index
+    if (parentCardRef.current) {
+      parentCardRef.current.style.zIndex = '100';
     }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (parentCardRef.current) {
+        parentCardRef.current.style.zIndex = '';
+      }
+    };
   }, [isOpen]);
 
-  const handleSelect = (optionId: string) => {
-    onChange(optionId);
-    setIsOpen(false);
-  };
+  const handleSelect = useCallback(
+    (optionId: string) => {
+      onChange(optionId);
+      setIsOpen(false);
+    },
+    [onChange],
+  );
+
+  const toggleOpen = useCallback(() => {
+    if (!disabled) {
+      setIsOpen((prev) => !prev);
+    }
+  }, [disabled]);
 
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>
       {/* Selected value display */}
       <button
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={toggleOpen}
         disabled={disabled}
         className="px-2.5 py-1.5 text-xs glass-card border-none outline-none focus:ring-2 focus:ring-purple-500/50 min-w-[140px] glass-text flex items-center gap-2 w-full justify-between hover:bg-white/5 transition-all"
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div
-            className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ backgroundColor: getColorHex(selectedOption?.color || 'grey') }}
-          />
+          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: getColorHex(selectedOption?.color || 'grey') }} />
           <span className="truncate font-medium">{selectedOption?.name || 'Select...'}</span>
         </div>
-        <svg className={`w-3.5 h-3.5 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className={`w-3.5 h-3.5 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -75,9 +92,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
               key={option.id}
               onClick={() => handleSelect(option.id)}
               className={`w-full px-4 py-3 text-sm font-medium transition-all flex items-center gap-3 first:rounded-t-xl last:rounded-b-xl border-b border-white/10 last:border-b-0 ${
-                option.id === value
-                  ? 'bg-purple-600/60 text-white shadow-inner'
-                  : 'text-gray-200 hover:bg-purple-500/30 hover:text-white'
+                option.id === value ? 'bg-purple-600/60 text-white shadow-inner' : 'text-gray-200 hover:bg-purple-500/30 hover:text-white'
               }`}
             >
               <div
@@ -85,13 +100,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
                 style={{ backgroundColor: getColorHex(option.color) }}
               />
               <span className="flex-1 text-left">{option.name}</span>
-              {option.id === value && (
-                <span className="ml-auto text-white font-bold text-lg">✓</span>
-              )}
+              {option.id === value && <span className="ml-auto text-white font-bold text-lg">✓</span>}
             </button>
           ))}
         </div>
       )}
     </div>
   );
-};
+});

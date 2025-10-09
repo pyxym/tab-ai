@@ -6,6 +6,7 @@ import { filterProtectedTabs } from '../utils/tabFilters';
 import { organizeTabsUnified } from '../utils/unifiedOrganizer';
 import { FavIcon } from './FavIcon';
 import { InfoTooltip } from './InfoTooltip';
+import { CustomSelect } from './CustomSelect';
 
 /**
  * 탭 목록 컴포넌트의 Props
@@ -161,12 +162,12 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
       {/* 모달 배경 오버레이 */}
       {/* 모달 메인 컨테이너 */}
-      <div className="glass-main rounded-[24px] w-full max-w-2xl h-[90vh] max-h-[90vh] flex flex-col">
+      <div className="glass-main rounded-[24px] w-full max-w-2xl h-[96vh] max-h-[96vh] flex flex-col">
         {/* 헤더 영역 */}
-        <div className="px-4 py-4 border-b border-white/20">
+        <div className="px-4 py-2.5 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabAssignment.assignTabsToCategories')}</h2>
@@ -182,14 +183,14 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
               {/* 그룹화 적용 버튼 */}
               <button
                 onClick={organizeTabsByCategory}
-                className="glass-button-primary py-2 px-3 text-sm"
+                className="glass-button-primary !py-2 !px-3 text-sm"
                 disabled={isOrganizing || isUpdating}
                 title={t('modal.tabAssignment.applyButtonTooltip')}
               >
                 {isOrganizing ? `⏳ ${t('modal.tabAssignment.applying')}` : `🎯 ${t('modal.tabAssignment.applyGrouping')}`}
               </button>
               {/* 닫기 버튼 */}
-              <button onClick={onClose} className="glass-button-primary p-2 px-3">
+              <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
                 ✕
               </button>
             </div>
@@ -198,46 +199,39 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
 
         {/* 탭 목록 영역 */}
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {tabs.map((tab) => (
               <div
                 key={tab.id}
-                className={`glass-card py-2 px-3 transition-all ${
+                className={`glass-card py-2 px-3 transition-all relative ${
                   selectedTab === tab.id ? 'ring-2 ring-green-500' : '' // 선택된 탭 하이라이트
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-2.5">
                   {/* 파비콘 */}
-                  <FavIcon url={tab.favIconUrl || tab.url} size={18} className="flex-shrink-0" />
+                  <FavIcon url={tab.favIconUrl || tab.url} size={18} className="flex-shrink-0 mt-0.5" />
 
-                  {/* 탭 제목 (한 줄) */}
+                  {/* 탭 제목과 URL (두 줄) */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm glass-text truncate" title={`${tab.title} - ${tab.url}`}>
+                    <p className="text-sm glass-text truncate font-semibold leading-tight" title={tab.title || t('modal.tabAssignment.untitled')}>
                       {tab.title || t('modal.tabAssignment.untitled')}
-                      <span className="opacity-50 ml-2 text-xs">{tab.url ? `• ${new URL(tab.url).hostname}` : ''}</span>
                     </p>
+                    {tab.url && (
+                      <p className="text-[10px] glass-text opacity-50 truncate mt-0.5" title={tab.url}>
+                        {tab.url}
+                      </p>
+                    )}
                   </div>
 
                   {/* 카테고리 선택자 */}
-                  <div className="flex items-center gap-2">
-                    {/* 카테고리 색상 표시 */}
-                    <div
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: getCategoryColor(tab.category || 'other') }}
-                    />
-                    {/* 카테고리 드롭다운 */}
-                    <select
-                      value={tab.category || 'other'}
-                      onChange={(e) => handleCategoryChange(tab.id!, tab.url!, e.target.value)}
+                  <div className="flex items-center gap-2 flex-shrink-0 self-center">
+                    {/* 커스텀 카테고리 드롭다운 */}
+                    <CustomSelect
+                      value={tab.category || 'uncategorized'}
+                      options={categories}
+                      onChange={(value) => handleCategoryChange(tab.id!, tab.url!, value)}
                       disabled={isUpdating || !tab.url}
-                      className="px-2 py-1 text-xs glass-card border-none outline-none focus:ring-2 focus:ring-purple-500/50 min-w-[100px] glass-text"
-                    >
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
+                    />
 
                     {/* 성공 표시 */}
                     {selectedTab === tab.id && <span className="text-green-500 text-sm">✓</span>}

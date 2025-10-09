@@ -23,11 +23,22 @@ interface CategoryManagerProps {
  */
 export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const { categories, loadCategories, addCategory, updateCategory, deleteCategory, reorderCategories } = useCategoryStore();
+  const {
+    categories,
+    loadCategories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    reorderCategories,
+    resetToMinimal,
+    applyRecommendedCategories,
+  } = useCategoryStore();
 
   // 모달 및 편집 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false); // 편집 모달 열림 상태
   const [editingCategory, setEditingCategory] = useState<Category | null>(null); // 편집 중인 카테고리
+  const [showResetModal, setShowResetModal] = useState(false); // 초기화 모달 표시
+  const [showRecommendedModal, setShowRecommendedModal] = useState(false); // 추천 카테고리 모달 표시
 
   // 드래그 앤 드롭 상태 관리
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null); // 드래그 중인 항목 인덱스
@@ -65,21 +76,29 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
    * 기존 카테고리 수정 또는 새 카테고리 추가
    */
   const handleSave = async (name: string, color: ExtendedColorEnum) => {
-    if (editingCategory) {
-      // 기존 카테고리 업데이트
-      await updateCategory(editingCategory.id, { name, color });
-    } else {
-      // 새 카테고리 추가
-      await addCategory({
-        name,
-        color,
-        domains: [],
-        keywords: [],
-        isDefault: false,
-      });
+    try {
+      if (editingCategory) {
+        // 기존 카테고리 업데이트
+        await updateCategory(editingCategory.id, { name, color });
+      } else {
+        // 새 카테고리 추가
+        await addCategory({
+          name,
+          color,
+          domains: [],
+          keywords: [],
+          isDefault: false,
+        });
+      }
+      setIsModalOpen(false);
+      setEditingCategory(null);
+    } catch (error: any) {
+      if (error.message === 'Maximum 30 categories allowed') {
+        alert(t('messages.maxCategoriesReached'));
+      } else {
+        alert(error.message);
+      }
     }
-    setIsModalOpen(false);
-    setEditingCategory(null);
   };
 
   /**
@@ -160,13 +179,29 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
     }
   };
 
+  /**
+   * 초기화 확인 핸들러
+   */
+  const handleConfirmReset = async () => {
+    await resetToMinimal();
+    setShowResetModal(false);
+  };
+
+  /**
+   * 추천 카테고리 확인 핸들러
+   */
+  const handleConfirmRecommended = async () => {
+    await applyRecommendedCategories();
+    setShowRecommendedModal(false);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
       {/* 모달 배경 오버레이 */}
       {/* 모달 메인 컨테이너 */}
-      <div className="glass-main rounded-[24px] w-[480px] h-[90vh] max-h-[90vh] flex flex-col">
+      <div className="glass-main rounded-[24px] w-full max-w-3xl h-[96vh] max-h-[96vh] flex flex-col">
         {/* 헤더 영역 */}
-        <div className="px-4 py-4 border-b border-white/20">
+        <div className="px-4 py-2.5 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.categoryManager.title')}</h2>
@@ -178,10 +213,26 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
                 position="bottom"
               />
             </div>
-            {/* 닫기 버튼 */}
-            <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
-              ✕
-            </button>
+            {/* 액션 버튼 및 닫기 */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="glass-button-primary !p-2 !px-3"
+                title={t('modal.categoryManager.resetTooltip')}
+              >
+                🔄
+              </button>
+              <button
+                onClick={() => setShowRecommendedModal(true)}
+                className="glass-button-primary !p-2 !px-3"
+                title={t('modal.categoryManager.applyRecommendedTooltip')}
+              >
+                📦
+              </button>
+              <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
+                ✕
+              </button>
+            </div>
           </div>
         </div>
 
@@ -280,6 +331,60 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
         category={editingCategory}
         title={editingCategory ? t('modal.categoryManager.editCategory') : t('modal.categoryManager.addCategory')}
       />
+
+      {/* 초기화 확인 모달 */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000]">
+          <div className="glass-main rounded-[20px] w-[400px] p-6">
+            <h3 className="text-lg font-semibold glass-text mb-3">🔄 {t('modal.categoryManager.reset')}</h3>
+            <p className="glass-text opacity-80 mb-6 whitespace-pre-line">{t('modal.categoryManager.resetConfirm')}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowResetModal(false)} className="glass-button-primary flex-1 py-2">
+                {t('actions.cancel')}
+              </button>
+              <button onClick={handleConfirmReset} className="glass-button-primary flex-1 py-2 bg-red-500/20 hover:bg-red-500/30">
+                {t('actions.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 추천 카테고리 확인 모달 */}
+      {showRecommendedModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000]">
+          <div className="glass-main rounded-[20px] w-[400px] p-6">
+            <h3 className="text-lg font-semibold glass-text mb-3">📦 {t('modal.categoryManager.applyRecommended')}</h3>
+            <p className="glass-text opacity-80 mb-4 whitespace-pre-line">{t('modal.categoryManager.recommendedConfirm')}</p>
+            <div className="glass-card p-3 mb-6">
+              <p className="text-sm glass-text opacity-70 mb-2">{t('modal.categoryManager.recommendedCategories')}:</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Work</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Social</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Entertainment</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Shopping</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">News & Media</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Education</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Finance</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Gaming</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Tools & Dev</span>
+                <span className="text-xs glass-text px-2 py-1 bg-white/10 rounded-lg">Research</span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowRecommendedModal(false)} className="glass-button-primary flex-1 py-2">
+                {t('actions.cancel')}
+              </button>
+              <button
+                onClick={handleConfirmRecommended}
+                className="glass-button-primary flex-1 py-2 bg-purple-500/20 hover:bg-purple-500/30"
+              >
+                {t('actions.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

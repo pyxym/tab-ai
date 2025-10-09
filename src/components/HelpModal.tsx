@@ -57,42 +57,35 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
-      <div className="glass-main rounded-[24px] w-full max-w-3xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
+      <div className="glass-main rounded-[24px] w-full max-w-3xl max-h-[96vh] overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-white text-xl">?</span>
+        <div className="px-4 py-2.5 border-b border-white/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.help.tabQuestGuide')}</h2>
             </div>
-            <div>
-              <h2 className="text-xl font-bold ai-gradient-text">{t('modal.help.tabQuestGuide')}</h2>
-              <p className="text-sm glass-text opacity-70">{t('modal.help.subtitle')}</p>
-            </div>
+            {/* 닫기 버튼 */}
+            <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
+              ✕
+            </button>
           </div>
-          {/* 닫기 버튼 */}
-          <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
-            ✕
-          </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-88px)]">
-          {/* AI Learning Status */}
-          <div className="glass-card mb-6 border-2 border-purple-500/30">
+        <div className="p-4 overflow-y-auto max-h-[calc(96vh-57px)]">
+          {/* AI Learning Status - Coming Soon */}
+          <div className="glass-card mb-6 border-2 border-purple-500/30 opacity-60 relative">
+            <div className="absolute top-2 right-2 text-[10px] bg-purple-500/40 px-2 py-1 rounded-full glass-text font-semibold">
+              Coming Soon
+            </div>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-2xl">🧠</span>
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold glass-text mb-2">{t('modal.help.aiLearningStatus.title')}</h3>
-                <p className="text-sm glass-text opacity-80 mb-3">{t('modal.help.aiLearningStatus.description')}</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full w-1/3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
-                  </div>
-                  <span className="text-xs glass-text opacity-60">{t('modal.help.aiLearningStatus.learning')}</span>
-                </div>
+                <p className="text-sm glass-text opacity-80">{t('modal.help.aiLearningStatus.description')}</p>
               </div>
             </div>
           </div>

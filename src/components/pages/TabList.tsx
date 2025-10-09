@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCategoryStore } from '../store/categoryStore';
-import { getColorHex } from '../utils/colorUtils';
-import { filterProtectedTabs } from '../utils/tabFilters';
-import { organizeTabsUnified } from '../utils/unifiedOrganizer';
-import { CustomSelect } from './CustomSelect';
-import { FavIcon } from './FavIcon';
-import { InfoTooltip } from './InfoTooltip';
+import { useCategoryStore } from '../../store/categoryStore';
+import { getColorHex } from '../../utils/colorUtils';
+import { filterProtectedTabs } from '../../utils/tabFilters';
+import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
+import { CustomSelect } from '../ui/CustomSelect';
+import { FavIcon } from '../ui/FavIcon';
+import { InfoTooltip } from '../ui/InfoTooltip';
 
 /**
  * 탭 목록 컴포넌트의 Props

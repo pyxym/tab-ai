@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import type { TabData } from '../types/analytics';
-import type { DailyStats } from '../types/storage';
-import { getColorHex } from '../utils/colorUtils';
-import { storageUtils } from '../utils/storage';
-import { isSystemUrl } from '../utils/tabFilters';
-import { TabTracker } from '../utils/tabTracker';
-import { ProductivityScore } from './ProductivityScore';
-import { SimpleBarChart } from './SimpleBarChart';
-import { SimpleLineChart } from './SimpleLineChart';
+import type { TabData } from '../../types/analytics';
+import type { DailyStats } from '../../types/storage';
+import { getColorHex } from '../../utils/colorUtils';
+import { storageUtils } from '../../utils/storage';
+import { isSystemUrl } from '../../utils/tabFilters';
+import { TabTracker } from '../../utils/tabTracker';
+import { ProductivityScore } from '../shared/ProductivityScore';
+import { SimpleBarChart } from '../charts/SimpleBarChart';
+import { SimpleLineChart } from '../charts/SimpleLineChart';
 
 /**
  * 대시보드 모달 컴포넌트의 Props
@@ -128,7 +128,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
 
       // Process time-based data for category chart
       if (todayStats) {
-        setTotalTimeToday(todayStats.totalTimeSpent);
+        setTotalTimeToday(todayStats.totalTimeSpent || 0);
 
         const categoryTimeChartData = Object.entries(todayStats.categoryBreakdown || {})
           .map(([category, timeSpent]: [string, any]) => {

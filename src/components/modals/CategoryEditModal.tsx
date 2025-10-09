@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ColorPicker } from './ColorPicker';
-import type { Category, ExtendedColorEnum } from '../types/category';
+import React, { useEffect, useState } from 'react';
+import type { Category, ExtendedColorEnum } from '../../types/category';
+import { ColorPicker } from '../ui/ColorPicker';
 
 /**
  * 카테고리 편집 모달의 Props 타입 정의

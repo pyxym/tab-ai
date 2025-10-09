@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { Category } from '../types/category';
-import { getColorHex } from '../utils/colorUtils';
+import type { Category } from '../../types/category';
+import { getColorHex } from '../../utils/colorUtils';
 
 interface CustomSelectProps {
   value: string;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AILogo } from '../components/AILogo';
-import { ProductivityScore } from '../components/ProductivityScore';
+import { AILogo } from '../components/shared/AILogo';
+import { ProductivityScore } from '../components/shared/ProductivityScore';
 import type { TabData } from '../types/analytics';
 import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';

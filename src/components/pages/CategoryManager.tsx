@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCategoryStore } from '../store/categoryStore';
-import type { Category, ExtendedColorEnum } from '../types/category';
-import { getColorHex } from '../utils/colorUtils';
-import { CategoryEditModal } from './CategoryEditModal';
-import { ConfirmModal } from './ConfirmModal';
-import { InfoTooltip } from './InfoTooltip';
+import { useCategoryStore } from '../../store/categoryStore';
+import type { Category, ExtendedColorEnum } from '../../types/category';
+import { getColorHex } from '../../utils/colorUtils';
+import { CategoryEditModal } from '../modals/CategoryEditModal';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { InfoTooltip } from '../ui/InfoTooltip';
 
 /**
  * 카테고리 관리자 컴포넌트의 Props

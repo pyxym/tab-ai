@@ -15,9 +15,7 @@ async function getSavedLanguage(): Promise<string> {
   try {
     // Chrome 동기화 스토리지에서 언어 설정 가져오기
     const result = await chrome.storage.sync.get('language');
-    if (result.language) {
-      return result.language;
-    }
+    if (result.language) return result.language;
   } catch {
     // Chrome 스토리지를 사용할 수 없는 경우
   }
@@ -25,9 +23,7 @@ async function getSavedLanguage(): Promise<string> {
   // 브라우저 언어로 폴백 (사용 가능한 경우)
   if (typeof navigator !== 'undefined') {
     const browserLang = navigator.language.split('-')[0];
-    if (['en', 'ko', 'ja'].includes(browserLang)) {
-      return browserLang;
-    }
+    if (['en', 'ko', 'ja'].includes(browserLang)) return browserLang;
   }
 
   return 'en'; // 기본 폴백 언어

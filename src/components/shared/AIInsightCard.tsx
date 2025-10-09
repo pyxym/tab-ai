@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import type { AIInsight } from '../store/aiStore';
+import type { AIInsight } from '../../store/aiStore';
 
 /**
  * AI 인사이트 카드 컴포넌트의 Props 타입 정의

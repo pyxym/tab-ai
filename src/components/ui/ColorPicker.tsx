@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ExtendedColorEnum } from '../types/category';
+import type { ExtendedColorEnum } from '../../types/category';
 
 /**
  * 색상 선택기 컴포넌트의 Props 타입 정의

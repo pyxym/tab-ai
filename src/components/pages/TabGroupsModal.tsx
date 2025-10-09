@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCategoryStore } from '../store/categoryStore';
-import { COLOR_TO_CHROME_GROUP } from '../types/category';
-import type { TabGroupSnapshot } from '../types/snapshot';
-import { createSnapshotFromGroup, deleteSnapshot, getAllSnapshots, restoreSnapshotAsGroup } from '../utils/snapshotStorage';
-import { ConfirmModal } from './ConfirmModal';
-import { FavIcon } from './FavIcon';
-import { InfoTooltip } from './InfoTooltip';
+import { useCategoryStore } from '../../store/categoryStore';
+import { COLOR_TO_CHROME_GROUP } from '../../types/category';
+import type { TabGroupSnapshot } from '../../types/snapshot';
+import { createSnapshotFromGroup, deleteSnapshot, getAllSnapshots, restoreSnapshotAsGroup } from '../../utils/snapshotStorage';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { FavIcon } from '../ui/FavIcon';
+import { InfoTooltip } from '../ui/InfoTooltip';
 
 /**
  * 탭 그룹 정보 타입
@@ -39,8 +39,8 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
   const [ungroupedTabs, setUngroupedTabs] = useState<chrome.tabs.Tab[]>([]);
   const [snapshots, setSnapshots] = useState<TabGroupSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
-  // 모달 내에서의 collapse 상태 관리 (groupId -> boolean)
-  const [modalCollapsedState, setModalCollapsedState] = useState<Record<number, boolean>>({});
+  // 모달 내에서의 collapse 상태 관리 (groupId or snapshotId -> boolean)
+  const [modalCollapsedState, setModalCollapsedState] = useState<Record<string | number, boolean>>({});
 
   // 확인 모달 상태
   const [confirmModal, setConfirmModal] = useState<{
@@ -134,7 +134,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
       setUngroupedTabs(ungrouped);
 
       // 모달 내 초기 상태: 모든 그룹을 펼친 상태로 표시
-      const initialCollapsedState: Record<number, boolean> = {};
+      const initialCollapsedState: Record<string | number, boolean> = {};
       groupsWithTabs.forEach((group) => {
         initialCollapsedState[group.id] = false; // 모달에서는 기본적으로 모두 펼침
       });
@@ -163,7 +163,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
    * 모달 내에서 탭 그룹 토글 (접기/펼치기)
    * Chrome의 실제 그룹 상태는 변경하지 않음
    */
-  const toggleModalGroup = (groupId: number) => {
+  const toggleModalGroup = (groupId: string | number) => {
     setModalCollapsedState((prev) => ({
       ...prev,
       [groupId]: !prev[groupId],
@@ -437,9 +437,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
               {ungroupedTabs.length > 0 && (
                 <div className="glass-card py-2 px-3">
                   <div className="flex items-center mb-1.5">
-                    <h3 className="text-sm font-semibold glass-text flex-1">
-                      {t('modal.tabGroups.ungrouped')}
-                    </h3>
+                    <h3 className="text-sm font-semibold glass-text flex-1">{t('modal.tabGroups.ungrouped')}</h3>
                     <span className="text-xs glass-text opacity-60 mr-2">
                       {ungroupedTabs.length} {t('modal.tabGroups.tabs')}
                     </span>

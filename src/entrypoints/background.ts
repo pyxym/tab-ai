@@ -1,10 +1,8 @@
 import { defineBackground } from 'wxt/utils/define-background';
-import { storageUtils } from '../utils/storage';
-import { filterProtectedTabs, getProtectedTabStats, isSystemUrl, isNewTabUrl } from '../utils/tabFilters';
-import { TabTracker } from '../utils/tabTracker';
 import { DOMAIN_CATEGORIES } from '../utils/configs';
 import { categorizeByDomain } from '../utils/tabAnalyzer';
-import { COLOR_TO_CHROME_GROUP, type Category } from '../types/category';
+import { filterProtectedTabs, isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
+import { TabTracker } from '../utils/tabTracker';
 
 export default defineBackground(() => {
   // Initialize tab tracking
@@ -41,19 +39,6 @@ export default defineBackground(() => {
         .then(sendResponse)
         .catch((error) => {
           sendResponse({ error: error.message });
-        });
-      return true;
-    }
-
-    if (request.action === 'organizeByCategories') {
-      if (!request.categories) {
-        sendResponse({ success: false, message: 'No categories provided' });
-        return false;
-      }
-      organizeTabsByCategories(request.categories)
-        .then(sendResponse)
-        .catch((error) => {
-          sendResponse({ success: false, message: error.message });
         });
       return true;
     }
@@ -228,113 +213,6 @@ async function getTabsAnalysis() {
     };
   } catch (error) {
     console.error('[TabQuest] Analysis failed:', error);
-    throw error;
-  }
-}
-
-// Organize tabs by categories
-async function organizeTabsByCategories(categories: Category[]) {
-  try {
-    const allTabs = await chrome.tabs.query({ currentWindow: true });
-
-    // 🆕 Filter out protected tabs and get stats
-    const tabs = filterProtectedTabs(allTabs);
-    const protectedStats = getProtectedTabStats(allTabs);
-
-    // Ungroup all tabs first
-    const allTabIds = tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
-
-    if (allTabIds.length > 0) {
-      try {
-        await chrome.tabs.ungroup(allTabIds);
-      } catch (e) {
-        // Some tabs were already ungrouped
-      }
-    }
-
-    // Get saved category mappings
-    const categoryMapping = await storageUtils.getCategoryMapping();
-
-    // Group tabs by category
-    const categoryGroups = new Map<string, number[]>();
-
-    for (const tab of tabs) {
-      if (!tab.id || !tab.url) continue;
-
-      let categoryId = 'uncategorized';
-
-      // Skip system URLs
-      if (isSystemUrl(tab.url)) {
-        continue;
-      }
-
-      try {
-        const domain = new URL(tab.url).hostname.replace(/^www\./, '');
-
-        // Check user mappings first
-        if (categoryMapping[domain]) {
-          categoryId = categoryMapping[domain];
-        } else {
-          // Then check category domains
-          for (const category of categories) {
-            if (
-              category.domains.some((d: string) => {
-                const catDomain = d.toLowerCase();
-                return domain === catDomain || domain.endsWith(`.${catDomain}`);
-              })
-            ) {
-              categoryId = category.id;
-              break;
-            }
-          }
-        }
-      } catch (error) {
-        categoryId = 'uncategorized';
-      }
-
-      if (!categoryGroups.has(categoryId)) {
-        categoryGroups.set(categoryId, []);
-      }
-      categoryGroups.get(categoryId)!.push(tab.id);
-    }
-
-    // Create groups in category order
-    let groupsCreated = 0;
-    for (const category of categories) {
-      const tabIds = categoryGroups.get(category.id);
-      if (!tabIds || tabIds.length === 0) continue;
-
-      try {
-        const groupId = await chrome.tabs.group({ tabIds });
-        const abbreviation = category.name
-          .split(' ')
-          .map((word: string) => word.charAt(0).toUpperCase())
-          .join('')
-          .slice(0, 3);
-
-        await chrome.tabGroups.update(groupId, {
-          title: abbreviation,
-          color: COLOR_TO_CHROME_GROUP[category.color],
-          collapsed: false,
-        });
-
-        await chrome.tabGroups.move(groupId, { index: -1 });
-
-        groupsCreated++;
-      } catch (error) {
-        console.error(`[TabQuest] Failed to create group for ${category.name}:`, error);
-      }
-    }
-
-    return {
-      success: true,
-      message: groupsCreated > 0 ? `Successfully organized tabs into ${groupsCreated} category groups` : 'No groups created',
-      groupsCreated,
-      tabsProcessed: tabs.length,
-      protectedStats, // 🆕 상세 통계 추가
-    };
-  } catch (error) {
-    console.error('[TabQuest] Category organization failed:', error);
     throw error;
   }
 }

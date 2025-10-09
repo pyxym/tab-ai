@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Category, CategoryMapping } from '../types/category';
-import { DEFAULT_CATEGORIES } from '../types/category';
+import { DEFAULT_CATEGORIES, RECOMMENDED_CATEGORIES } from '../types/category';
 import { DataValidator, ErrorBoundary } from '../utils/errorBoundary';
 import { storageUtils } from '../utils/storage';
 
@@ -21,6 +21,8 @@ interface CategoryStore {
   assignDomainToCategory: (domain: string, categoryId: string) => Promise<void>; // 도메인을 카테고리에 할당
   getCategoryForDomain: (domain: string) => string; // 도메인의 카테고리 가져오기
   resetToDefaults: () => Promise<void>; // 기본값으로 초기화
+  resetToMinimal: () => Promise<void>; // 미니멀로 초기화 (Uncategorized만)
+  applyRecommendedCategories: () => Promise<void>; // 추천 카테고리 적용
   reorderCategories: (categories: Category[]) => Promise<void>; // 카테고리 순서 변경
 }
 
@@ -42,28 +44,46 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     if (categories.length > 0) {
       // 저장된 카테고리와 기본 카테고리 병합
       const savedCategories = categories;
-      const savedIds = new Set(savedCategories.map((c) => c.id));
 
-      // 저장된 카테고리에 없는 새 기본 카테고리 찾기
-      const newDefaultCategories = DEFAULT_CATEGORIES.filter((defaultCat) => !savedIds.has(defaultCat.id));
+      // Preserve user's category order from saved data
+      const mergedCategories: Category[] = [];
+      const savedIds = new Set<string>();
+      let uncategorizedCat: Category | null = null;
 
-      // 사용자 수정사항을 보존하기 위한 맵 생성
-      const categoryMap = new Map<string, Category>();
-
-      // First, add saved categories (including edited defaults)
-      // Skip 'other' category if it exists (migrating to 'uncategorized')
+      // First, add saved categories in their saved order (skip 'other' and 'uncategorized')
       savedCategories.forEach((cat) => {
-        if (cat.id !== 'other') {
-          categoryMap.set(cat.id, cat);
+        if (cat.id === 'other') {
+          // Skip old 'other' category
+          return;
+        }
+        if (cat.id === 'uncategorized') {
+          // Save uncategorized for the end
+          cat.isSystem = true;
+          uncategorizedCat = cat;
+          savedIds.add(cat.id);
+          return;
+        }
+        mergedCategories.push(cat);
+        savedIds.add(cat.id);
+      });
+
+      // Then add any new default categories that don't exist yet (except uncategorized)
+      DEFAULT_CATEGORIES.forEach((defaultCat) => {
+        if (!savedIds.has(defaultCat.id) && defaultCat.id !== 'uncategorized') {
+          mergedCategories.push(defaultCat);
         }
       });
 
-      // Then add any new default categories that don't exist
-      DEFAULT_CATEGORIES.forEach((defaultCat) => {
-        if (!categoryMap.has(defaultCat.id)) {
-          categoryMap.set(defaultCat.id, defaultCat);
+      // Always add uncategorized at the end
+      if (!uncategorizedCat) {
+        uncategorizedCat = DEFAULT_CATEGORIES.find((c) => c.id === 'uncategorized') || null;
+        if (uncategorizedCat) {
+          uncategorizedCat.isSystem = true;
         }
-      });
+      }
+      if (uncategorizedCat) {
+        mergedCategories.push(uncategorizedCat);
+      }
 
       // Migrate any 'other' mappings to 'uncategorized'
       let updatedMapping = categoryMapping || {};
@@ -79,18 +99,6 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
           await storageUtils.setCategoryMapping(updatedMapping);
         }
       }
-
-      // Ensure uncategorized is always a system category
-      const uncategorized = categoryMap.get('uncategorized');
-      if (uncategorized) {
-        uncategorized.isSystem = true;
-      }
-
-      // Sort categories - uncategorized always at the end
-      const categoriesArray = Array.from(categoryMap.values());
-      const uncategorizedCat = categoriesArray.find((c) => c.id === 'uncategorized');
-      const otherCategories = categoriesArray.filter((c) => c.id !== 'uncategorized');
-      const mergedCategories = uncategorizedCat ? [...otherCategories, uncategorizedCat] : otherCategories;
 
       set({
         categories: mergedCategories,
@@ -113,6 +121,14 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   addCategory: async (categoryData) => {
     return ErrorBoundary.wrap(
       async () => {
+        const categories = get().categories;
+
+        // Check maximum category limit (20 categories max, excluding uncategorized)
+        const nonSystemCategories = categories.filter((c) => !c.isSystem);
+        if (nonSystemCategories.length >= 20) {
+          throw new Error('Maximum 20 categories allowed');
+        }
+
         // Validate category data
         const validatedData = {
           ...categoryData,
@@ -129,12 +145,14 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         };
 
         // Check for duplicate names
-        const categories = get().categories;
         if (categories.some((c) => c.name.toLowerCase() === newCategory.name.toLowerCase())) {
           throw new Error('Category with this name already exists');
         }
 
-        const updatedCategories = [...categories, newCategory];
+        // Insert new category before uncategorized
+        const uncategorized = categories.find((c) => c.id === 'uncategorized');
+        const otherCategories = categories.filter((c) => c.id !== 'uncategorized');
+        const updatedCategories = uncategorized ? [...otherCategories, newCategory, uncategorized] : [...categories, newCategory];
 
         // Check storage quota before saving
         // WXT handles storage quota internally
@@ -272,6 +290,41 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       categories: DEFAULT_CATEGORIES,
       categoryMapping: {},
     });
+  },
+
+  resetToMinimal: async () => {
+    // Clear all categories except Uncategorized
+    await storageUtils.setCategories(DEFAULT_CATEGORIES);
+    await storageUtils.setCategoryMapping({});
+    set({
+      categories: DEFAULT_CATEGORIES,
+      categoryMapping: {},
+    });
+  },
+
+  applyRecommendedCategories: async () => {
+    const currentCategories = get().categories;
+    const categoryIds = new Set(currentCategories.map((c) => c.id));
+
+    // Add recommended categories that don't already exist
+    const newCategories: Category[] = [...currentCategories];
+
+    RECOMMENDED_CATEGORIES.forEach((rec) => {
+      if (!categoryIds.has(rec.id)) {
+        newCategories.push({
+          ...rec,
+          createdAt: Date.now(),
+        });
+      }
+    });
+
+    // Ensure uncategorized is always at the end
+    const uncategorized = newCategories.find((c) => c.id === 'uncategorized');
+    const otherCategories = newCategories.filter((c) => c.id !== 'uncategorized');
+    const sorted = uncategorized ? [...otherCategories, uncategorized] : newCategories;
+
+    await storageUtils.setCategories(sorted);
+    set({ categories: sorted });
   },
 
   reorderCategories: async (newCategories) => {

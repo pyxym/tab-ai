@@ -1,6 +1,7 @@
 // 탭 사용 추적 유틸리티
 import { storageUtils } from './storage';
 import { isProtectedTab, isSystemUrl } from './tabFilters';
+import { TAB_TRACKING_CONFIG } from './configs';
 
 interface TabUsageData {
   url: string;
@@ -27,6 +28,12 @@ export class TabTracker {
   private static activeTabId: number | null = null;
   private static activeStartTime: number | null = null;
   private static updateInterval: NodeJS.Timeout | null = null;
+
+  // Debounce를 위한 타이머
+  private static saveTimer: NodeJS.Timeout | null = null;
+
+  // 마지막 저장 시간 추적
+  private static lastSaveTime: number = 0;
 
   // 추적 초기화
   static async initialize() {
@@ -58,7 +65,7 @@ export class TabTracker {
       });
 
       // Service Worker에서는 setInterval이 작동하지 않으므로 chrome.alarms API 사용
-      chrome.alarms.create('tabTrackerUpdate', { periodInMinutes: 0.1 }); // 6초마다
+      chrome.alarms.create('tabTrackerUpdate', { periodInMinutes: TAB_TRACKING_CONFIG.ALARM_PERIOD_MINUTES });
 
       chrome.alarms.onAlarm.addListener((alarm) => {
         if (alarm.name === 'tabTrackerUpdate') {
@@ -104,9 +111,23 @@ export class TabTracker {
 
   // 현재 탭 추적 중지 - 이벤트 리스너를 위해 PUBLIC이어야 함
   static async stopTracking() {
+    // Debounce 타이머 취소
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
+    }
+
     if (this.activeTabId && this.activeStartTime) {
       const timeSpent = Date.now() - this.activeStartTime;
-      await this.updateTabUsage(this.activeTabId, timeSpent);
+
+      // 임계값 체크 - 30초 이상만 저장
+      if (timeSpent >= TAB_TRACKING_CONFIG.MIN_ACTIVE_TIME) {
+        await this.updateTabUsage(this.activeTabId, timeSpent);
+      } else {
+        console.log(
+          `[TabTracker] 짧은 활성화 시간 무시: ${Math.round(timeSpent / 1000)}초 (최소: ${TAB_TRACKING_CONFIG.MIN_ACTIVE_TIME / 1000}초)`
+        );
+      }
     }
 
     this.activeTabId = null;
@@ -117,9 +138,37 @@ export class TabTracker {
   static async updateActiveTabTime() {
     if (this.activeTabId && this.activeStartTime) {
       const timeSpent = Date.now() - this.activeStartTime;
-      await this.updateTabUsage(this.activeTabId, timeSpent);
-      this.activeStartTime = Date.now(); // 시작 시간 리셋
+
+      // 임계값 체크 - 30초 이상만 업데이트
+      if (timeSpent >= TAB_TRACKING_CONFIG.MIN_ACTIVE_TIME) {
+        // Debounced 저장 사용
+        this.debouncedSave(this.activeTabId, timeSpent);
+      }
     }
+  }
+
+  /**
+   * Debounced 저장 - 짧은 시간 내 여러 번 저장 요청 시 한 번만 저장
+   */
+  private static debouncedSave(tabId: number, timeSpent: number) {
+    // 기존 타이머 취소
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+
+    // 새 타이머 설정
+    this.saveTimer = setTimeout(async () => {
+      // 최소 저장 간격 체크 (3초)
+      const now = Date.now();
+      if (now - this.lastSaveTime < TAB_TRACKING_CONFIG.DEBOUNCE_DELAY) {
+        console.log('[TabTracker] 너무 빈번한 저장 요청 무시 (Debounce)');
+        return;
+      }
+
+      await this.updateTabUsage(tabId, timeSpent);
+      this.lastSaveTime = now;
+      this.activeStartTime = Date.now(); // 시작 시간 리셋
+    }, TAB_TRACKING_CONFIG.DEBOUNCE_DELAY);
   }
 
   // 탭 사용 데이터 업데이트

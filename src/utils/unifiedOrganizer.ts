@@ -18,6 +18,18 @@ export async function organizeTabsUnified(categories: Category[]) {
       );
     }
 
+    // Separate system/new tabs that should stay at the end
+    const systemTabIds: number[] = [];
+    const organizableTabs = tabs.filter((tab) => {
+      if (!tab.url || isSystemUrl(tab.url)) {
+        if (tab.id !== undefined) {
+          systemTabIds.push(tab.id);
+        }
+        return false;
+      }
+      return true;
+    });
+
     // 먼저 모든 탭 그룹 해제 (보호되지 않은 탭만)
     const allTabIds = tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
 
@@ -35,13 +47,8 @@ export async function organizeTabsUnified(categories: Category[]) {
     // 단계 1: 모든 탭 분석 및 분류
     const categorizedTabs = new Map<string, chrome.tabs.Tab[]>();
 
-    for (const tab of tabs) {
+    for (const tab of organizableTabs) {
       if (!tab.id || !tab.url) continue;
-
-      // 시스템 URL은 건너뜀
-      if (isSystemUrl(tab.url)) {
-        continue;
-      }
 
       let categoryId = 'uncategorized';
 
@@ -96,15 +103,9 @@ export async function organizeTabsUnified(categories: Category[]) {
 
       try {
         const groupId = await chrome.tabs.group({ tabIds });
-        // 카테고리 이름의 약어 생성
-        const abbreviation = category.name
-          .split(' ')
-          .map((word: string) => word.charAt(0).toUpperCase())
-          .join('')
-          .slice(0, 3); // 최대 3글자
 
         await chrome.tabGroups.update(groupId, {
-          title: abbreviation,
+          title: category.name,
           color: COLOR_TO_CHROME_GROUP[category.color],
           collapsed: false,
         });
@@ -112,7 +113,19 @@ export async function organizeTabsUnified(categories: Category[]) {
         groupsCreated++;
         tabsProcessed += tabIds.length;
       } catch (error) {
-        // 그룹 생성 실패, 다른 그룹 계속 처리
+        console.error(`[TabQuest] Failed to create group for ${category.name}:`, error);
+      }
+    }
+
+    // 🆕 Move system/new tabs to the end
+    if (systemTabIds.length > 0) {
+      console.log('[TabQuest] Moving system tabs to end:', systemTabIds);
+      for (const tabId of systemTabIds) {
+        try {
+          await chrome.tabs.move(tabId, { index: -1 });
+        } catch (error) {
+          console.error(`[TabQuest] Failed to move system tab ${tabId}:`, error);
+        }
       }
     }
 
@@ -127,7 +140,7 @@ export async function organizeTabsUnified(categories: Category[]) {
       success: true,
       message,
       groupsCreated,
-      tabsProcessed: tabs.length,
+      tabsProcessed: organizableTabs.length,
       protectedCount: protectedStats.count, // 🆕 추가 정보
       protectedStats, // 🆕 상세 통계 (meetingCount, systemCount, domains)
     };

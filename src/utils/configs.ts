@@ -40,12 +40,16 @@ export const NEW_TAB_URL_PREFIXES = ['chrome://newtab', 'edge://newtab'] as cons
  * 탭 사용 추적 설정
  */
 export const TAB_TRACKING_CONFIG = {
-  /** 활성 탭으로 간주할 최소 시간 (밀리초) */
-  MIN_ACTIVE_TIME: 1000,
+  /** 활성 탭으로 간주할 최소 시간 (밀리초) - 30초 이상만 추적 */
+  MIN_ACTIVE_TIME: 30000,
   /** 추적 데이터 정리 주기 (일) */
   CLEANUP_DAYS: 30,
   /** 통계 업데이트 간격 (밀리초) */
   STATS_UPDATE_INTERVAL: 60000, // 1분
+  /** Debounce 대기 시간 (밀리초) - 짧은 시간 내 중복 저장 방지 */
+  DEBOUNCE_DELAY: 3000, // 3초
+  /** 알람 주기 (분) - chrome.alarms API용 */
+  ALARM_PERIOD_MINUTES: 1, // 1분
 } as const;
 
 /**

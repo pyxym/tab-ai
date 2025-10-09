@@ -4,6 +4,7 @@ import { useCategoryStore } from '../store/categoryStore';
 import type { Category, ExtendedColorEnum } from '../types/category';
 import { getColorHex } from '../utils/colorUtils';
 import { CategoryEditModal } from './CategoryEditModal';
+import { ConfirmModal } from './ConfirmModal';
 import { InfoTooltip } from './InfoTooltip';
 
 /**
@@ -39,6 +40,8 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null); // 편집 중인 카테고리
   const [showResetModal, setShowResetModal] = useState(false); // 초기화 모달 표시
   const [showRecommendedModal, setShowRecommendedModal] = useState(false); // 추천 카테고리 모달 표시
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // 삭제 확인 모달 표시
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null); // 삭제 대상 카테고리 ID
 
   // 드래그 앤 드롭 상태 관리
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null); // 드래그 중인 항목 인덱스
@@ -164,19 +167,29 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
    * 카테고리 삭제 핸들러
    * 시스템 카테고리와 기본 카테고리는 삭제 불가
    */
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     const category = categories.find((c) => c.id === id);
     if (category?.isSystem) {
       alert(t('tooltips.categoryManager.cannotDeleteSystem'));
       return;
     }
-    if (confirm(t('modal.categoryManager.deleteConfirm'))) {
+    setDeleteTargetId(id);
+    setShowDeleteModal(true);
+  };
+
+  /**
+   * 카테고리 삭제 확인 핸들러
+   */
+  const handleConfirmDelete = async () => {
+    if (deleteTargetId) {
       try {
-        await deleteCategory(id);
+        await deleteCategory(deleteTargetId);
       } catch (error) {
         alert(t('tooltips.categoryManager.defaultCannotDelete'));
       }
     }
+    setShowDeleteModal(false);
+    setDeleteTargetId(null);
   };
 
   /**
@@ -207,9 +220,9 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.categoryManager.title')}</h2>
               {/* 정보 툴팁 */}
               <InfoTooltip
-                title={t('tooltips.categoryManager.title')}
-                description={t('tooltips.categoryManager.description')}
-                features={t('tooltips.categoryManager.features', { returnObjects: true }) as string[]}
+                title={t('modal.categoryManager.infoTitle')}
+                description={t('modal.categoryManager.infoDescription')}
+                features={t('modal.categoryManager.infoFeatures', { returnObjects: true }) as string[]}
                 position="bottom"
               />
             </div>
@@ -308,16 +321,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
             </button>
           </div>
         </div>
-        {/* 하단 도움말 영역 */}
-        <div className="px-4 py-3 border-t border-white/20">
-          <div className="text-xs glass-text opacity-60 space-y-1">
-            <p>💡 Tip: {t('tooltips.categoryManager.tips.dragTip')}</p>
-            <p>📝 Edit: {t('tooltips.categoryManager.tips.editTip')}</p>
-            <p>
-              🔢 {t('actions.ordering')}: {t('tooltips.categoryManager.tips.orderTip')}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* 카테고리 편집 모달 */}
@@ -385,6 +388,24 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
           </div>
         </div>
       )}
+
+      {/* 카테고리 삭제 확인 모달 */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title={t('modal.categoryManager.deleteTitle')}
+        message={(() => {
+          const category = categories.find((c) => c.id === deleteTargetId);
+          return category ? t('modal.categoryManager.deleteMessage', { name: category.name }) : t('modal.categoryManager.deleteConfirm');
+        })()}
+        confirmText={t('actions.delete')}
+        cancelText={t('actions.cancel')}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setDeleteTargetId(null);
+        }}
+        variant="warning"
+      />
     </div>
   );
 };

@@ -23,6 +23,10 @@ export interface DailyStats {
   tabsOrganized: number;
   activeTime: number;
   productivityScore: number;
+  totalTabs?: number;
+  totalTimeSpent?: number;
+  categoryBreakdown?: Record<string, number>;
+  domainBreakdown?: Record<string, number>;
   topDomains: Array<{
     domain: string;
     count: number;

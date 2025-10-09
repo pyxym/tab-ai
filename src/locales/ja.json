@@ -118,13 +118,17 @@
     "snapshotRestoreFailed": "スナップショットの復元に失敗しました",
     "snapshotError": "スナップショット操作中にエラーが発生しました",
     "snapshotDeleteConfirm": "このスナップショットを削除しますか？",
-    "snapshotSaveConfirm": "現在のタブをスナップショットとして保存しますか？\n\n{{tabCount}}個のタブと{{groupCount}}個のグループでスナップショットを作成します。"
+    "snapshotSaveConfirm": "「{{groupTitle}}」グループをスナップショットとして保存しますか？\n\n• タブ数: {{tabCount}}個\n• いつでも復元可能\n• 現在のタブはそのまま維持"
   },
   "tooltips": {
     "insights": {
       "title": "タブインサイト",
       "description": "タブ使用パターンと改善提案を確認してください。",
-      "features": ["重複タブの検出と整理提案", "カテゴリ別使用パターン分析", "生産性向上のためのパーソナライズされたヒント"]
+      "features": [
+        "🔍 重複タブの検出と整理提案",
+        "📊 カテゴリ別使用パターン分析",
+        "💡 生産性向上のためのパーソナライズされたヒント"
+      ]
     },
     "categoryManager": {
       "title": "カテゴリ管理",
@@ -143,7 +147,11 @@
     "smartOrganize": {
       "title": "スマート整理",
       "description": "カテゴリを基にタブをスマートに整理します。",
-      "features": ["カテゴリ順にタブグループを作成", "ドメインベースの自動分類", "ワンクリックですべてのタブを整理"]
+      "features": [
+        "📑 カテゴリ順にタブグループを作成",
+        "🌐 ドメインベースの自動分類",
+        "🎯 ワンクリックですべてのタブを整理"
+      ]
     },
     "analytics": "詳細なタブ使用分析を表示",
     "categories": "タブカテゴリを管理",
@@ -156,11 +164,21 @@
   "modal": {
     "categoryManager": {
       "title": "カテゴリ管理",
+      "infoTitle": "カテゴリ管理",
+      "infoDescription": "効率的なタブ整理のためのカテゴリを管理します。",
+      "infoFeatures": [
+        "🏷️ カテゴリ名と色の編集",
+        "✋ ドラッグ＆ドロップで順序変更",
+        "📑 カテゴリ順にタブグループをソート",
+        "♻️ 未分類は常に最後に配置"
+      ],
       "description": "タブ用のカテゴリを作成・管理",
       "addCategory": "カテゴリ追加",
       "addNewCategory": "+ 新しいカテゴリを追加",
       "editCategory": "カテゴリ編集",
       "deleteConfirm": "このカテゴリを削除しますか？",
+      "deleteTitle": "カテゴリ削除",
+      "deleteMessage": "「{{name}}」カテゴリを削除してもよろしいですか？\n\nこのカテゴリに割り当てられたすべてのタブは未分類に移動されます。",
       "categoryName": "カテゴリ名",
       "categoryColor": "色",
       "dragToReorder": "ドラッグして並べ替え",
@@ -173,12 +191,19 @@
       "recommendedCategories": "追加されるカテゴリ"
     },
     "tabAssignment": {
-      "title": "タブとカテゴリの設定",
+      "title": "タブカテゴリ一覧",
+      "infoTitle": "タブカテゴリ管理",
+      "infoDescription": "各タブを適切なカテゴリに分類して効率的に管理しましょう。",
+      "infoFeatures": [
+        "🌐 ドメイン単位でカテゴリを割り当て",
+        "🔗 同じドメインのすべてのタブは同じカテゴリを使用",
+        "🎯 適用ボタンでブラウザにタブグループを作成"
+      ],
       "description": "各タブを適切なカテゴリに分類して効率的に管理しましょう。",
       "domain": "ドメイン",
       "category": "カテゴリ",
       "selectCategory": "カテゴリを選択",
-      "assignTabsToCategories": "タブとカテゴリの設定",
+      "assignTabsToCategories": "タブカテゴリ一覧",
       "applyGrouping": "適用",
       "applying": "適用中...",
       "applyButtonTooltip": "ブラウザにタブグループを適用します",
@@ -192,6 +217,14 @@
     },
     "tabGroups": {
       "title": "タブグループ一覧",
+      "infoTitle": "タブグループ管理",
+      "infoDescription": "現在開いているタブグループを確認し、スナップショットとして保存して後で復元できます。",
+      "infoFeatures": [
+        "👁️ 現在のタブグループの表示と管理",
+        "📸 タブグループのスナップショット保存機能",
+        "↻ 保存したスナップショットの復元機能",
+        "📂 グループごとの折りたたみ/展開"
+      ],
       "untitledGroup": "タイトルなしグループ",
       "tabs": "タブ",
       "noGroups": "タブグループがありません",

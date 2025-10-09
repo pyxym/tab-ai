@@ -6,6 +6,7 @@ import type { TabGroupSnapshot } from '../types/snapshot';
 import { createSnapshotFromGroup, deleteSnapshot, getAllSnapshots, restoreSnapshotAsGroup } from '../utils/snapshotStorage';
 import { ConfirmModal } from './ConfirmModal';
 import { FavIcon } from './FavIcon';
+import { InfoTooltip } from './InfoTooltip';
 
 /**
  * 탭 그룹 정보 타입
@@ -194,8 +195,8 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
       isOpen: true,
       title: t('actions.confirm'),
       message: t('messages.snapshotSaveConfirm', {
+        groupTitle: group.title,
         tabCount: group.tabs.length,
-        groupCount: 1,
       }),
       variant: 'info',
       onConfirm: () => confirmSaveSnapshot(groupId),
@@ -320,7 +321,15 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
         {/* 헤더 */}
         <div className="px-4 py-2.5 border-b border-white/20">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabGroups.title')}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabGroups.title')}</h2>
+              <InfoTooltip
+                title={t('modal.tabGroups.infoTitle')}
+                description={t('modal.tabGroups.infoDescription')}
+                features={t('modal.tabGroups.infoFeatures', { returnObjects: true }) as string[]}
+                position="bottom"
+              />
+            </div>
             <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
               ✕
             </button>
@@ -362,8 +371,8 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                     {/* 그룹 헤더 */}
                     <div className="flex items-center mb-1.5">
                       <div className="w-3 h-3 rounded-full flex-shrink-0 mr-2" style={{ backgroundColor: getGroupColorHex(group.color) }} />
-                      <h3 className="text-sm font-semibold glass-text mr-2">{group.title}</h3>
-                      <span className="text-xs glass-text opacity-60 flex-1">
+                      <h3 className="text-sm font-semibold glass-text flex-1">{group.title}</h3>
+                      <span className="text-xs glass-text opacity-60 mr-2">
                         {group.tabs.length} {t('modal.tabGroups.tabs')}
                       </span>
                       {/* 버튼 그룹 */}
@@ -426,11 +435,16 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
 
               {/* 그룹화되지 않은 탭들 */}
               {ungroupedTabs.length > 0 && (
-                <div className="glass-card p-3">
-                  <h3 className="font-semibold glass-text mb-2 text-sm">
-                    {t('modal.tabGroups.ungrouped')} ({ungroupedTabs.length})
-                  </h3>
-                  <div className="space-y-1">
+                <div className="glass-card py-2 px-3">
+                  <div className="flex items-center mb-1.5">
+                    <h3 className="text-sm font-semibold glass-text flex-1">
+                      {t('modal.tabGroups.ungrouped')}
+                    </h3>
+                    <span className="text-xs glass-text opacity-60 mr-2">
+                      {ungroupedTabs.length} {t('modal.tabGroups.tabs')}
+                    </span>
+                  </div>
+                  <div className="space-y-1 ml-7">
                     {ungroupedTabs.map((tab) => (
                       <div
                         key={tab.id}
@@ -455,55 +469,66 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
               {/* 저장된 스냅샷 목록 */}
               {snapshots.length > 0 ? (
                 snapshots.map((snapshot) => (
-                  <div key={snapshot.id} className="glass-card p-3">
+                  <div key={snapshot.id} className="glass-card py-2 px-3">
                     {/* 스냅샷 헤더 */}
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center mb-1.5">
                       <div
-                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        className="w-3 h-3 rounded-full flex-shrink-0 mr-2"
                         style={{ backgroundColor: getGroupColorHex(snapshot.color as any) }}
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold glass-text truncate">{snapshot.name}</h3>
+                        <h3 className="text-sm font-semibold glass-text truncate">{snapshot.name}</h3>
                         <p className="text-[10px] glass-text opacity-50">{new Date(snapshot.createdAt).toLocaleString()}</p>
                       </div>
-                      <span className="text-xs glass-text opacity-60">
+                      <span className="text-xs glass-text opacity-60 mr-2">
                         {snapshot.tabs.length} {t('modal.tabGroups.tabs')}
                       </span>
-                      {/* 복원 버튼 */}
-                      <button
-                        onClick={() => handleRestoreSnapshot(snapshot)}
-                        className="glass-button-primary !p-1 !px-2 text-xs"
-                        title={t('modal.tabGroups.restoreSnapshot')}
-                      >
-                        ↻
-                      </button>
-                      {/* 삭제 버튼 */}
-                      <button
-                        onClick={() => handleDeleteSnapshot(snapshot.id)}
-                        className="glass-button-primary !p-1 !px-2 text-xs hover:bg-red-500/30"
-                        title={t('actions.delete')}
-                      >
-                        🗑️
-                      </button>
+                      {/* 버튼 그룹 */}
+                      <div className="flex items-center gap-1">
+                        {/* 복원 버튼 */}
+                        <button
+                          onClick={() => handleRestoreSnapshot(snapshot)}
+                          className="glass-button-primary !py-1 !px-2 text-sm hover:scale-110 transition-transform"
+                          title={t('modal.tabGroups.restoreSnapshot')}
+                        >
+                          ↻
+                        </button>
+                        {/* 삭제 버튼 */}
+                        <button
+                          onClick={() => handleDeleteSnapshot(snapshot.id)}
+                          className="glass-button-primary !py-1 !px-2 text-sm hover:scale-110 transition-transform hover:bg-red-500/30"
+                          title={t('actions.delete')}
+                        >
+                          🗑️
+                        </button>
+                        {/* 모달 내부 토글 버튼 */}
+                        <button
+                          onClick={() => toggleModalGroup(snapshot.id)}
+                          className="glass-text opacity-60 hover:opacity-100 transition-opacity py-1 px-1 text-sm"
+                        >
+                          {modalCollapsedState[snapshot.id] ? '▶' : '▼'}
+                        </button>
+                      </div>
                     </div>
 
                     {/* 스냅샷 탭 목록 */}
-                    <div className="space-y-1.5 ml-7">
-                      {snapshot.tabs.slice(0, 5).map((tab, index) => (
-                        <div key={index} className="glass-card !p-2">
-                          <div className="flex items-center gap-2">
-                            <FavIcon url={tab.favIconUrl || tab.url} size={16} className="flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm glass-text truncate">{tab.title}</p>
-                              <p className="text-[10px] glass-text opacity-50 truncate">{tab.url}</p>
+                    {!modalCollapsedState[snapshot.id] && (
+                      <div className="space-y-1 ml-7">
+                        {snapshot.tabs.slice(0, 5).map((tab, index) => (
+                          <div key={index} className="glass-card !p-2 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <FavIcon url={tab.favIconUrl || tab.url} size={14} className="flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs glass-text truncate leading-tight">{tab.title}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      {snapshot.tabs.length > 5 && (
-                        <p className="text-xs glass-text opacity-50 ml-2">+{snapshot.tabs.length - 5} more tabs...</p>
-                      )}
-                    </div>
+                        ))}
+                        {snapshot.tabs.length > 5 && (
+                          <p className="text-xs glass-text opacity-50 ml-2">+{snapshot.tabs.length - 5} more tabs...</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -514,11 +539,6 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
               )}
             </div>
           )}
-        </div>
-
-        {/* 하단 도움말 */}
-        <div className="px-4 py-4 border-t border-white/20">
-          <p className="text-xs glass-text opacity-80">💡 Tip: {t('modal.tabGroups.tip')}</p>
         </div>
       </div>
 

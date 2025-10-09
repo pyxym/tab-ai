@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * 정보 툴팁 컴포넌트의 Props 타입 정의
@@ -34,8 +34,8 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ title, description, fe
       const rect = buttonRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const tooltipHeight = 200; // 툴팁 예상 높이 (패딩 포함)
-      const tooltipWidth = 280; // 툴팁 예상 너비 (w-64 + 패딩 + 마진)
+      const tooltipHeight = 250; // 툴팁 예상 높이 (패딩 포함)
+      const tooltipWidth = 380; // 툴팁 예상 너비 (w-80 + 패딩 + 마진)
 
       // 각 방향의 사용 가능한 공간 계산
       const spaceTop = rect.top;
@@ -64,7 +64,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ title, description, fe
   // 툴팁 위치별 CSS 클래스 매핑
   const positionClasses = {
     top: 'bottom-full left-1/2 -translate-x-1/2 mb-1',
-    bottom: 'top-full left-1/2 -translate-x-1/2 mt-1',
+    bottom: 'top-full left-0 mt-1', // Changed to left-0 to prevent cutoff
     left: 'right-full top-1/2 -translate-y-1/2 mr-1',
     right: 'left-full top-1/2 -translate-y-1/2 ml-1',
     'bottom-left': 'top-full right-0 mt-1',
@@ -74,7 +74,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ title, description, fe
   // 툴팁 화살표 위치별 CSS 클래스 매핑
   const arrowClasses = {
     top: 'top-full left-1/2 -translate-x-1/2 border-t-white/90',
-    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-white/90',
+    bottom: 'bottom-full left-4 border-b-white/90', // Adjusted arrow position for left-aligned tooltip
     left: 'left-full top-1/2 -translate-y-1/2 border-l-white/90',
     right: 'right-full top-1/2 -translate-y-1/2 border-r-white/90',
     'bottom-left': 'bottom-full right-4 border-b-white/90',
@@ -107,7 +107,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ title, description, fe
         <div
           ref={tooltipRef}
           className={`
-            absolute z-50 w-64 p-4
+            absolute z-50 w-80 p-5
             bg-white/95 dark:bg-gray-800/95
             backdrop-blur-md rounded-lg shadow-xl
             transition-all duration-200 pointer-events-none
@@ -128,14 +128,14 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ title, description, fe
           {/* 제목 */}
           <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-2">{title}</h4>
           {/* 설명 */}
-          <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{description}</p>
+          <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed mb-2">{description}</p>
 
           {/* 기능 목록 (있는 경우) */}
           {features && features.length > 0 && (
             <ul className="mt-2 space-y-1">
               {features.map((feature, index) => (
                 <li key={index} className="text-xs text-gray-600 dark:text-gray-400 flex items-start">
-                  <span className="mr-1">•</span>
+                  <span className="mr-1 flex-shrink-0">•</span>
                   <span>{feature}</span>
                 </li>
               ))}

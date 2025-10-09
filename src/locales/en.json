@@ -118,16 +118,16 @@
     "snapshotRestoreFailed": "Failed to restore snapshot",
     "snapshotError": "An error occurred during snapshot operation",
     "snapshotDeleteConfirm": "Are you sure you want to delete this snapshot?",
-    "snapshotSaveConfirm": "Save current tabs as a snapshot?\n\nThis will create a snapshot with {{tabCount}} tabs and {{groupCount}} groups."
+    "snapshotSaveConfirm": "Save \"{{groupTitle}}\" group as a snapshot?\n\n• Number of tabs: {{tabCount}}\n• Can be restored anytime\n• Current tabs remain unchanged"
   },
   "tooltips": {
     "insights": {
       "title": "Tab Insights",
       "description": "Check your tab usage patterns and improvement suggestions.",
       "features": [
-        "Detect and suggest cleaning duplicate tabs",
-        "Analyze usage patterns by category",
-        "Personalized tips for productivity improvement"
+        "🔍 Detect and suggest cleaning duplicate tabs",
+        "📊 Analyze usage patterns by category",
+        "💡 Personalized tips for productivity improvement"
       ]
     },
     "categoryManager": {
@@ -152,7 +152,11 @@
     "smartOrganize": {
       "title": "Smart Organize",
       "description": "Smart organize tabs based on categories.",
-      "features": ["Create tab groups in category order", "Automatic domain-based classification", "Organize all tabs with one click"]
+      "features": [
+        "📑 Create tab groups in category order",
+        "🌐 Automatic domain-based classification",
+        "🎯 Organize all tabs with one click"
+      ]
     },
     "analytics": "View detailed tab usage analytics",
     "categories": "Manage your tab categories",
@@ -165,11 +169,21 @@
   "modal": {
     "categoryManager": {
       "title": "Category Manager",
+      "infoTitle": "Category Management",
+      "infoDescription": "Manage categories for efficient tab organization.",
+      "infoFeatures": [
+        "🏷️ Edit category names and colors",
+        "✋ Drag and drop to reorder",
+        "📑 Tab groups sorted by category order",
+        "♻️ Uncategorized always positioned last"
+      ],
       "description": "Create and manage categories for your tabs",
       "addCategory": "Add Category",
       "addNewCategory": "+ Add New Category",
       "editCategory": "Edit Category",
       "deleteConfirm": "Delete this category?",
+      "deleteTitle": "Delete Category",
+      "deleteMessage": "Are you sure you want to delete \"{{name}}\" category?\n\nAll tabs assigned to this category will be moved to Uncategorized.",
       "categoryName": "Category Name",
       "categoryColor": "Color",
       "dragToReorder": "Drag to reorder",
@@ -182,12 +196,19 @@
       "recommendedCategories": "Categories to add"
     },
     "tabAssignment": {
-      "title": "Assign Tabs to Categories",
+      "title": "Tab Category List",
+      "infoTitle": "Tab Category Management",
+      "infoDescription": "Organize your tabs efficiently by assigning them to appropriate categories.",
+      "infoFeatures": [
+        "🌐 Assign categories by domain",
+        "🔗 All tabs from the same domain use the same category",
+        "🎯 Create tab groups in browser with Apply button"
+      ],
       "description": "Organize your tabs efficiently by assigning them to appropriate categories.",
       "domain": "Domain",
       "category": "Category",
       "selectCategory": "Select category",
-      "assignTabsToCategories": "Assign Tabs to Categories",
+      "assignTabsToCategories": "Tab Category List",
       "applyGrouping": "Apply",
       "applying": "Applying...",
       "applyButtonTooltip": "Apply category grouping to browser tabs",
@@ -201,6 +222,14 @@
     },
     "tabGroups": {
       "title": "Tab Groups Overview",
+      "infoTitle": "Tab Group Management",
+      "infoDescription": "View current tab groups and save them as snapshots for later restoration.",
+      "infoFeatures": [
+        "👁️ View and manage current tab groups",
+        "📸 Save tab groups as snapshots",
+        "↻ Restore saved snapshots",
+        "📂 Collapse/expand groups"
+      ],
       "untitledGroup": "Untitled Group",
       "tabs": "tabs",
       "noGroups": "No tab groups found",

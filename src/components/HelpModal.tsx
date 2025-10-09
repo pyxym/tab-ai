@@ -23,7 +23,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // 기능 설명 데이터 (다국어 지원)
-  const features = [
+  const activeFeatures = [
     {
       icon: '🤖', // AI 스마트 정리
       title: t('modal.help.features.aiSmartOrganize.title'),
@@ -41,18 +41,26 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
       }) as string[],
     },
     {
+      icon: '🧹', // 스마트 정리
+      title: t('modal.help.features.smartCleanup.title'),
+      description: t('modal.help.features.smartCleanup.description'),
+      details: t('modal.help.features.smartCleanup.details', { returnObjects: true }) as string[],
+    },
+  ];
+
+  const comingSoonFeatures = [
+    {
+      icon: '🧠', // AI Learning Status
+      title: t('modal.help.aiLearningStatus.title'),
+      description: t('modal.help.aiLearningStatus.description'),
+    },
+    {
       icon: '📊', // 생산성 인사이트
       title: t('modal.help.features.productivityInsights.title'),
       description: t('modal.help.features.productivityInsights.description'),
       details: t('modal.help.features.productivityInsights.details', {
         returnObjects: true,
       }) as string[],
-    },
-    {
-      icon: '🧹', // 스마트 정리
-      title: t('modal.help.features.smartCleanup.title'),
-      description: t('modal.help.features.smartCleanup.description'),
-      details: t('modal.help.features.smartCleanup.details', { returnObjects: true }) as string[],
     },
   ];
 
@@ -74,71 +82,51 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
         {/* Content */}
         <div className="p-4 overflow-y-auto max-h-[calc(96vh-57px)]">
-          {/* AI Learning Status - Coming Soon */}
-          <div className="glass-card mb-6 border-2 border-purple-500/30 opacity-60 relative">
-            <div className="absolute top-2 right-2 text-[10px] bg-purple-500/40 px-2 py-1 rounded-full glass-text font-semibold">
-              Coming Soon
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-2xl">🧠</span>
+          {/* Active Features */}
+          <div className="grid gap-4">
+            {activeFeatures.map((feature, index) => (
+              <div key={index} className="glass-card hover:scale-[1.02] transition-transform">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl flex-shrink-0">{feature.icon}</div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold glass-text mb-2">{feature.title}</h3>
+                    <p className="text-sm glass-text opacity-80 mb-3">{feature.description}</p>
+                    <ul className="space-y-1">
+                      {feature.details.map((detail, idx) => (
+                        <li key={idx} className="text-xs glass-text opacity-60 flex items-start">
+                          <span className="text-purple-400 mr-2">→</span>
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold glass-text mb-2">{t('modal.help.aiLearningStatus.title')}</h3>
-                <p className="text-sm glass-text opacity-80">{t('modal.help.aiLearningStatus.description')}</p>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Features Grid */}
-          <div className="grid gap-4">
-            {features.map((feature, index) => {
-              // Productivity Insights를 Coming Soon으로 표시
-              const isProductivityInsights = feature.icon === '📊';
-
-              return (
-                <div key={index} className={`glass-card hover:scale-[1.02] transition-transform ${isProductivityInsights ? 'opacity-60 relative' : ''}`}>
-                  {isProductivityInsights && (
-                    <div className="absolute top-2 right-2 text-[10px] bg-purple-500/40 px-2 py-1 rounded-full glass-text font-semibold">
-                      Coming Soon
-                    </div>
-                  )}
+          {/* Coming Soon Section */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold glass-text text-lg">Coming Soon</h3>
+              <span className="text-2xl">🚀</span>
+            </div>
+            <div className="grid gap-4">
+              {comingSoonFeatures.map((feature, index) => (
+                <div key={index} className="glass-card opacity-60 border-2 border-purple-500/30 relative">
+                  <div className="absolute top-2 right-2 text-[10px] bg-purple-500/40 px-2 py-1 rounded-full glass-text font-semibold">
+                    Coming Soon
+                  </div>
                   <div className="flex items-start gap-4">
                     <div className="text-3xl flex-shrink-0">{feature.icon}</div>
                     <div className="flex-1">
                       <h3 className="font-semibold glass-text mb-2">{feature.title}</h3>
-                      <p className="text-sm glass-text opacity-80 mb-3">{feature.description}</p>
-                      {!isProductivityInsights && (
-                        <ul className="space-y-1">
-                          {feature.details.map((detail, idx) => (
-                            <li key={idx} className="text-xs glass-text opacity-60 flex items-start">
-                              <span className="text-purple-400 mr-2">→</span>
-                              <span>{detail}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <p className="text-sm glass-text opacity-80">{feature.description}</p>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Tips Section */}
-          <div className="mt-6 glass-card bg-gradient-to-br from-purple-500/10 to-pink-500/10">
-            <h3 className="font-semibold glass-text mb-3 flex items-center gap-2">
-              <span className="text-2xl">💡</span>
-              {t('modal.help.proTips.title')}
-            </h3>
-            <ul className="space-y-2">
-              {(t('modal.help.proTips.tips', { returnObjects: true }) as string[]).map((tip, index) => (
-                <li key={index} className="text-sm glass-text opacity-80 flex items-start">
-                  <span className="text-yellow-400 mr-2">★</span>
-                  <span>{tip}</span>
-                </li>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

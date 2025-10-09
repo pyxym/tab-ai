@@ -4,9 +4,9 @@ import { useCategoryStore } from '../store/categoryStore';
 import { getColorHex } from '../utils/colorUtils';
 import { filterProtectedTabs } from '../utils/tabFilters';
 import { organizeTabsUnified } from '../utils/unifiedOrganizer';
+import { CustomSelect } from './CustomSelect';
 import { FavIcon } from './FavIcon';
 import { InfoTooltip } from './InfoTooltip';
-import { CustomSelect } from './CustomSelect';
 
 /**
  * 탭 목록 컴포넌트의 Props
@@ -173,9 +173,9 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabAssignment.assignTabsToCategories')}</h2>
               {/* 정보 툴팁 */}
               <InfoTooltip
-                title={t('modal.tabAssignment.title')}
-                description={t('modal.tabAssignment.description')}
-                features={t('modal.tabAssignment.features', { returnObjects: true }) as string[]}
+                title={t('modal.tabAssignment.infoTitle')}
+                description={t('modal.tabAssignment.infoDescription')}
+                features={t('modal.tabAssignment.infoFeatures', { returnObjects: true }) as string[]}
                 position="bottom"
               />
             </div>
@@ -213,7 +213,10 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
 
                   {/* 탭 제목과 URL (두 줄) */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm glass-text truncate font-semibold leading-tight" title={tab.title || t('modal.tabAssignment.untitled')}>
+                    <p
+                      className="text-sm glass-text truncate font-semibold leading-tight"
+                      title={tab.title || t('modal.tabAssignment.untitled')}
+                    >
                       {tab.title || t('modal.tabAssignment.untitled')}
                     </p>
                     {tab.url && (
@@ -240,11 +243,6 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* 하단 도움말 영역 */}
-        <div className="px-4 py-4 border-t border-white/20">
-          <p className="text-xs glass-text opacity-80">💡 Tip: {t('modal.tabAssignment.tip')}</p>
         </div>
       </div>
     </div>

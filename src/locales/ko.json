@@ -118,13 +118,17 @@
     "snapshotRestoreFailed": "스냅샷 복원에 실패했습니다",
     "snapshotError": "스냅샷 작업 중 오류가 발생했습니다",
     "snapshotDeleteConfirm": "이 스냅샷을 삭제하시겠습니까?",
-    "snapshotSaveConfirm": "현재 탭을 스냅샷으로 저장하시겠습니까?\n\n{{tabCount}}개의 탭과 {{groupCount}}개의 그룹을 스냅샷으로 생성합니다."
+    "snapshotSaveConfirm": "「{{groupTitle}}」 그룹을 스냅샷으로 저장하시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• 나중에 언제든지 복원 가능\n• 기존 탭은 그대로 유지됨"
   },
   "tooltips": {
     "insights": {
       "title": "탭 인사이트",
       "description": "탭 사용 패턴과 개선 제안을 확인하세요.",
-      "features": ["중복 탭 감지 및 정리 제안", "카테고리별 사용 패턴 분석", "생산성 향상을 위한 맞춤 팁"]
+      "features": [
+        "🔍 중복 탭 감지 및 정리 제안",
+        "📊 카테고리별 사용 패턴 분석",
+        "💡 생산성 향상을 위한 맞춤 팁"
+      ]
     },
     "categoryManager": {
       "title": "카테고리 관리",
@@ -148,7 +152,11 @@
     "smartOrganize": {
       "title": "스마트 정리",
       "description": "카테고리를 기반으로 탭을 스마트하게 정리합니다.",
-      "features": ["카테고리 순서대로 탭 그룹 생성", "도메인 기반 자동 분류", "클릭 한 번으로 전체 탭 정리"]
+      "features": [
+        "📑 카테고리 순서대로 탭 그룹 생성",
+        "🌐 도메인 기반 자동 분류",
+        "🎯 클릭 한 번으로 전체 탭 정리"
+      ]
     },
     "analytics": "상세한 탭 사용 분석 보기",
     "categories": "탭 카테고리 관리",
@@ -161,11 +169,21 @@
   "modal": {
     "categoryManager": {
       "title": "카테고리 관리",
+      "infoTitle": "카테고리 관리",
+      "infoDescription": "탭을 효율적으로 정리하기 위한 카테고리를 관리합니다.",
+      "infoFeatures": [
+        "🏷️ 카테고리 이름과 색상 편집",
+        "✋ 드래그 앤 드롭으로 순서 변경",
+        "📑 카테고리 순서대로 탭 그룹 정렬",
+        "♻️ 미분류는 항상 마지막에 위치"
+      ],
       "description": "탭을 위한 카테고리를 생성하고 관리하세요",
       "addCategory": "카테고리 추가",
       "addNewCategory": "+ 새 카테고리 추가",
       "editCategory": "카테고리 편집",
       "deleteConfirm": "이 카테고리를 삭제하시겠습니까?",
+      "deleteTitle": "카테고리 삭제",
+      "deleteMessage": "\"{{name}}\" 카테고리를 삭제하시겠습니까?\n\n이 카테고리에 할당된 모든 탭은 미분류로 이동됩니다.",
       "categoryName": "카테고리 이름",
       "categoryColor": "색상",
       "dragToReorder": "드래그하여 순서 변경",
@@ -178,12 +196,19 @@
       "recommendedCategories": "추가될 카테고리"
     },
     "tabAssignment": {
-      "title": "탭 카테고리 할당",
+      "title": "탭 카테고리 일람",
+      "infoTitle": "탭 카테고리 관리",
+      "infoDescription": "각 탭을 적절한 카테고리로 분류하여 효율적으로 관리하세요.",
+      "infoFeatures": [
+        "🌐 도메인 단위로 카테고리 할당",
+        "🔗 같은 도메인의 모든 탭은 동일한 카테고리 사용",
+        "🎯 Apply 버튼으로 브라우저에 탭 그룹 생성"
+      ],
       "description": "각 탭을 적절한 카테고리로 분류하여 효율적으로 관리하세요.",
       "domain": "도메인",
       "category": "카테고리",
       "selectCategory": "카테고리 선택",
-      "assignTabsToCategories": "탭 카테고리 할당",
+      "assignTabsToCategories": "탭 카테고리 일람",
       "applyGrouping": "그룹핑 적용",
       "applying": "적용 중...",
       "applyButtonTooltip": "브라우저에 탭 그룹을 적용합니다",
@@ -193,6 +218,14 @@
     },
     "tabGroups": {
       "title": "탭 그룹 일람",
+      "infoTitle": "탭 그룹 관리",
+      "infoDescription": "현재 열려있는 탭 그룹을 확인하고 스냅샷으로 저장하여 나중에 복원할 수 있습니다.",
+      "infoFeatures": [
+        "👁️ 현재 탭 그룹 조회 및 관리",
+        "📸 탭 그룹 스냅샷 저장 기능",
+        "↻ 저장된 스냅샷 복원 기능",
+        "📂 그룹별 탭 접기/펼치기"
+      ],
       "currentTabs": "현재 탭",
       "savedGroups": "저장된 그룹",
       "untitledGroup": "제목 없는 그룹",

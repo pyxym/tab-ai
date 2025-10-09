@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { TabData } from '../types/analytics';
+import type { DailyStats } from '../types/storage';
 import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';
 import { isSystemUrl } from '../utils/tabFilters';
@@ -145,7 +146,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
       }
 
       // Process productivity trend data
-      const trendData = dailyStats.map((day: any) => ({
+      const trendData = dailyStats.map((day: DailyStats) => ({
         label: new Date(day.date).toLocaleDateString('ko', { weekday: 'short' }).replace('요일', ''),
         value: day.productivityScore || 50,
       }));
@@ -331,7 +332,6 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
     </div>
   );
 };
-
 
 // Helper function to format time duration
 function formatDuration(milliseconds: number): string {

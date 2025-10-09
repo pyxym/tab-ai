@@ -92,25 +92,37 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
           {/* Features Grid */}
           <div className="grid gap-4">
-            {features.map((feature, index) => (
-              <div key={index} className="glass-card hover:scale-[1.02] transition-transform">
-                <div className="flex items-start gap-4">
-                  <div className="text-3xl flex-shrink-0">{feature.icon}</div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold glass-text mb-2">{feature.title}</h3>
-                    <p className="text-sm glass-text opacity-80 mb-3">{feature.description}</p>
-                    <ul className="space-y-1">
-                      {feature.details.map((detail, idx) => (
-                        <li key={idx} className="text-xs glass-text opacity-60 flex items-start">
-                          <span className="text-purple-400 mr-2">→</span>
-                          <span>{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
+            {features.map((feature, index) => {
+              // Productivity Insights를 Coming Soon으로 표시
+              const isProductivityInsights = feature.icon === '📊';
+
+              return (
+                <div key={index} className={`glass-card hover:scale-[1.02] transition-transform ${isProductivityInsights ? 'opacity-60 relative' : ''}`}>
+                  {isProductivityInsights && (
+                    <div className="absolute top-2 right-2 text-[10px] bg-purple-500/40 px-2 py-1 rounded-full glass-text font-semibold">
+                      Coming Soon
+                    </div>
+                  )}
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl flex-shrink-0">{feature.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold glass-text mb-2">{feature.title}</h3>
+                      <p className="text-sm glass-text opacity-80 mb-3">{feature.description}</p>
+                      {!isProductivityInsights && (
+                        <ul className="space-y-1">
+                          {feature.details.map((detail, idx) => (
+                            <li key={idx} className="text-xs glass-text opacity-60 flex items-start">
+                              <span className="text-purple-400 mr-2">→</span>
+                              <span>{detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Tips Section */}

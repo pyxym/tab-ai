@@ -94,6 +94,8 @@
     "search": "Search",
     "filter": "Filter",
     "confirm": "Confirm",
+    "reset": "Reset",
+    "apply": "Apply",
     "undo": "Undo",
     "undoLastOrganization": "Undo Last Organization"
   },
@@ -118,7 +120,8 @@
     "snapshotRestoreFailed": "Failed to restore snapshot",
     "snapshotError": "An error occurred during snapshot operation",
     "snapshotDeleteConfirm": "Are you sure you want to delete this snapshot?",
-    "snapshotSaveConfirm": "Save \"{{groupTitle}}\" group as a snapshot?\n\n• Number of tabs: {{tabCount}}\n• Can be restored anytime\n• Current tabs remain unchanged"
+    "snapshotSaveConfirm": "Save \"{{groupTitle}}\" group as a snapshot?\n\n• Number of tabs: {{tabCount}}\n• Can be restored anytime\n• Current tabs remain unchanged",
+    "noDomains": "No domains registered"
   },
   "tooltips": {
     "insights": {
@@ -175,7 +178,7 @@
         "🏷️ Edit category names and colors",
         "✋ Drag and drop to reorder",
         "📑 Tab groups sorted by category order",
-        "♻️ Uncategorized always positioned last"
+        "🌐 Manually register and manage domains"
       ],
       "description": "Create and manage categories for your tabs",
       "addCategory": "Add Category",
@@ -183,17 +186,26 @@
       "editCategory": "Edit Category",
       "deleteConfirm": "Delete this category?",
       "deleteTitle": "Delete Category",
+      "deleteConfirmTitle": "Delete Category",
       "deleteMessage": "Are you sure you want to delete \"{{name}}\" category?\n\nAll tabs assigned to this category will be moved to Uncategorized.",
+      "deleteConfirmMessage": "Are you sure you want to delete this category?\n\nAll tabs assigned to this category will be moved to Uncategorized.",
       "categoryName": "Category Name",
       "categoryColor": "Color",
       "dragToReorder": "Drag to reorder",
       "reset": "Reset",
       "resetTooltip": "Clear all categories and keep only Uncategorized",
       "resetConfirm": "Are you sure you want to reset all categories?\n\n(Only Uncategorized will remain)",
+      "resetConfirmTitle": "Reset Categories",
+      "resetConfirmMessage": "Are you sure you want to reset all categories?\n\n(Only Uncategorized will remain)",
       "applyRecommended": "Recommended",
       "applyRecommendedTooltip": "Apply 10 curated category presets",
       "recommendedConfirm": "Add 10 recommended categories to help organize your tabs.",
-      "recommendedCategories": "Categories to add"
+      "recommendedConfirmTitle": "Apply Recommended Categories",
+      "recommendedConfirmMessage": "Add 10 recommended categories to help organize your tabs.",
+      "recommendedCategories": "Categories to add",
+      "categories": "categories",
+      "domains": "domains",
+      "custom": "custom categories"
     },
     "tabAssignment": {
       "title": "Tab Category List",

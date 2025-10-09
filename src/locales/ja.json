@@ -94,6 +94,8 @@
     "search": "検索",
     "filter": "フィルター",
     "confirm": "確認",
+    "reset": "リセット",
+    "apply": "適用",
     "undo": "元に戻す",
     "undoLastOrganization": "最後の整理を元に戻す"
   },
@@ -118,7 +120,8 @@
     "snapshotRestoreFailed": "スナップショットの復元に失敗しました",
     "snapshotError": "スナップショット操作中にエラーが発生しました",
     "snapshotDeleteConfirm": "このスナップショットを削除しますか？",
-    "snapshotSaveConfirm": "「{{groupTitle}}」グループをスナップショットとして保存しますか？\n\n• タブ数: {{tabCount}}個\n• いつでも復元可能\n• 現在のタブはそのまま維持"
+    "snapshotSaveConfirm": "「{{groupTitle}}」グループをスナップショットとして保存しますか？\n\n• タブ数: {{tabCount}}個\n• いつでも復元可能\n• 現在のタブはそのまま維持",
+    "noDomains": "登録されたドメインはありません"
   },
   "tooltips": {
     "insights": {
@@ -170,7 +173,7 @@
         "🏷️ カテゴリ名と色の編集",
         "✋ ドラッグ＆ドロップで順序変更",
         "📑 カテゴリ順にタブグループをソート",
-        "♻️ 未分類は常に最後に配置"
+        "🌐 ドメインの手動登録と管理"
       ],
       "description": "タブ用のカテゴリを作成・管理",
       "addCategory": "カテゴリ追加",
@@ -178,17 +181,26 @@
       "editCategory": "カテゴリ編集",
       "deleteConfirm": "このカテゴリを削除しますか？",
       "deleteTitle": "カテゴリ削除",
+      "deleteConfirmTitle": "カテゴリ削除",
       "deleteMessage": "「{{name}}」カテゴリを削除してもよろしいですか？\n\nこのカテゴリに割り当てられたすべてのタブは未分類に移動されます。",
+      "deleteConfirmMessage": "このカテゴリを削除してもよろしいですか？\n\nこのカテゴリに割り当てられたすべてのタブは未分類に移動されます。",
       "categoryName": "カテゴリ名",
       "categoryColor": "色",
       "dragToReorder": "ドラッグして並べ替え",
       "reset": "リセット",
       "resetTooltip": "すべてのカテゴリを削除し、未分類のみを残す",
       "resetConfirm": "本当にすべてのカテゴリをリセットしますか？\n\n（未分類のみが残ります）",
+      "resetConfirmTitle": "カテゴリリセット",
+      "resetConfirmMessage": "本当にすべてのカテゴリをリセットしますか？\n\n（未分類のみが残ります）",
       "applyRecommended": "おすすめカテゴリ",
       "applyRecommendedTooltip": "厳選された10個のカテゴリプリセットを適用",
       "recommendedConfirm": "タブ整理のためにおすすめカテゴリ10個を追加します。",
-      "recommendedCategories": "追加されるカテゴリ"
+      "recommendedConfirmTitle": "おすすめカテゴリを適用",
+      "recommendedConfirmMessage": "タブ整理のためにおすすめカテゴリ10個を追加します。",
+      "recommendedCategories": "追加されるカテゴリ",
+      "categories": "個のカテゴリ",
+      "domains": "個のドメイン",
+      "custom": "個のカスタム"
     },
     "tabAssignment": {
       "title": "タブカテゴリ一覧",

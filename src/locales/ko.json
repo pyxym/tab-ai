@@ -94,6 +94,8 @@
     "search": "검색",
     "filter": "필터",
     "confirm": "확인",
+    "reset": "초기화",
+    "apply": "적용",
     "undo": "실행 취소",
     "undoLastOrganization": "마지막 정리 되돌리기"
   },
@@ -118,7 +120,8 @@
     "snapshotRestoreFailed": "스냅샷 복원에 실패했습니다",
     "snapshotError": "스냅샷 작업 중 오류가 발생했습니다",
     "snapshotDeleteConfirm": "이 스냅샷을 삭제하시겠습니까?",
-    "snapshotSaveConfirm": "「{{groupTitle}}」 그룹을 스냅샷으로 저장하시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• 나중에 언제든지 복원 가능\n• 기존 탭은 그대로 유지됨"
+    "snapshotSaveConfirm": "「{{groupTitle}}」 그룹을 스냅샷으로 저장하시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• 나중에 언제든지 복원 가능\n• 기존 탭은 그대로 유지됨",
+    "noDomains": "등록된 도메인이 없습니다"
   },
   "tooltips": {
     "insights": {
@@ -175,7 +178,7 @@
         "🏷️ 카테고리 이름과 색상 편집",
         "✋ 드래그 앤 드롭으로 순서 변경",
         "📑 카테고리 순서대로 탭 그룹 정렬",
-        "♻️ 미분류는 항상 마지막에 위치"
+        "🌐 도메인 수동 등록 및 관리"
       ],
       "description": "탭을 위한 카테고리를 생성하고 관리하세요",
       "addCategory": "카테고리 추가",
@@ -183,17 +186,26 @@
       "editCategory": "카테고리 편집",
       "deleteConfirm": "이 카테고리를 삭제하시겠습니까?",
       "deleteTitle": "카테고리 삭제",
+      "deleteConfirmTitle": "카테고리 삭제",
       "deleteMessage": "\"{{name}}\" 카테고리를 삭제하시겠습니까?\n\n이 카테고리에 할당된 모든 탭은 미분류로 이동됩니다.",
+      "deleteConfirmMessage": "이 카테고리를 삭제하시겠습니까?\n\n이 카테고리에 할당된 모든 탭은 미분류로 이동됩니다.",
       "categoryName": "카테고리 이름",
       "categoryColor": "색상",
       "dragToReorder": "드래그하여 순서 변경",
       "reset": "초기화",
       "resetTooltip": "모든 카테고리를 삭제하고 미분류만 남김",
       "resetConfirm": "정말 모든 카테고리를 초기화하시겠습니까?\n\n(미분류만 남습니다)",
+      "resetConfirmTitle": "카테고리 초기화",
+      "resetConfirmMessage": "정말 모든 카테고리를 초기화하시겠습니까?\n\n(미분류만 남습니다)",
       "applyRecommended": "추천 카테고리",
       "applyRecommendedTooltip": "엄선된 10개 카테고리 프리셋 적용",
       "recommendedConfirm": "탭 정리를 위해 추천 카테고리 10개를 추가합니다.",
-      "recommendedCategories": "추가될 카테고리"
+      "recommendedConfirmTitle": "추천 카테고리 적용",
+      "recommendedConfirmMessage": "탭 정리를 위해 추천 카테고리 10개를 추가합니다.",
+      "recommendedCategories": "추가될 카테고리",
+      "categories": "개 카테고리",
+      "domains": "개 도메인",
+      "custom": "개 커스텀"
     },
     "tabAssignment": {
       "title": "탭 카테고리 일람",

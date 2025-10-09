@@ -2,27 +2,7 @@
 import { storageUtils } from './storage';
 import { isProtectedTab, isSystemUrl } from './tabFilters';
 import { TAB_TRACKING_CONFIG } from './configs';
-
-interface TabUsageData {
-  url: string;
-  domain: string;
-  title: string;
-  category: string;
-  firstSeen: number;
-  lastAccessed: number;
-  totalTimeSpent: number; // 밀리초 단위
-  accessCount: number;
-  activations: number; // 탭 활성화 횟수
-}
-
-interface DailyStats {
-  date: string; // YYYY-MM-DD 형식
-  totalTabs: number;
-  totalTimeSpent: number;
-  categoryBreakdown: Record<string, number>; // 카테고리별 사용 시간
-  domainBreakdown: Record<string, number>; // 도메인별 사용 시간
-  productivityScore: number;
-}
+import type { TabUsageData, DailyStats } from '../types/storage';
 
 export class TabTracker {
   private static activeTabId: number | null = null;
@@ -221,6 +201,7 @@ export class TabTracker {
         category: category,
         firstSeen: Date.now(),
         lastAccessed: Date.now(),
+        timeSpent: 0,
         totalTimeSpent: 0,
         accessCount: 0,
         activations: 0,
@@ -273,23 +254,31 @@ export class TabTracker {
     if (!dailyStats[today]) {
       dailyStats[today] = {
         date: today,
+        tabsOpened: 0,
+        tabsClosed: 0,
+        tabsOrganized: 0,
+        activeTime: 0,
+        productivityScore: 0,
         totalTabs: 0,
         totalTimeSpent: 0,
         categoryBreakdown: {},
         domainBreakdown: {},
-        productivityScore: 0,
+        topDomains: [],
       };
     }
 
     const todayStats = dailyStats[today];
-    const oldTotalTime = todayStats.totalTimeSpent;
-    todayStats.totalTimeSpent += timeSpent;
+    const oldTotalTime = todayStats.totalTimeSpent || 0;
+    todayStats.totalTimeSpent = (todayStats.totalTimeSpent || 0) + timeSpent;
+    todayStats.categoryBreakdown = todayStats.categoryBreakdown || {};
     todayStats.categoryBreakdown[category] = (todayStats.categoryBreakdown[category] || 0) + timeSpent;
+    todayStats.domainBreakdown = todayStats.domainBreakdown || {};
     todayStats.domainBreakdown[domain] = (todayStats.domainBreakdown[domain] || 0) + timeSpent;
 
     // 생산성 점수 계산
-    const productiveTime = (todayStats.categoryBreakdown['work'] || 0) + (todayStats.categoryBreakdown['productivity'] || 0);
-    const distractingTime = (todayStats.categoryBreakdown['social'] || 0) + (todayStats.categoryBreakdown['entertainment'] || 0);
+    const categoryBreakdown = todayStats.categoryBreakdown || {};
+    const productiveTime = (categoryBreakdown['work'] || 0) + (categoryBreakdown['productivity'] || 0);
+    const distractingTime = (categoryBreakdown['social'] || 0) + (categoryBreakdown['entertainment'] || 0);
     const totalCategorizedTime = productiveTime + distractingTime;
 
     if (totalCategorizedTime > 0) {

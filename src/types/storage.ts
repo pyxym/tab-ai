@@ -6,11 +6,16 @@
  * 탭 사용 데이터
  */
 export interface TabUsageData {
-  lastAccessed: number;
-  accessCount: number;
-  timeSpent: number;
-  domain: string;
-  title?: string;
+  url?: string; // 탭 URL
+  domain: string; // 도메인
+  title?: string; // 탭 제목
+  category?: string; // 카테고리
+  firstSeen?: number; // 처음 본 시간
+  lastAccessed: number; // 마지막 접근 시간
+  timeSpent: number; // 현재 세션 사용 시간
+  totalTimeSpent: number; // 총 누적 사용 시간
+  accessCount: number; // 접근 횟수
+  activations: number; // 활성화 횟수
 }
 
 /**

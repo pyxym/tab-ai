@@ -27,7 +27,7 @@ export interface UserPattern {
 
 export class TabClassifier {
   private userPatterns: Map<string, UserPattern> = new Map();
-  private categoryHistory: Map<string, string[]> = new Map(); // category -> domains
+  private categoryDomainMapping: Map<string, string[]> = new Map(); // category -> domains
   private learningEnabled: boolean = true;
 
   constructor() {
@@ -131,11 +131,11 @@ export class TabClassifier {
       pattern.contextPatterns.get(category)!.push(...relatedDomains);
     }
 
-    // Update category history
-    if (!this.categoryHistory.has(category)) {
-      this.categoryHistory.set(category, []);
+    // Update category domain mapping
+    if (!this.categoryDomainMapping.has(category)) {
+      this.categoryDomainMapping.set(category, []);
     }
-    const categoryDomains = this.categoryHistory.get(category)!;
+    const categoryDomains = this.categoryDomainMapping.get(category)!;
     if (!categoryDomains.includes(domain)) {
       categoryDomains.push(domain);
     }
@@ -387,7 +387,9 @@ export class TabClassifier {
       }
 
       if (categoryHistory) {
-        this.categoryHistory = new Map(Object.entries(categoryHistory));
+        // categoryHistory from storage is used for category -> domains mapping
+        // Cast through unknown since we're repurposing the storage key
+        this.categoryDomainMapping = new Map(Object.entries(categoryHistory) as unknown as [string, string[]][]);
       }
     } catch (error) {
       console.error('Failed to load user patterns:', error);
@@ -408,7 +410,8 @@ export class TabClassifier {
       }
 
       await storageUtils.setUserPatterns(patternsObj);
-      await storageUtils.setCategoryHistory(Object.fromEntries(this.categoryHistory));
+      // Store category domain mapping as plain object
+      await storageUtils.setCategoryHistory(Object.fromEntries(this.categoryDomainMapping) as any);
     } catch (error) {
       console.error('Failed to save user patterns:', error);
     }

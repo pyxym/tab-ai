@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AILogo } from '../components/shared/AILogo';
 import { ProductivityScore } from '../components/shared/ProductivityScore';
+import '../lib/i18n';
+import '../styles/dashboard.css';
 import type { TabData } from '../types/analytics';
 import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';
-import '../lib/i18n';
-import '../styles/dashboard.css';
 
 interface CategoryStats {
   name: string;
@@ -60,7 +60,7 @@ function Dashboard() {
       .map((cat: any) => ({
         name: cat.name,
         count: categoryCount[cat.id] || 0,
-        percentage: Math.round(((categoryCount[cat.id] || 0) / tabsArray.length) * 100) || 0,
+        percentage: tabsArray.length > 0 ? Math.round(((categoryCount[cat.id] || 0) / tabsArray.length) * 100) : 0,
         color: getColorHex(cat.color),
       }))
       .filter((stat: CategoryStats) => stat.count > 0);
@@ -197,8 +197,8 @@ function Dashboard() {
             <h2 className="text-xl font-semibold mb-4">{t('dashboard.sections.activityByHour')}</h2>
             <div className="flex items-end gap-1 h-32">
               {timeStats.map((stat) => {
-                const maxCount = Math.max(...timeStats.map((s) => s.count));
-                const height = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
+                const maxCount = Math.max(...timeStats.map((s) => s.count), 1); // 최소값 1로 설정하여 0 나누기 방지
+                const height = stat.count > 0 ? (stat.count / maxCount) * 100 : 0;
                 return (
                   <div
                     key={stat.hour}

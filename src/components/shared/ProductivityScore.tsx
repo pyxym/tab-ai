@@ -16,7 +16,10 @@ interface ProductivityScoreProps {
  * @component
  * @param {ProductivityScoreProps} props - 컴포넌트 속성
  */
-export const ProductivityScore: React.FC<ProductivityScoreProps> = ({ score, trend = 'stable', compact = false }) => {
+export const ProductivityScore: React.FC<ProductivityScoreProps> = ({ score: rawScore, trend = 'stable', compact = false }) => {
+  // score 값 안전성 검증 - NaN, undefined, null 등을 0으로 처리
+  const score = typeof rawScore === 'number' && !isNaN(rawScore) ? Math.max(0, Math.min(100, rawScore)) : 0;
+
   /**
    * 점수에 따른 색상 결정
    * @param {number} score - 생산성 점수

@@ -28,8 +28,9 @@ interface SimpleBarChartProps {
  * @param {SimpleBarChartProps} props - 컴포넌트 속성
  */
 export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data, title, maxValue, showValues = true, height = 200 }) => {
-  // 차트의 Y축 최대값 계산 (전달받은 값 또는 데이터 최대값, 최소 1)
-  const max = maxValue || Math.max(...data.map((d) => d.value), 1);
+  // 차트의 Y축 최대값 계산 (전달받은 값 또는 데이터 최대값, 최소 1) - NaN 방지
+  const values = data.map((d) => d.value).filter((v) => typeof v === 'number' && !isNaN(v));
+  const max = maxValue || (values.length > 0 ? Math.max(...values, 1) : 1);
   return (
     <div className="w-full">
       {/* 차트 제목 (선택적) */}
@@ -37,8 +38,9 @@ export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data, title, max
       {/* 막대 차트 컨테이너 */}
       <div className="relative flex items-end justify-between gap-2" style={{ height: `${height}px` }}>
         {data.map((item, index) => {
-          // 각 막대의 높이를 백분율로 계산
-          const percentage = (item.value / max) * 100;
+          // 각 막대의 높이를 백분율로 계산 - NaN 방지
+          const safeValue = typeof item.value === 'number' && !isNaN(item.value) ? item.value : 0;
+          const percentage = (safeValue / max) * 100;
 
           return (
             <div key={index} className="flex-1 flex flex-col items-center justify-end">

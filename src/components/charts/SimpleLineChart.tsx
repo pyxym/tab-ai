@@ -29,17 +29,19 @@ export const SimpleLineChart: React.FC<SimpleLineChartProps> = ({ data, title, h
   // 데이터가 없으면 렌더링하지 않음
   if (data.length === 0) return null;
 
-  // Y축 범위 계산 (최소값과 최대값)
-  const maxValue = Math.max(...data.map((d) => d.value), 100);
-  const minValue = Math.min(...data.map((d) => d.value), 0);
+  // Y축 범위 계산 (최소값과 최대값) - NaN 방지
+  const values = data.map((d) => d.value).filter((v) => typeof v === 'number' && !isNaN(v));
+  const maxValue = values.length > 0 ? Math.max(...values, 100) : 100;
+  const minValue = values.length > 0 ? Math.min(...values, 0) : 0;
   const range = maxValue - minValue || 1; // 범위가 0인 경우 1로 설정
 
-  // SVG 좌표 포인트 계산
+  // SVG 좌표 포인트 계산 - 데이터가 1개일 때도 안전하게 처리
   const points = data.map((item, index) => {
-    // X좌표: 데이터 인덱스를 0-100 범위로 변환
-    const x = (index / (data.length - 1)) * 100;
-    // Y좌표: 값을 0-100 범위로 변환 (SVG는 Y축이 반대)
-    const y = 100 - ((item.value - minValue) / range) * 100;
+    // X좌표: 데이터 인덱스를 0-100 범위로 변환 (데이터가 1개면 50으로 중앙 배치)
+    const x = data.length > 1 ? (index / (data.length - 1)) * 100 : 50;
+    // Y좌표: 값을 0-100 범위로 변환 (SVG는 Y축이 반대) - NaN 방지
+    const safeValue = typeof item.value === 'number' && !isNaN(item.value) ? item.value : minValue;
+    const y = 100 - ((safeValue - minValue) / range) * 100;
     return { x, y, value: item.value, label: item.label };
   });
 

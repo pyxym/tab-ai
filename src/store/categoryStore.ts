@@ -24,7 +24,15 @@ interface CategoryStore {
   resetToMinimal: () => Promise<void>; // 미니멀로 초기화 (Uncategorized만)
   applyRecommendedCategories: () => Promise<void>; // 추천 카테고리 적용
   reorderCategories: (categories: Category[]) => Promise<void>; // 카테고리 순서 변경
+  clearCache: () => void; // 캐시 초기화
 }
+
+/**
+ * Domain-to-category lookup cache
+ * Maximum 1000 entries to prevent memory issues
+ */
+const domainCache = new Map<string, string>();
+const MAX_CACHE_SIZE = 1000;
 
 /**
  * 카테고리 스토어
@@ -40,6 +48,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   loadCategories: async () => {
     const categories = await storageUtils.getCategories();
     const categoryMapping = await storageUtils.getCategoryMapping();
+
+    // Clear cache when loading categories
+    domainCache.clear();
 
     if (categories.length > 0) {
       // 저장된 카테고리와 기본 카테고리 병합
@@ -154,6 +165,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         const otherCategories = categories.filter((c) => c.id !== 'uncategorized');
         const updatedCategories = uncategorized ? [...otherCategories, newCategory, uncategorized] : [...categories, newCategory];
 
+        // Clear cache when categories change
+        domainCache.clear();
+
         // Check storage quota before saving
         // WXT handles storage quota internally
         await storageUtils.setCategories(updatedCategories);
@@ -176,6 +190,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     }
 
     const updatedCategories = categories.map((cat) => (cat.id === id ? { ...cat, ...updates } : cat));
+
+    // Clear cache when categories change
+    domainCache.clear();
 
     await storageUtils.setCategories(updatedCategories);
     set({ categories: updatedCategories });
@@ -201,6 +218,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         updatedMapping[domain] = 'uncategorized';
       }
     });
+
+    // Clear cache when categories change
+    domainCache.clear();
 
     await storageUtils.setCategories(updatedCategories);
     await storageUtils.setCategoryMapping(updatedMapping);
@@ -240,6 +260,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
           return { ...cat, domains: filteredDomains };
         });
 
+        // Clear cache when domain assignments change
+        domainCache.clear();
+
         await storageUtils.setCategoryMapping(mapping);
         await storageUtils.setCategories(updatedCategories);
         set({ categoryMapping: mapping, categories: updatedCategories });
@@ -252,18 +275,38 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   getCategoryForDomain: (domain) => {
     return ErrorBoundary.wrapSync(
       () => {
-        const { categories, categoryMapping } = get();
         const normalizedDomain = domain.toLowerCase().replace(/^www\./, '');
+
+        // Check cache first
+        const cached = domainCache.get(normalizedDomain);
+        if (cached !== undefined) {
+          return cached;
+        }
+
+        const { categories, categoryMapping } = get();
 
         // Check explicit mapping first
         if (categoryMapping[normalizedDomain]) {
-          return categoryMapping[normalizedDomain];
+          const result = categoryMapping[normalizedDomain];
+          // Cache and return
+          if (domainCache.size >= MAX_CACHE_SIZE) {
+            // Remove oldest entry (first item)
+            const firstKey = domainCache.keys().next().value;
+            if (firstKey) domainCache.delete(firstKey);
+          }
+          domainCache.set(normalizedDomain, result);
+          return result;
         }
 
         // Check category domains with better pattern matching
         for (const category of categories) {
           // Exact domain match
           if (category.domains.some((d) => normalizedDomain === d.toLowerCase())) {
+            if (domainCache.size >= MAX_CACHE_SIZE) {
+              const firstKey = domainCache.keys().next().value;
+              if (firstKey) domainCache.delete(firstKey);
+            }
+            domainCache.set(normalizedDomain, category.id);
             return category.id;
           }
 
@@ -274,6 +317,11 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
               return normalizedDomain.endsWith(`.${pattern}`) || normalizedDomain === pattern;
             })
           ) {
+            if (domainCache.size >= MAX_CACHE_SIZE) {
+              const firstKey = domainCache.keys().next().value;
+              if (firstKey) domainCache.delete(firstKey);
+            }
+            domainCache.set(normalizedDomain, category.id);
             return category.id;
           }
         }
@@ -288,10 +336,21 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
               return regex.test(normalizedDomain);
             })
           ) {
+            if (domainCache.size >= MAX_CACHE_SIZE) {
+              const firstKey = domainCache.keys().next().value;
+              if (firstKey) domainCache.delete(firstKey);
+            }
+            domainCache.set(normalizedDomain, category.id);
             return category.id;
           }
         }
 
+        // Cache uncategorized result
+        if (domainCache.size >= MAX_CACHE_SIZE) {
+          const firstKey = domainCache.keys().next().value;
+          if (firstKey) domainCache.delete(firstKey);
+        }
+        domainCache.set(normalizedDomain, 'uncategorized');
         return 'uncategorized';
       },
       'uncategorized',
@@ -299,7 +358,12 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     );
   },
 
+  clearCache: () => {
+    domainCache.clear();
+  },
+
   resetToDefaults: async () => {
+    domainCache.clear();
     await storageUtils.setCategories(DEFAULT_CATEGORIES);
     await storageUtils.setCategoryMapping({});
     set({
@@ -310,6 +374,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
   resetToMinimal: async () => {
     // Clear all categories except Uncategorized
+    domainCache.clear();
     await storageUtils.setCategories(DEFAULT_CATEGORIES);
     await storageUtils.setCategoryMapping({});
     set({
@@ -339,6 +404,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     const otherCategories = newCategories.filter((c) => c.id !== 'uncategorized');
     const sorted = uncategorized ? [...otherCategories, uncategorized] : newCategories;
 
+    domainCache.clear();
     await storageUtils.setCategories(sorted);
     set({ categories: sorted });
   },
@@ -349,6 +415,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     const otherCategories = newCategories.filter((c) => c.id !== 'uncategorized');
     const sorted = uncategorized ? [...otherCategories, uncategorized] : newCategories;
 
+    domainCache.clear();
     await storageUtils.setCategories(sorted);
     set({ categories: sorted });
   },

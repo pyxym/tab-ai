@@ -219,14 +219,30 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
           throw new Error('Invalid domain');
         }
 
-        const categories = get().categories;
+        const { categories, categoryMapping } = get();
         if (!categories.some((c) => c.id === categoryId)) {
           throw new Error('Invalid category ID');
         }
 
-        const mapping = { ...get().categoryMapping, [normalizedDomain]: categoryId };
+        // Update category mapping
+        const mapping = { ...categoryMapping, [normalizedDomain]: categoryId };
+
+        // Update category domains array
+        const updatedCategories = categories.map((cat) => {
+          // Remove domain from all categories first
+          const filteredDomains = cat.domains.filter((d) => d !== normalizedDomain);
+
+          // Add domain to the target category
+          if (cat.id === categoryId && !filteredDomains.includes(normalizedDomain)) {
+            return { ...cat, domains: [...filteredDomains, normalizedDomain] };
+          }
+
+          return { ...cat, domains: filteredDomains };
+        });
+
         await storageUtils.setCategoryMapping(mapping);
-        set({ categoryMapping: mapping });
+        await storageUtils.setCategories(updatedCategories);
+        set({ categoryMapping: mapping, categories: updatedCategories });
       },
       undefined,
       'categoryStore.assignDomainToCategory',

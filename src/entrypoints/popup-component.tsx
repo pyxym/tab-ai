@@ -41,26 +41,24 @@ function IndexPopup() {
   const { generateInsights } = useInsightsGenerator();
   const { isOrganizing, organize } = useSmartOrganize();
 
-  // Modal states
-  const [modals, setModals] = useState({
-    categoryManager: false,
-    tabList: false,
-    dashboard: false,
-    help: false,
-    tabGroups: false,
-    settingsDropdown: false,
-    undo: false,
-  });
-
+  // Modal states - 개별 상태로 분리하여 불필요한 리렌더링 방지
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
+  const [tabListOpen, setTabListOpen] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [tabGroupsOpen, setTabGroupsOpen] = useState(false);
+  const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false);
+  const [undoOpen, setUndoOpen] = useState(false);
   const [hasUndoSnapshot, setHasUndoSnapshot] = useState(false);
 
-  // Toggle modal helper
-  const toggleModal = useCallback((modal: keyof typeof modals, value?: boolean) => {
-    setModals((prev) => ({
-      ...prev,
-      [modal]: value ?? !prev[modal],
-    }));
-  }, []);
+  // Memoized modal handlers - 자식 컴포넌트 리렌더링 방지
+  const handleHelpClick = useCallback(() => setHelpOpen(true), []);
+  const handleTabGroupsClick = useCallback(() => setTabGroupsOpen(true), []);
+  const handleTabListClick = useCallback(() => setTabListOpen(true), []);
+  const handleCategoryManagerClick = useCallback(() => setCategoryManagerOpen(true), []);
+  const handleSettingsClick = useCallback(() => setSettingsDropdownOpen((prev) => !prev), []);
+  const handleDashboardClick = useCallback(() => setDashboardOpen(true), []);
+  const handleUndoClick = useCallback(() => setUndoOpen(true), []);
 
   // Initialize
   useEffect(() => {
@@ -88,14 +86,15 @@ function IndexPopup() {
           timestamp: Date.now(),
           actionable: {
             label: t('insights.welcome.action'),
-            action: () => toggleModal('help', true),
+            action: () => setHelpOpen(true),
           },
         });
         await storageUtils.setHasSeenWelcome(true);
       }
     }
     init();
-  }, [loadCategories]); // Only depend on stable functions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 초기화는 마운트 시 한 번만 실행 (모든 함수는 안정적이거나 내부에서만 사용)
 
   // Smart organize handler
   const handleSmartOrganize = useCallback(async () => {
@@ -111,7 +110,7 @@ function IndexPopup() {
 
   // Undo handler
   const handleUndo = useCallback(async () => {
-    toggleModal('undo', false);
+    setUndoOpen(false);
 
     try {
       const success = await restoreSnapshot();
@@ -149,7 +148,7 @@ function IndexPopup() {
     } finally {
       await loadTabsAndAnalyze();
     }
-  }, [t, addInsight, loadTabsAndAnalyze, toggleModal]);
+  }, [t, addInsight, loadTabsAndAnalyze]);
 
   // Clear data handler
   const handleClearData = useCallback(async () => {
@@ -165,8 +164,8 @@ function IndexPopup() {
         timestamp: Date.now(),
       });
     }
-    toggleModal('settingsDropdown', false);
-  }, [t, addInsight, loadTabsAndAnalyze, toggleModal]);
+    setSettingsDropdownOpen(false);
+  }, [t, addInsight, loadTabsAndAnalyze]);
 
   // Memoized stats
   const stats = useMemo(() => {
@@ -178,6 +177,17 @@ function IndexPopup() {
       duplicateCount,
     };
   }, [tabs.length, analysis]);
+
+  // Memoized tooltip features - 렌더링마다 새 배열 생성 방지
+  const insightsTooltipFeatures = useMemo(
+    () => [t('tooltips.insights.features.0'), t('tooltips.insights.features.1'), t('tooltips.insights.features.2')],
+    [t],
+  );
+
+  const smartOrganizeTooltipFeatures = useMemo(
+    () => [t('tooltips.smartOrganize.features.0'), t('tooltips.smartOrganize.features.1'), t('tooltips.smartOrganize.features.2')],
+    [t],
+  );
 
   // Loading state
   if (!ready) {
@@ -199,11 +209,11 @@ function IndexPopup() {
           <div className="h-full glass-main rounded-[24px] flex flex-col">
             {/* Header */}
             <PopupHeader
-              onHelpClick={() => toggleModal('help', true)}
-              onTabGroupsClick={() => toggleModal('tabGroups', true)}
-              onTabListClick={() => toggleModal('tabList', true)}
-              onCategoryManagerClick={() => toggleModal('categoryManager', true)}
-              onSettingsClick={() => toggleModal('settingsDropdown')}
+              onHelpClick={handleHelpClick}
+              onTabGroupsClick={handleTabGroupsClick}
+              onTabListClick={handleTabListClick}
+              onCategoryManagerClick={handleCategoryManagerClick}
+              onSettingsClick={handleSettingsClick}
             />
 
             {/* Stats */}
@@ -219,7 +229,7 @@ function IndexPopup() {
                 <InfoTooltip
                   title={t('tooltips.insights.title')}
                   description={t('tooltips.insights.description')}
-                  features={[t('tooltips.insights.features.0'), t('tooltips.insights.features.1'), t('tooltips.insights.features.2')]}
+                  features={insightsTooltipFeatures}
                   position="bottom-left"
                 />
               </div>
@@ -253,11 +263,7 @@ function IndexPopup() {
                   <InfoTooltip
                     title={t('tooltips.smartOrganize.title')}
                     description={t('tooltips.smartOrganize.description')}
-                    features={[
-                      t('tooltips.smartOrganize.features.0'),
-                      t('tooltips.smartOrganize.features.1'),
-                      t('tooltips.smartOrganize.features.2'),
-                    ]}
+                    features={smartOrganizeTooltipFeatures}
                     position="auto"
                   />
                 </div>
@@ -281,7 +287,7 @@ function IndexPopup() {
 
                     <button
                       className="glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
-                      onClick={() => toggleModal('dashboard', true)}
+                      onClick={handleDashboardClick}
                     >
                       📊 {t('actions.viewAnalytics') + ' (Beta)'}
                     </button>
@@ -290,7 +296,7 @@ function IndexPopup() {
                   {hasUndoSnapshot && (
                     <button
                       className="w-full glass-button text-xs glass-text py-2 opacity-80 hover:opacity-100 transition-opacity"
-                      onClick={() => toggleModal('undo', true)}
+                      onClick={handleUndoClick}
                       disabled={isOrganizing}
                       title={t('actions.undo')}
                     >
@@ -304,11 +310,11 @@ function IndexPopup() {
         </div>
 
         {/* Settings Dropdown */}
-        {modals.settingsDropdown && (
+        {settingsDropdownOpen && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => toggleModal('settingsDropdown', false)} />
+            <div className="fixed inset-0 z-40" onClick={() => setSettingsDropdownOpen(false)} />
             <div className="absolute right-4 top-16 w-48 bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl z-50 border border-white/30 py-2">
-              <LanguageSwitcher inDropdown={true} onLanguageChange={() => toggleModal('settingsDropdown', false)} />
+              <LanguageSwitcher inDropdown={true} onLanguageChange={() => setSettingsDropdownOpen(false)} />
               <div className="border-t border-white/20 mx-2 my-2"></div>
               <button
                 onClick={handleClearData}
@@ -323,20 +329,20 @@ function IndexPopup() {
       </div>
 
       {/* Modals */}
-      {modals.categoryManager && <CategoryManager onClose={() => toggleModal('categoryManager', false)} />}
-      {modals.tabList && <TabCategoryOrganizer onClose={() => toggleModal('tabList', false)} />}
-      {modals.tabGroups && <TabGroupManager onClose={() => toggleModal('tabGroups', false)} />}
-      {modals.dashboard && <DashboardModal onClose={() => toggleModal('dashboard', false)} />}
-      {modals.help && <HelpModal isOpen={modals.help} onClose={() => toggleModal('help', false)} />}
+      {categoryManagerOpen && <CategoryManager onClose={() => setCategoryManagerOpen(false)} />}
+      {tabListOpen && <TabCategoryOrganizer onClose={() => setTabListOpen(false)} />}
+      {tabGroupsOpen && <TabGroupManager onClose={() => setTabGroupsOpen(false)} />}
+      {dashboardOpen && <DashboardModal onClose={() => setDashboardOpen(false)} />}
+      {helpOpen && <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />}
 
       {/* Undo Confirmation Modal */}
-      {modals.undo && (
+      {undoOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000]">
           <div className="glass-main rounded-[20px] w-[400px] p-6">
             <h3 className="text-lg font-semibold glass-text mb-3">↶ {t('actions.undo')}</h3>
             <p className="glass-text opacity-80 mb-6 whitespace-pre-line">{t('messages.undoConfirm')}</p>
             <div className="flex gap-3">
-              <button onClick={() => toggleModal('undo', false)} className="glass-button-primary flex-1 py-2">
+              <button onClick={() => setUndoOpen(false)} className="glass-button-primary flex-1 py-2">
                 {t('actions.cancel')}
               </button>
               <button onClick={handleUndo} className="glass-button-primary flex-1 py-2 bg-purple-500/20 hover:bg-purple-500/30">

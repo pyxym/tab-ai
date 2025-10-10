@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import enTranslations from '../locales/en.json';
@@ -60,20 +60,15 @@ async function ensureI18nInitialized() {
 
 /**
  * 메인 팝업 컴포넌트
- * i18n 초기화를 처리하고 언어 변경을 감지
+ * 언어 변경 감지만 처리 (초기화는 main()에서 완료됨)
  */
 function Popup() {
-  const [ready, setReady] = useState(false);
-
   useEffect(() => {
-    // i18n 초기화 후 준비 상태 설정
-    ensureI18nInitialized().then(() => {
-      setReady(true);
-    });
-
     // 스토리지의 언어 변경 감지
     const storageListener = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (changes.language && changes.language.newValue) i18n.changeLanguage(changes.language.newValue);
+      if (changes.language && changes.language.newValue) {
+        i18n.changeLanguage(changes.language.newValue);
+      }
     };
 
     chrome.storage.onChanged.addListener(storageListener);
@@ -83,14 +78,6 @@ function Popup() {
       chrome.storage.onChanged.removeListener(storageListener);
     };
   }, []);
-
-  if (!ready) {
-    return (
-      <div className="w-[400px] min-h-[500px] flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <I18nextProvider i18n={i18n}>

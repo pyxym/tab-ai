@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useCategoryDragDrop } from '../../hooks/useCategoryDragDrop';
 import { useCategoryStore } from '../../store/categoryStore';
 import type { Category, ExtendedColorEnum } from '../../types/category';
+import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
+import { CategoryItem } from '../items/CategoryItem';
 import { CategoryEditModal } from '../modals/CategoryEditModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { InfoTooltip } from '../ui/InfoTooltip';
-import { CategoryItem } from '../items/CategoryItem';
-import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
 
 interface CategoryManagerProps {
   onClose: () => void;
@@ -186,17 +186,15 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
                 onClick={handleApplyGrouping}
                 disabled={isOrganizing}
                 className="glass-button-primary !py-2 !px-3 text-sm flex items-center gap-1.5 disabled:opacity-50"
-                title={t('modal.tabAssignment.applyButtonTooltip')}
+                title={t('modal.tabCategoryOrganizer.applyButtonTooltip')}
               >
                 {isOrganizing ? (
                   <>
                     <span className="animate-spin">⏳</span>
-                    <span>{t('modal.tabAssignment.applying')}</span>
+                    <span>{t('modal.tabCategoryOrganizer.applying')}</span>
                   </>
                 ) : (
-                  <>
-                    🎯 {t('modal.tabAssignment.applyGrouping')}
-                  </>
+                  <>🎯 {t('modal.tabCategoryOrganizer.applyGrouping')}</>
                 )}
               </button>
               <button

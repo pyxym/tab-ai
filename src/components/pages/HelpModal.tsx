@@ -65,7 +65,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
       <div className="glass-main rounded-[24px] w-full max-w-3xl max-h-[96vh] overflow-hidden">
         {/* Header */}
         <div className="px-4 py-2.5 border-b border-white/20">

@@ -127,11 +127,7 @@
     "insights": {
       "title": "탭 인사이트",
       "description": "탭 사용 패턴과 개선 제안을 확인하세요.",
-      "features": [
-        "🔍 중복 탭 감지 및 정리 제안",
-        "📊 카테고리별 사용 패턴 분석",
-        "💡 생산성 향상을 위한 맞춤 팁"
-      ]
+      "features": ["🔍 중복 탭 감지 및 정리 제안", "📊 카테고리별 사용 패턴 분석", "💡 생산성 향상을 위한 맞춤 팁"]
     },
     "categoryManager": {
       "title": "카테고리 관리",
@@ -155,11 +151,7 @@
     "smartOrganize": {
       "title": "스마트 정리",
       "description": "카테고리를 기반으로 탭을 스마트하게 정리합니다.",
-      "features": [
-        "📑 카테고리 순서대로 탭 그룹 생성",
-        "🌐 도메인 기반 자동 분류",
-        "🎯 클릭 한 번으로 전체 탭 정리"
-      ]
+      "features": ["📑 카테고리 순서대로 탭 그룹 생성", "🌐 도메인 기반 자동 분류", "🎯 클릭 한 번으로 전체 탭 정리"]
     },
     "analytics": "상세한 탭 사용 분석 보기",
     "categories": "탭 카테고리 관리",
@@ -207,8 +199,8 @@
       "domains": "개 도메인",
       "custom": "개 커스텀"
     },
-    "tabAssignment": {
-      "title": "탭 카테고리 일람",
+    "tabCategoryOrganizer": {
+      "title": "탭 카테고리 관리",
       "infoTitle": "탭 카테고리 관리",
       "infoDescription": "각 탭을 적절한 카테고리로 분류하여 효율적으로 관리하세요.",
       "infoFeatures": [
@@ -220,7 +212,7 @@
       "domain": "도메인",
       "category": "카테고리",
       "selectCategory": "카테고리 선택",
-      "assignTabsToCategories": "탭 카테고리 일람",
+      "assignTabsToCategories": "탭 카테고리 관리",
       "applyGrouping": "그룹핑 적용",
       "applying": "적용 중...",
       "applyButtonTooltip": "브라우저에 탭 그룹을 적용합니다",

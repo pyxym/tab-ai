@@ -127,11 +127,7 @@
     "insights": {
       "title": "タブインサイト",
       "description": "タブ使用パターンと改善提案を確認してください。",
-      "features": [
-        "🔍 重複タブの検出と整理提案",
-        "📊 カテゴリ別使用パターン分析",
-        "💡 生産性向上のためのパーソナライズされたヒント"
-      ]
+      "features": ["🔍 重複タブの検出と整理提案", "📊 カテゴリ別使用パターン分析", "💡 生産性向上のためのパーソナライズされたヒント"]
     },
     "categoryManager": {
       "title": "カテゴリ管理",
@@ -150,11 +146,7 @@
     "smartOrganize": {
       "title": "スマート整理",
       "description": "カテゴリを基にタブをスマートに整理します。",
-      "features": [
-        "📑 カテゴリ順にタブグループを作成",
-        "🌐 ドメインベースの自動分類",
-        "🎯 ワンクリックですべてのタブを整理"
-      ]
+      "features": ["📑 カテゴリ順にタブグループを作成", "🌐 ドメインベースの自動分類", "🎯 ワンクリックですべてのタブを整理"]
     },
     "analytics": "詳細なタブ使用分析を表示",
     "categories": "タブカテゴリを管理",
@@ -202,8 +194,8 @@
       "domains": "個のドメイン",
       "custom": "個のカスタム"
     },
-    "tabAssignment": {
-      "title": "タブカテゴリ一覧",
+    "tabCategoryOrganizer": {
+      "title": "タブ・カテゴリ管理",
       "infoTitle": "タブカテゴリ管理",
       "infoDescription": "各タブを適切なカテゴリに分類して効率的に管理しましょう。",
       "infoFeatures": [
@@ -215,7 +207,7 @@
       "domain": "ドメイン",
       "category": "カテゴリ",
       "selectCategory": "カテゴリを選択",
-      "assignTabsToCategories": "タブカテゴリ一覧",
+      "assignTabsToCategories": "タブ・カテゴリ管理",
       "applyGrouping": "適用",
       "applying": "適用中...",
       "applyButtonTooltip": "ブラウザにタブグループを適用します",

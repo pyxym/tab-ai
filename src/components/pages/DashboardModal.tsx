@@ -1,8 +1,8 @@
 import React from 'react';
-import { ProductivityScore } from '../shared/ProductivityScore';
+import { useDashboardData } from '../../hooks/useDashboardData';
 import { SimpleBarChart } from '../charts/SimpleBarChart';
 import { SimpleLineChart } from '../charts/SimpleLineChart';
-import { useDashboardData } from '../../hooks/useDashboardData';
+import { ProductivityScore } from '../shared/ProductivityScore';
 
 interface DashboardModalProps {
   onClose: () => void;
@@ -41,7 +41,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
       <div className="glass-main rounded-[24px] w-full max-w-5xl h-[96vh] max-h-[96vh] flex flex-col">
         {/* Header */}
         <div className="px-4 py-2.5 border-b border-white/20">
@@ -88,9 +88,7 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
               <div className="glass-card p-4">
                 <h3 className="text-sm font-semibold glass-text mb-3">💯 Productivity Score</h3>
                 <ProductivityScore score={productivityScore} />
-                <p className="text-xs glass-text opacity-60 mt-2 text-center">
-                  Based on tab categories and usage patterns
-                </p>
+                <p className="text-xs glass-text opacity-60 mt-2 text-center">Based on tab categories and usage patterns</p>
               </div>
 
               {/* Charts Row */}
@@ -133,7 +131,10 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
                           <span className="text-xs glass-text opacity-70">{stat.percentage}%</span>
                         </div>
                         <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                          <div className="h-full rounded-full transition-all" style={{ width: `${stat.percentage}%`, backgroundColor: stat.color }} />
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${stat.percentage}%`, backgroundColor: stat.color }}
+                          />
                         </div>
                       </div>
                       <span className="text-sm font-semibold glass-text w-8 text-right">{stat.count}</span>

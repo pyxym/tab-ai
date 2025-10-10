@@ -329,7 +329,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
       <div className="glass-main rounded-[24px] w-full max-w-3xl h-[96vh] max-h-[96vh] flex flex-col">
         {/* 헤더 */}
         <div className="px-3 py-2 border-b border-white/20">
@@ -477,7 +477,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                             />
                             <div className="flex-1 min-w-0">
                               <p className="text-[11px] glass-text truncate group-hover:text-purple-300 group-hover:font-medium transition-all leading-tight">
-                                {tab.title || t('modal.tabAssignment.untitled')}
+                                {tab.title || t('modal.tabCategoryOrganizer.untitled')}
                               </p>
                             </div>
                             {tab.active && (
@@ -515,7 +515,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                           <FavIcon url={tab.favIconUrl || tab.url} size={10} className="flex-shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] glass-text truncate leading-tight">
-                              {tab.title || t('modal.tabAssignment.untitled')}
+                              {tab.title || t('modal.tabCategoryOrganizer.untitled')}
                             </p>
                           </div>
                           {tab.active && <span className="w-1 h-1 bg-green-400 rounded-full flex-shrink-0 animate-pulse"></span>}

@@ -20,23 +20,28 @@ interface TabListItemProps {
  * Memoized tab list item component
  * Prevents re-rendering when other tabs change
  */
-export const TabListItem = React.memo(function TabListItem({ tab, categories, isSelected, isUpdating, onCategoryChange }: TabListItemProps) {
+export const TabListItem = React.memo(function TabListItem({
+  tab,
+  categories,
+  isSelected,
+  isUpdating,
+  onCategoryChange,
+}: TabListItemProps) {
   const { t } = useTranslation();
 
   return (
-    <div
-      className={`glass-card py-2 px-3 transition-all relative ${
-        isSelected ? 'ring-2 ring-green-500' : ''
-      }`}
-    >
+    <div className={`glass-card py-2 px-3 transition-all relative ${isSelected ? 'ring-2 ring-green-500' : ''}`}>
       <div className="flex items-start gap-2.5">
         {/* Favicon */}
         <FavIcon url={tab.favIconUrl || tab.url} size={18} className="flex-shrink-0 mt-0.5" />
 
         {/* Tab title and URL */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm glass-text truncate font-semibold leading-tight" title={tab.title || t('modal.tabAssignment.untitled')}>
-            {tab.title || t('modal.tabAssignment.untitled')}
+          <p
+            className="text-sm glass-text truncate font-semibold leading-tight"
+            title={tab.title || t('modal.tabCategoryOrganizer.untitled')}
+          >
+            {tab.title || t('modal.tabCategoryOrganizer.untitled')}
           </p>
           {tab.url && (
             <p className="text-[10px] glass-text opacity-50 truncate mt-0.5" title={tab.url}>

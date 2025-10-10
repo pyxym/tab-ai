@@ -207,8 +207,8 @@
       "domains": "domains",
       "custom": "custom categories"
     },
-    "tabAssignment": {
-      "title": "Tab Category List",
+    "tabCategoryOrganizer": {
+      "title": "Tab Category Management",
       "infoTitle": "Tab Category Management",
       "infoDescription": "Organize your tabs efficiently by assigning them to appropriate categories.",
       "infoFeatures": [
@@ -220,7 +220,7 @@
       "domain": "Domain",
       "category": "Category",
       "selectCategory": "Select category",
-      "assignTabsToCategories": "Tab Category List",
+      "assignTabsToCategories": "Tab Category Management",
       "applyGrouping": "Apply",
       "applying": "Applying...",
       "applyButtonTooltip": "Apply category grouping to browser tabs",

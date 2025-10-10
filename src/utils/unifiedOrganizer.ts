@@ -1,14 +1,8 @@
 // Smart Organize와 Apply Grouping 모두에서 사용되는 통합 탭 정리 로직
 import { useCategoryStore } from '../store/categoryStore';
-import { filterProtectedTabs, getProtectedTabStats, isSystemUrl } from './tabFilters';
 import { COLOR_TO_CHROME_GROUP, type Category } from '../types/category';
-import {
-  filterValidTabIds,
-  moveTabsBatch,
-  safeUngroup,
-  createAndConfigureGroup,
-  extractDomain,
-} from './chromeTabHelpers';
+import { createAndConfigureGroup, extractDomain, filterValidTabIds, moveTabsBatch, safeUngroup } from './chromeTabHelpers';
+import { filterProtectedTabs, getProtectedTabStats, isSystemUrl } from './tabFilters';
 
 interface OrganizeResult {
   success: boolean;
@@ -86,12 +80,7 @@ export async function organizeTabsUnified(categories: Category[]): Promise<Organ
       if (!categoryTabs || categoryTabs.length === 0) return null;
 
       const tabIds = filterValidTabIds(categoryTabs);
-      const groupId = await createAndConfigureGroup(
-        tabIds,
-        category.name,
-        COLOR_TO_CHROME_GROUP[category.color],
-        false
-      );
+      const groupId = await createAndConfigureGroup(tabIds, category.name, COLOR_TO_CHROME_GROUP[category.color], false);
 
       if (groupId !== null) {
         return { groupsCreated: 1, tabsProcessed: tabIds.length };
@@ -114,8 +103,8 @@ export async function organizeTabsUnified(categories: Category[]): Promise<Organ
         systemTabIds.map((tabId) =>
           chrome.tabs.move(tabId, { index: -1 }).catch(() => {
             // 개별 실패는 무시
-          })
-        )
+          }),
+        ),
       );
     }
 

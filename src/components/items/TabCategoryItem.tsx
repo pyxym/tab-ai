@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Category } from '../../types/category';
+import type { Category, ExtendedColorEnum } from '../../types/category';
 import { CustomSelect } from '../ui/CustomSelect';
 import { FavIcon } from '../ui/FavIcon';
 
@@ -8,9 +8,16 @@ interface TabWithCategory extends chrome.tabs.Tab {
   category?: string;
 }
 
+// 🚀 성능: 가벼운 카테고리 옵션 타입 (전체 Category 대신 필요한 필드만)
+interface CategoryOption {
+  id: string;
+  name: string;
+  color: ExtendedColorEnum;
+}
+
 interface TabCategoryItemProps {
   tab: TabWithCategory;
-  categories: Category[];
+  categories: CategoryOption[] | Category[];
   isSelected: boolean;
   isUpdating: boolean;
   onCategoryChange: (tabId: number, tabUrl: string, newCategoryId: string) => void;

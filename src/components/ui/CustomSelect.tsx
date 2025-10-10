@@ -1,10 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Category } from '../../types/category';
+import type { Category, ExtendedColorEnum } from '../../types/category';
 import { getColorHex } from '../../utils/colorUtils';
+
+// 🚀 성능: 가벼운 카테고리 옵션 타입
+interface CategoryOption {
+  id: string;
+  name: string;
+  color: ExtendedColorEnum;
+}
 
 interface CustomSelectProps {
   value: string;
-  options: Category[];
+  options: CategoryOption[] | Category[];
   onChange: (value: string) => void;
   disabled?: boolean;
   className?: string;

@@ -21,13 +21,14 @@ interface SimpleBarChartProps {
 }
 
 /**
+ * 🚀 성능 최적화: React.memo로 불필요한 리렌더링 방지
  * 간단한 막대 차트 컴포넌트
  * 카테고리별 사용 시간이나 방문 횟수 등을 시각화
  *
  * @component
  * @param {SimpleBarChartProps} props - 컴포넌트 속성
  */
-export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data, title, maxValue, showValues = true, height = 200 }) => {
+export const SimpleBarChart = React.memo<SimpleBarChartProps>(({ data, title, maxValue, showValues = true, height = 200 }) => {
   // 차트의 Y축 최대값 계산 (전달받은 값 또는 데이터 최대값, 최소 1) - NaN 방지
   const values = data.map((d) => d.value).filter((v) => typeof v === 'number' && !isNaN(v));
   const max = maxValue || (values.length > 0 ? Math.max(...values, 1) : 1);
@@ -63,4 +64,4 @@ export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data, title, max
       </div>
     </div>
   );
-};
+});

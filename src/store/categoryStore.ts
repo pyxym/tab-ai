@@ -35,6 +35,52 @@ const domainCache = new Map<string, string>();
 const MAX_CACHE_SIZE = 1000;
 
 /**
+ * 🚀 성능 최적화: Set 기반 도메인 조회 인덱스
+ * O(n*m) 순차 검색을 O(1) Set 조회로 개선
+ * categories가 변경될 때마다 재구성됨
+ */
+interface DomainIndex {
+  exactDomains: Map<string, string>; // 정확한 도메인 매칭 (예: "github.com" -> categoryId)
+  parentDomains: Map<string, string>; // 부모 도메인 매칭 (예: "github.com" -> categoryId for "docs.github.com")
+  keywordPatterns: Array<{ categoryId: string; regex: RegExp }>; // 키워드 패턴
+}
+
+let domainIndex: DomainIndex = {
+  exactDomains: new Map(),
+  parentDomains: new Map(),
+  keywordPatterns: [],
+};
+
+/**
+ * 카테고리 변경 시 도메인 인덱스 재구성
+ * @param categories 카테고리 목록
+ */
+function rebuildDomainIndex(categories: Category[]): void {
+  const exactDomains = new Map<string, string>();
+  const parentDomains = new Map<string, string>();
+  const keywordPatterns: Array<{ categoryId: string; regex: RegExp }> = [];
+
+  for (const category of categories) {
+    // 정확한 도메인 매칭 인덱스 구축
+    for (const domain of category.domains) {
+      const normalized = domain.toLowerCase();
+      exactDomains.set(normalized, category.id);
+      // 서브도메인 매칭을 위해 부모 도메인도 저장
+      parentDomains.set(normalized, category.id);
+    }
+
+    // 키워드 패턴 인덱스 구축
+    for (const keyword of category.keywords) {
+      const keywordLower = keyword.toLowerCase();
+      const regex = new RegExp(`\\b${keywordLower}\\b`);
+      keywordPatterns.push({ categoryId: category.id, regex });
+    }
+  }
+
+  domainIndex = { exactDomains, parentDomains, keywordPatterns };
+}
+
+/**
  * 카테고리 스토어
  * Zustand를 사용한 카테고리 상태 관리
  */
@@ -51,6 +97,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
     // Clear cache when loading categories
     domainCache.clear();
+    // 🚀 도메인 인덱스 재구성 (성능 최적화)
 
     if (categories.length > 0) {
       // 저장된 카테고리와 기본 카테고리 병합
@@ -116,6 +163,9 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         categoryMapping: updatedMapping,
       });
 
+      // 🚀 도메인 인덱스 재구성
+      rebuildDomainIndex(mergedCategories);
+
       // Update storage with merged categories
       await storageUtils.setCategories(mergedCategories);
     } else {
@@ -126,6 +176,8 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         categories: DEFAULT_CATEGORIES,
         categoryMapping: {},
       });
+      // 🚀 도메인 인덱스 재구성
+      rebuildDomainIndex(DEFAULT_CATEGORIES);
     }
   },
 
@@ -167,6 +219,8 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
         // Clear cache when categories change
         domainCache.clear();
+        // 🚀 도메인 인덱스 재구성
+        rebuildDomainIndex(updatedCategories);
 
         // Check storage quota before saving
         // WXT handles storage quota internally
@@ -193,6 +247,8 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
     // Clear cache when categories change
     domainCache.clear();
+    // 🚀 도메인 인덱스 재구성
+    rebuildDomainIndex(updatedCategories);
 
     await storageUtils.setCategories(updatedCategories);
     set({ categories: updatedCategories });
@@ -221,6 +277,8 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
     // Clear cache when categories change
     domainCache.clear();
+    // 🚀 도메인 인덱스 재구성
+    rebuildDomainIndex(updatedCategories);
 
     await storageUtils.setCategories(updatedCategories);
     await storageUtils.setCategoryMapping(updatedMapping);
@@ -262,6 +320,8 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
         // Clear cache when domain assignments change
         domainCache.clear();
+        // 🚀 도메인 인덱스 재구성
+        rebuildDomainIndex(updatedCategories);
 
         await storageUtils.setCategoryMapping(mapping);
         await storageUtils.setCategories(updatedCategories);
@@ -277,80 +337,50 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       () => {
         const normalizedDomain = domain.toLowerCase().replace(/^www\./, '');
 
-        // Check cache first
+        // 🚀 Step 1: 캐시 확인 (O(1))
         const cached = domainCache.get(normalizedDomain);
         if (cached !== undefined) {
           return cached;
         }
 
-        const { categories, categoryMapping } = get();
+        const { categoryMapping } = get();
 
-        // Check explicit mapping first
+        // 🚀 Step 2: 명시적 매핑 확인 (O(1))
         if (categoryMapping[normalizedDomain]) {
           const result = categoryMapping[normalizedDomain];
-          // Cache and return
-          if (domainCache.size >= MAX_CACHE_SIZE) {
-            // Remove oldest entry (first item)
-            const firstKey = domainCache.keys().next().value;
-            if (firstKey) domainCache.delete(firstKey);
-          }
-          domainCache.set(normalizedDomain, result);
+          cacheResult(normalizedDomain, result);
           return result;
         }
 
-        // Check category domains with better pattern matching
-        for (const category of categories) {
-          // Exact domain match
-          if (category.domains.some((d) => normalizedDomain === d.toLowerCase())) {
-            if (domainCache.size >= MAX_CACHE_SIZE) {
-              const firstKey = domainCache.keys().next().value;
-              if (firstKey) domainCache.delete(firstKey);
-            }
-            domainCache.set(normalizedDomain, category.id);
-            return category.id;
-          }
+        // 🚀 Step 3: Set 기반 정확한 도메인 매칭 (O(1))
+        const exactMatch = domainIndex.exactDomains.get(normalizedDomain);
+        if (exactMatch) {
+          cacheResult(normalizedDomain, exactMatch);
+          return exactMatch;
+        }
 
-          // Subdomain match (e.g., docs.github.com matches github.com)
-          if (
-            category.domains.some((d) => {
-              const pattern = d.toLowerCase();
-              return normalizedDomain.endsWith(`.${pattern}`) || normalizedDomain === pattern;
-            })
-          ) {
-            if (domainCache.size >= MAX_CACHE_SIZE) {
-              const firstKey = domainCache.keys().next().value;
-              if (firstKey) domainCache.delete(firstKey);
-            }
-            domainCache.set(normalizedDomain, category.id);
-            return category.id;
+        // 🚀 Step 4: 서브도메인 매칭 (예: docs.github.com -> github.com)
+        // 최적화: 도메인을 역순으로 검사하여 부모 도메인 찾기
+        const parts = normalizedDomain.split('.');
+        for (let i = 1; i < parts.length; i++) {
+          const parentDomain = parts.slice(i).join('.');
+          const parentMatch = domainIndex.parentDomains.get(parentDomain);
+          if (parentMatch) {
+            cacheResult(normalizedDomain, parentMatch);
+            return parentMatch;
           }
         }
 
-        // Check keywords in domain with word boundaries
-        for (const category of categories) {
-          if (
-            category.keywords.some((keyword) => {
-              const keywordLower = keyword.toLowerCase();
-              // Match whole words only
-              const regex = new RegExp(`\\b${keywordLower}\\b`);
-              return regex.test(normalizedDomain);
-            })
-          ) {
-            if (domainCache.size >= MAX_CACHE_SIZE) {
-              const firstKey = domainCache.keys().next().value;
-              if (firstKey) domainCache.delete(firstKey);
-            }
-            domainCache.set(normalizedDomain, category.id);
-            return category.id;
+        // 🚀 Step 5: 키워드 패턴 매칭 (최적화된 정규식)
+        for (const { categoryId, regex } of domainIndex.keywordPatterns) {
+          if (regex.test(normalizedDomain)) {
+            cacheResult(normalizedDomain, categoryId);
+            return categoryId;
           }
         }
 
-        // Cache uncategorized result
-        if (domainCache.size >= MAX_CACHE_SIZE) {
-          const firstKey = domainCache.keys().next().value;
-          if (firstKey) domainCache.delete(firstKey);
-        }
-        domainCache.set(normalizedDomain, 'uncategorized');
+        // Step 6: 기본값 - uncategorized
+        cacheResult(normalizedDomain, 'uncategorized');
         return 'uncategorized';
       },
       'uncategorized',
@@ -360,10 +390,14 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
 
   clearCache: () => {
     domainCache.clear();
+    // 🚀 도메인 인덱스도 재구성 필요
+    const { categories } = get();
+    rebuildDomainIndex(categories);
   },
 
   resetToDefaults: async () => {
     domainCache.clear();
+    rebuildDomainIndex(DEFAULT_CATEGORIES);
     await storageUtils.setCategories(DEFAULT_CATEGORIES);
     await storageUtils.setCategoryMapping({});
     set({
@@ -375,6 +409,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   resetToMinimal: async () => {
     // Clear all categories except Uncategorized
     domainCache.clear();
+    rebuildDomainIndex(DEFAULT_CATEGORIES);
     await storageUtils.setCategories(DEFAULT_CATEGORIES);
     await storageUtils.setCategoryMapping({});
     set({
@@ -416,10 +451,23 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     const sorted = uncategorized ? [...otherCategories, uncategorized] : newCategories;
 
     domainCache.clear();
+    rebuildDomainIndex(sorted);
     await storageUtils.setCategories(sorted);
     set({ categories: sorted });
   },
 }));
+
+/**
+ * 🚀 Helper: 캐시에 결과 저장 (LRU 방식)
+ */
+function cacheResult(domain: string, categoryId: string): void {
+  if (domainCache.size >= MAX_CACHE_SIZE) {
+    // Remove oldest entry (first item)
+    const firstKey = domainCache.keys().next().value;
+    if (firstKey) domainCache.delete(firstKey);
+  }
+  domainCache.set(domain, categoryId);
+}
 
 /**
  * 최적화된 선택자 함수들

@@ -19,13 +19,14 @@ interface SimpleLineChartProps {
 }
 
 /**
+ * 🚀 성능 최적화: React.memo로 불필요한 리렌더링 방지
  * 간단한 라인 차트 컴포넌트
  * 시간에 따른 추이나 패턴을 시각화
  *
  * @component
  * @param {SimpleLineChartProps} props - 컴포넌트 속성
  */
-export const SimpleLineChart: React.FC<SimpleLineChartProps> = ({ data, title, height = 150, color = '#8B5CF6' }) => {
+export const SimpleLineChart = React.memo<SimpleLineChartProps>(({ data, title, height = 150, color = '#8B5CF6' }) => {
   // 데이터가 없으면 렌더링하지 않음
   if (data.length === 0) return null;
 
@@ -108,4 +109,4 @@ export const SimpleLineChart: React.FC<SimpleLineChartProps> = ({ data, title, h
       </div>
     </div>
   );
-};
+});

@@ -167,9 +167,9 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
-      <div className="glass-main rounded-[24px] w-full max-w-3xl h-[96vh] max-h-[96vh] flex flex-col">
+      <div className="glass-main rounded-[12px] w-full max-w-3xl h-[95vh] max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-white/20">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.categoryManager.title')}</h2>

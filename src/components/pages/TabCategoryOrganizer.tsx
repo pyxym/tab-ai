@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
 import { filterProtectedTabs } from '../../utils/tabFilters';
 import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
-import { TabListItem } from '../items/TabListItem';
+import { TabCategoryItem } from '../items/TabCategoryItem';
 import { InfoTooltip } from '../ui/InfoTooltip';
 
 interface TabCategoryOrganizerProps {
@@ -15,8 +15,8 @@ interface TabWithCategory extends chrome.tabs.Tab {
 }
 
 /**
- * 탭 카테고리 정리 컴포넌트 (최적화됨)
- * 250줄에서 ~150줄로 축소하여 성능 개선
+ * 탭 카테고리 정리 컴포넌트
+ * 성능 개선
  * - 메모이제이션된 탭 아이템으로 불필요한 리렌더링 방지
  * - 통합된 상태 관리
  * - 탭 아이템을 별도 컴포넌트로 분리
@@ -66,13 +66,8 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     const allTabs = await chrome.tabs.query({ currentWindow: true });
     const filteredTabs = filterProtectedTabs(allTabs);
 
-    // 🚀 성능: O(n) indexOf 대신 O(1) 카테고리 순서 조회를 위한 Map 생성
-    const categoryOrderMap = new Map<string, number>();
-    categories.forEach((cat, index) => {
-      categoryOrderMap.set(cat.id, index);
-    });
-    categoryOrderMap.set('uncategorized', categories.length);
-
+    // 🚀 성능: 탭 순서 유지 (정렬 제거로 O(n log n) → O(n) 개선)
+    // 사용자는 원래 탭 순서를 선호하며, 카테고리 정렬은 실제 조직화 시 적용됨
     const tabsWithCategories = filteredTabs.map((tab) => {
       if (tab.url) {
         const domain = getDomainFromUrl(tab.url);
@@ -84,15 +79,8 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
       return { ...tab, category: 'uncategorized' };
     });
 
-    // 🚀 성능: 정렬 시 O(n) indexOf 대신 O(1) Map 조회 사용
-    const sortedTabs = tabsWithCategories.sort((a, b) => {
-      const aIndex = categoryOrderMap.get(a.category || 'uncategorized') ?? categories.length;
-      const bIndex = categoryOrderMap.get(b.category || 'uncategorized') ?? categories.length;
-      return aIndex - bIndex;
-    });
-
-    setTabs(sortedTabs);
-  }, [categories, getCategoryForDomain, getDomainFromUrl]);
+    setTabs(tabsWithCategories);
+  }, [getCategoryForDomain, getDomainFromUrl]);
 
   // 카테고리 변경 처리
   const handleCategoryChange = useCallback(
@@ -139,7 +127,8 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     try {
       setIsOrganizing(true);
       await organizeTabsUnified(categories);
-      setTimeout(() => loadTabs(), 500);
+      // 🚀 성능: 불필요한 delay 제거, 즉시 탭 새로고침
+      await loadTabs();
     } catch (error) {
       console.error('[TabCategoryOrganizer] 조직화 실패:', error);
     } finally {
@@ -167,9 +156,9 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
-      <div className="glass-main rounded-[24px] w-full max-w-2xl h-[96vh] max-h-[96vh] flex flex-col">
+      <div className="glass-main rounded-[12px] w-full max-w-2xl h-[95vh] max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-white/20">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabCategoryOrganizer.assignTabsToCategories')}</h2>
@@ -209,7 +198,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1.5">
             {tabs.map((tab) => (
-              <TabListItem
+              <TabCategoryItem
                 key={tab.id}
                 tab={tab}
                 categories={categories}

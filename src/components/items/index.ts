@@ -4,4 +4,4 @@
  */
 
 export { CategoryItem } from './CategoryItem';
-export { TabListItem } from './TabListItem';
+export { TabCategoryItem } from './TabCategoryItem';

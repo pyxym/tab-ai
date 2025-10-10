@@ -42,9 +42,9 @@ export const DashboardModal: React.FC<DashboardModalProps> = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
-      <div className="glass-main rounded-[24px] w-full max-w-5xl h-[96vh] max-h-[96vh] flex flex-col">
+      <div className="glass-main rounded-[24px] w-full max-w-5xl h-[95vh] max-h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-white/20">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold ai-gradient-text">📊 Analytics Dashboard (Beta)</h2>
             <button onClick={onClose} className="glass-button-primary !p-2 !px-3">

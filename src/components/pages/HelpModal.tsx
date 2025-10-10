@@ -66,9 +66,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
-      <div className="glass-main rounded-[24px] w-full max-w-3xl max-h-[96vh] overflow-hidden">
+      <div className="glass-main rounded-[12px] w-full max-w-3xl h-[95vh] max-h-[95vh] overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-white/20">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.help.tabQuestGuide')}</h2>

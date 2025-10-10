@@ -80,7 +80,8 @@ export async function organizeTabsUnified(categories: Category[]): Promise<Organ
       if (!categoryTabs || categoryTabs.length === 0) return null;
 
       const tabIds = filterValidTabIds(categoryTabs);
-      const groupId = await createAndConfigureGroup(tabIds, category.name, COLOR_TO_CHROME_GROUP[category.color], false);
+      // 🎯 UX 개선: 탭 그룹을 닫힌 상태(collapsed)로 생성하여 깔끔한 정리
+      const groupId = await createAndConfigureGroup(tabIds, category.name, COLOR_TO_CHROME_GROUP[category.color], true);
 
       if (groupId !== null) {
         return { groupsCreated: 1, tabsProcessed: tabIds.length };

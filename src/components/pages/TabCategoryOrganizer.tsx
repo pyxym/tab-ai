@@ -153,7 +153,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     });
   }, []);
 
-  // 🚀 성능 개선 3 & 7: handleCategorySelect 단일 패스 최적화
+  // 🚀 성능 개선 3 & 7 & 9: handleCategorySelect 단일 패스 최적화 + UX 개선
   // 모달에서 카테고리 선택 시 호출
   const handleCategorySelect = useCallback(
     async (newCategoryId: string) => {
@@ -183,6 +183,9 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
           }),
         );
 
+        // 🚀 최적화 9: 모달 자동 닫기 (UX 개선)
+        handleCloseCategoryModal();
+
         // 성공 피드백 표시
         setSelectedTab(tabId);
         setTimeout(() => setSelectedTab(null), 1500);
@@ -192,7 +195,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
         setIsUpdating(false);
       }
     },
-    [categoryModalState, getDomainFromUrl],
+    [categoryModalState, getDomainFromUrl, handleCloseCategoryModal],
   );
 
   // 🚀 성능 개선 1: organizeTabsByCategory 의존성 최적화
@@ -295,7 +298,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
                     categoryName={category?.name || 'Uncategorized'}
                     categoryColor={(category?.color as any) || 'grey'}
                     isSelected={selectedTab === tab.id}
-                    onClick={() => {}}
+                    onClick={undefined}
                   />
                 </div>
               );

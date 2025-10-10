@@ -13,7 +13,7 @@ interface TabCategoryItemProps {
   categoryName: string;
   categoryColor: ExtendedColorEnum;
   isSelected: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 /**

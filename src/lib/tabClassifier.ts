@@ -1,4 +1,22 @@
-// AI-powered tab classification system
+/**
+ * AI-powered tab classification system
+ *
+ * ⚠️ PLANNED FEATURE - NOT YET INTEGRATED
+ *
+ * This module provides advanced machine learning-based tab classification
+ * that learns from user behavior patterns over time.
+ *
+ * Current Status: Implementation complete but not integrated into main codebase
+ *
+ * Integration TODO:
+ * - Connect to categoryStore for category suggestions
+ * - Add UI for enabling/disabling learning mode
+ * - Integrate with tab organization workflow
+ * - Add user feedback mechanism for improving classifications
+ *
+ * @see https://github.com/your-repo/issues/xxx for implementation tracking
+ */
+
 import type { TabInfo } from '../store/tabStore';
 import { storageUtils } from '../utils/storage';
 
@@ -47,7 +65,7 @@ export class TabClassifier {
 
     try {
       const url = new URL(tab.url);
-      const domain = url.hostname.toLowerCase().replace(/^www\./, '');
+      const domain = url.hostname.toLowerCase().replace(/^www\./, ''); // TODO: Use extractDomain from chromeTabHelpers
 
       // 1. Check user's explicit mappings first (highest priority)
       const userMapping = await this.getUserMapping(domain);
@@ -118,7 +136,7 @@ export class TabClassifier {
       const relatedDomains = context.sessionTabs
         .map((t) => {
           try {
-            return new URL(t.url).hostname.replace(/^www\./, '');
+            return new URL(t.url).hostname.replace(/^www\./, ''); // TODO: Use extractDomain
           } catch {
             return null;
           }
@@ -174,7 +192,7 @@ export class TabClassifier {
       const sessionDomains = context.sessionTabs
         .map((t) => {
           try {
-            return new URL(t.url).hostname.replace(/^www\./, '');
+            return new URL(t.url).hostname.replace(/^www\./, ''); // TODO: Use extractDomain
           } catch {
             return null;
           }

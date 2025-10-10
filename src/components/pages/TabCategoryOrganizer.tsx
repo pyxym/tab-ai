@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
+import { extractDomain } from '../../utils/chromeTabHelpers';
 import { filterProtectedTabs } from '../../utils/tabFilters';
 import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
 import { TabCategoryItem } from '../items/TabCategoryItem';
@@ -76,14 +77,9 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     (url: string): string => {
       if (domainCache.has(url)) return domainCache.get(url)!;
 
-      try {
-        const domain = new URL(url).hostname.replace(/^www\./, '');
-        domainCache.set(url, domain);
-        return domain;
-      } catch {
-        domainCache.set(url, '');
-        return '';
-      }
+      const domain = extractDomain(url) || '';
+      domainCache.set(url, domain);
+      return domain;
     },
     [domainCache],
   );

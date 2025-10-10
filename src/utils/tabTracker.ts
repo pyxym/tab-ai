@@ -1,5 +1,6 @@
 // 탭 사용 추적 유틸리티
 import type { DailyStats } from '../types/storage';
+import { extractDomain } from './chromeTabHelpers';
 import { TAB_TRACKING_CONFIG } from './configs';
 import { storageUtils } from './storage';
 import { isProtectedTab, isSystemUrl } from './tabFilters';
@@ -162,7 +163,8 @@ export class TabTracker {
         return;
       }
 
-      const domain = new URL(tab.url).hostname.replace(/^www\./, '');
+      const domain = extractDomain(tab.url);
+      if (!domain) return;
 
       // CategoryStore와 동일한 로직으로 카테고리 가져오기
       const categoryMapping = await storageUtils.getCategoryMapping();
@@ -231,7 +233,9 @@ export class TabTracker {
         return;
       }
 
-      const domain = new URL(tab.url).hostname.replace(/^www\./, '');
+      const domain = extractDomain(tab.url);
+      if (!domain) return;
+
       const tabUsageData = await storageUtils.getTabUsageData();
 
       const key = domain;

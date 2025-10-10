@@ -1,37 +1,10 @@
-import { DOMAIN_CATEGORIES, KEYWORD_CATEGORIES, MEMORY_ESTIMATE_CONFIG, PRODUCTIVITY_SCORE_CONFIG, TAB_IMPORTANCE_CONFIG } from './configs';
-
-export interface TabAnalysis {
-  domain: string;
-  category: string;
-  importance: number;
-  duplicateOf?: number;
-  memoryEstimate: number;
-  lastAccessed: number;
-  accessCount: number;
-}
+import { DOMAIN_CATEGORIES, KEYWORD_CATEGORIES, PRODUCTIVITY_SCORE_CONFIG } from './configs';
 
 export interface DuplicateGroup {
   url: string;
   tabs: chrome.tabs.Tab[];
   count: number;
   recommendation: string;
-}
-
-// Analyze a single tab
-export function analyzeTab(tab: chrome.tabs.Tab): TabAnalysis {
-  const domain = tab.url ? new URL(tab.url).hostname : '';
-  const category = categorizeByDomain(domain);
-  const importance = calculateImportance(tab);
-  const memoryEstimate = estimateMemoryUsage(tab);
-
-  return {
-    domain,
-    category,
-    importance,
-    memoryEstimate,
-    lastAccessed: Date.now(),
-    accessCount: 1,
-  };
 }
 
 // Categorize tabs by domain
@@ -51,49 +24,6 @@ export function categorizeByDomain(domain: string): string {
   }
 
   return 'uncategorized';
-}
-
-// Calculate tab importance score (0-100)
-export function calculateImportance(tab: chrome.tabs.Tab): number {
-  let score = TAB_IMPORTANCE_CONFIG.BASE_SCORE;
-
-  // Active tab gets bonus
-  if (tab.active) score += TAB_IMPORTANCE_CONFIG.ACTIVE_BONUS;
-
-  // Pinned tabs are important
-  if (tab.pinned) score += TAB_IMPORTANCE_CONFIG.PINNED_BONUS;
-
-  // Audio playing tabs
-  if (tab.audible) score += TAB_IMPORTANCE_CONFIG.AUDIBLE_BONUS;
-
-  // Recently accessed (mock for now)
-  // In real implementation, this would check lastAccessed from storage
-
-  // Tab with form data or unsaved changes would get bonus
-  // (requires content script to detect)
-
-  return Math.min(TAB_IMPORTANCE_CONFIG.MAX_SCORE, score);
-}
-
-// Estimate memory usage in MB
-export function estimateMemoryUsage(tab: chrome.tabs.Tab): number {
-  if (!tab.url) return MEMORY_ESTIMATE_CONFIG.BASE_MEMORY;
-
-  const domain = new URL(tab.url).hostname;
-
-  // Heavy sites
-  for (const [site, memory] of Object.entries(MEMORY_ESTIMATE_CONFIG.HEAVY_SITES)) {
-    if (domain.includes(site)) {
-      return memory;
-    }
-  }
-
-  // Media sites generally use more memory
-  if (tab.audible || domain.includes('video') || domain.includes('stream')) {
-    return MEMORY_ESTIMATE_CONFIG.MEDIA_SITE_MEMORY;
-  }
-
-  return MEMORY_ESTIMATE_CONFIG.BASE_MEMORY;
 }
 
 // Find duplicate tabs

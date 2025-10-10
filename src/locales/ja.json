@@ -196,7 +196,7 @@
     },
     "tabCategoryOrganizer": {
       "title": "タブ・カテゴリ管理",
-      "infoTitle": "タブカテゴリ管理",
+      "infoTitle": "タブ・カテゴリ管理",
       "infoDescription": "各タブを適切なカテゴリに分類して効率的に管理しましょう。",
       "infoFeatures": [
         "🌐 ドメイン単位でカテゴリを割り当て",
@@ -226,8 +226,8 @@
       "tip": "💡 ヒント: 検索で素早く見つけられます"
     },
     "tabGroups": {
-      "title": "タブグループ一覧",
-      "infoTitle": "タブグループ管理",
+      "title": "タブ・グループ管理",
+      "infoTitle": "タブ・グループ管理",
       "infoDescription": "現在開いているタブグループを確認し、スナップショットとして保存して後で復元できます。",
       "infoFeatures": [
         "👁️ 現在のタブグループの表示と管理",
@@ -245,7 +245,9 @@
       "takeSnapshot": "スナップショット保存",
       "restoreSnapshot": "スナップショット復元",
       "noSnapshots": "保存されたスナップショットがありません",
-      "noSnapshotsTip": "現在のタブグループの📸ボタンをクリックしてスナップショットを保存できます。"
+      "noSnapshotsTip": "現在のタブグループの📸ボタンをクリックしてスナップショットを保存できます。",
+      "expandInChrome": "Chromeで展開",
+      "collapseInChrome": "Chromeで折りたたむ"
     },
     "dashboard": {
       "title": "分析ダッシュボード",

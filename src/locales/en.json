@@ -239,7 +239,7 @@
       "tip": "💡 Tip: Use search to quickly find categories"
     },
     "tabGroups": {
-      "title": "Tab Groups Overview",
+      "title": "Tab Groups Management",
       "infoTitle": "Tab Group Management",
       "infoDescription": "View current tab groups and save them as snapshots for later restoration.",
       "infoFeatures": [
@@ -258,7 +258,9 @@
       "takeSnapshot": "Take Snapshot",
       "restoreSnapshot": "Restore Snapshot",
       "noSnapshots": "No saved snapshots",
-      "noSnapshotsTip": "Click the 📸 button on current tab groups to save snapshots."
+      "noSnapshotsTip": "Click the 📸 button on current tab groups to save snapshots.",
+      "expandInChrome": "Expand in Chrome",
+      "collapseInChrome": "Collapse in Chrome"
     },
     "dashboard": {
       "title": "Analytics Dashboard",

@@ -21,17 +21,17 @@ interface TabGroup {
 }
 
 /**
- * 탭 그룹 모달 Props
+ * 탭 그룹 관리 Props
  */
-interface TabGroupsModalProps {
+interface TabGroupManagerProps {
   onClose: () => void;
 }
 
 /**
- * 탭 그룹 보기 모달 컴포넌트
- * 현재 창의 모든 탭 그룹과 그룹화된 탭들을 표시
+ * 탭 그룹 관리 컴포넌트
+ * 현재 창의 모든 탭 그룹과 그룹화된 탭들을 표시하고 스냅샷 관리 기능 제공
  */
-export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
+export const TabGroupManager: React.FC<TabGroupManagerProps> = ({ onClose }) => {
   const { t } = useTranslation();
 
   // 최적화된 선택자 사용 - 카테고리 데이터만 구독
@@ -448,7 +448,7 @@ export const TabGroupsModal: React.FC<TabGroupsModalProps> = ({ onClose }) => {
                             toggleChromeGroup(group.id, group.collapsed);
                           }}
                           className="p-1 rounded text-white/60 hover:text-white hover:bg-blue-500/20 transition-all"
-                          title={group.collapsed ? 'Chrome에서 펼치기' : 'Chrome에서 접기'}
+                          title={group.collapsed ? t('modal.tabGroups.expandInChrome') : t('modal.tabGroups.collapseInChrome')}
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {group.collapsed ? (

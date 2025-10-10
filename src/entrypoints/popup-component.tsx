@@ -4,7 +4,7 @@ import { CategoryManager } from '../components/pages/CategoryManager';
 import { DashboardModal } from '../components/pages/DashboardModal';
 import { HelpModal } from '../components/pages/HelpModal';
 import { TabCategoryOrganizer } from '../components/pages/TabCategoryOrganizer';
-import { TabGroupsModal } from '../components/pages/TabGroupsModal';
+import { TabGroupManager } from '../components/pages/TabGroupManager';
 import { PopupHeader } from '../components/popup/PopupHeader';
 import { PopupStats } from '../components/popup/PopupStats';
 import { AIInsightCard } from '../components/shared/AIInsightCard';
@@ -325,7 +325,7 @@ function IndexPopup() {
       {/* Modals */}
       {modals.categoryManager && <CategoryManager onClose={() => toggleModal('categoryManager', false)} />}
       {modals.tabList && <TabCategoryOrganizer onClose={() => toggleModal('tabList', false)} />}
-      {modals.tabGroups && <TabGroupsModal onClose={() => toggleModal('tabGroups', false)} />}
+      {modals.tabGroups && <TabGroupManager onClose={() => toggleModal('tabGroups', false)} />}
       {modals.dashboard && <DashboardModal onClose={() => toggleModal('dashboard', false)} />}
       {modals.help && <HelpModal isOpen={modals.help} onClose={() => toggleModal('help', false)} />}
 

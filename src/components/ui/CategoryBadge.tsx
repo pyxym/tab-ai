@@ -23,15 +23,14 @@ interface CategoryBadgeProps {
  * 카테고리 이름과 색상을 표시하는 경량 컴포넌트
  * 클릭하면 카테고리 선택 모달이 열림
  */
-export const CategoryBadge = React.memo<CategoryBadgeProps>(
-  ({ categoryName, categoryColor, onClick, className = '' }) => {
-    // 🚀 최적화: 색상 계산 결과 캐싱
-    const backgroundColor = useMemo(() => getColorHex(categoryColor), [categoryColor]);
+export const CategoryBadge = React.memo<CategoryBadgeProps>(({ categoryName, categoryColor, onClick, className = '' }) => {
+  // 🚀 최적화: 색상 계산 결과 캐싱
+  const backgroundColor = useMemo(() => getColorHex(categoryColor), [categoryColor]);
 
-    return (
-      <button
-        onClick={onClick}
-        className={`
+  return (
+    <button
+      onClick={onClick}
+      className={`
         px-3 py-1.5 rounded-lg
         glass-card border-none outline-none
         focus:ring-2 focus:ring-purple-500/50
@@ -41,13 +40,12 @@ export const CategoryBadge = React.memo<CategoryBadgeProps>(
         cursor-pointer
         ${className}
       `}
-      >
-        {/* 카테고리 색상 인디케이터 */}
-        <div className="w-3 h-3 rounded-full flex-shrink-0 ring-1 ring-white/30" style={{ backgroundColor }} />
+    >
+      {/* 카테고리 색상 인디케이터 */}
+      <div className="w-3 h-3 rounded-full flex-shrink-0 ring-1 ring-white/30" style={{ backgroundColor }} />
 
-        {/* 카테고리 이름 */}
-        <span className="text-xs font-medium glass-text truncate max-w-[120px]">{categoryName}</span>
-      </button>
-    );
-  },
-);
+      {/* 카테고리 이름 */}
+      <span className="text-xs font-medium glass-text truncate max-w-[120px]">{categoryName}</span>
+    </button>
+  );
+});

@@ -3,7 +3,7 @@
  * TabQuest 작업에서 중요한 탭을 보호합니다
  */
 
-import { PROTECTED_SYSTEM_PREFIXES, PROTECTED_DOMAINS, NEW_TAB_EXACT_URLS, NEW_TAB_URL_PREFIXES } from './configs';
+import { NEW_TAB_EXACT_URLS, NEW_TAB_URL_PREFIXES, PROTECTED_DOMAINS, PROTECTED_SYSTEM_PREFIXES } from './configs';
 
 /**
  * URL이 시스템 URL인지 확인

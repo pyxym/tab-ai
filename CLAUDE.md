@@ -110,6 +110,7 @@ tab-quest/
 ## Architecture Overview
 
 ### WXT Framework
+
 - Modern web extension framework built on Vite
 - Automatic manifest generation
 - Hot Module Replacement in development
@@ -117,11 +118,13 @@ tab-quest/
 - Built-in storage utilities with type safety
 
 ### State Management
+
 - **categoryStore**: Manages user-defined categories for tab organization
 - Local React state for UI components
 - Chrome Storage API for persistence via WXT utilities
 
 ### Storage Architecture
+
 - **Sync Storage**: User preferences and settings
   - `categories`: User-defined tab categories
   - `categoryMapping`: Domain to category mappings
@@ -132,6 +135,7 @@ tab-quest/
   - `aiInsights`: AI-generated insights and suggestions
 
 ### Component Architecture
+
 - Glass morphism design with Tailwind CSS
 - Modular components for maintainability
 - Responsive and accessible UI
@@ -153,6 +157,7 @@ tab-quest/
 ## Chrome Extension Permissions
 
 Current permissions in manifest:
+
 - `tabs`: Access to tab information and management
 - `tabGroups`: Create and manage tab groups
 - `storage`: Store user preferences and usage data
@@ -197,12 +202,14 @@ Current permissions in manifest:
 ## Build & Deployment
 
 1. **Development Build**:
+
    ```bash
    npm run dev
    # Creates build in .output/chrome-mv3-dev/
    ```
 
 2. **Production Build**:
+
    ```bash
    npm run build
    # Creates optimized build in .output/chrome-mv3/
@@ -225,6 +232,7 @@ Current permissions in manifest:
 ## Internationalization
 
 The extension supports multiple languages using i18next:
+
 - Language files stored in `src/locales/`
 - Dynamic language switching without reload
 - Persistent language preference in sync storage
@@ -233,11 +241,13 @@ The extension supports multiple languages using i18next:
 ## Key Components
 
 ### State Management (Zustand Stores)
+
 - **categoryStore**: Category CRUD, reordering, color management
 - **tabStore**: Tab operations, filters, undo/redo, snapshots
 - **aiStore**: AI insights generation and management
 
 ### Core Utilities
+
 - **unifiedOrganizer**: Main tab organization logic
 - **undoManager**: Undo/redo stack management
 - **snapshotStorage**: Snapshot save/restore with compression
@@ -246,6 +256,7 @@ The extension supports multiple languages using i18next:
 - **chromeTabHelpers**: Chrome API wrapper functions
 
 ### UI Components
+
 - **CategoryManager**: Category list with drag-and-drop
 - **TabList**: Tab display with filtering and actions
 - **DashboardModal**: Analytics dashboard with charts
@@ -265,6 +276,7 @@ The extension supports multiple languages using i18next:
 ## Common Patterns
 
 ### Chrome API Usage
+
 ```typescript
 // Always check for runtime errors
 const tabs = await chrome.tabs.query({});
@@ -275,6 +287,7 @@ if (chrome.runtime.lastError) {
 ```
 
 ### Store Updates
+
 ```typescript
 // Use Zustand's set with immer-style updates
 set((state) => {
@@ -283,6 +296,7 @@ set((state) => {
 ```
 
 ### i18n Keys
+
 ```typescript
 // Use translation hook with proper keys
 const { t } = useTranslation();

@@ -1,5 +1,5 @@
 import { storage } from 'wxt/utils/storage';
-import type { TabGroupSnapshot, SavedTab } from '../types/snapshot';
+import type { SavedTab, TabGroupSnapshot } from '../types/snapshot';
 import { SNAPSHOTS_STORAGE_KEY } from '../types/snapshot';
 
 /**
@@ -43,10 +43,7 @@ export async function deleteSnapshot(snapshotId: string): Promise<void> {
 /**
  * 현재 탭 그룹에서 스냅샷 생성
  */
-export async function createSnapshotFromGroup(
-  groupId: number,
-  customName?: string
-): Promise<TabGroupSnapshot | null> {
+export async function createSnapshotFromGroup(groupId: number, customName?: string): Promise<TabGroupSnapshot | null> {
   try {
     // 탭 그룹 정보 가져오기
     const group = await chrome.tabGroups.get(groupId);

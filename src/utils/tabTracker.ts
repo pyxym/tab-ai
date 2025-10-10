@@ -1,8 +1,8 @@
 // 탭 사용 추적 유틸리티
+import type { DailyStats } from '../types/storage';
+import { TAB_TRACKING_CONFIG } from './configs';
 import { storageUtils } from './storage';
 import { isProtectedTab, isSystemUrl } from './tabFilters';
-import { TAB_TRACKING_CONFIG } from './configs';
-import type { TabUsageData, DailyStats } from '../types/storage';
 
 export class TabTracker {
   private static activeTabId: number | null = null;

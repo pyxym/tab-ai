@@ -1,12 +1,6 @@
 import { storage } from 'wxt/utils/storage';
 import type { Category } from '../types/category';
-import type {
-  TabUsageData,
-  DailyStats,
-  UserPattern,
-  CategoryHistory,
-  TabData,
-} from '../types/storage';
+import type { CategoryHistory, DailyStats, TabData, TabUsageData, UserPattern } from '../types/storage';
 
 /**
  * 스토리지 스키마 정의

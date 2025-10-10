@@ -20,8 +20,8 @@ export default defineConfig({
         '16': 'icon/icon-16.png',
         '32': 'icon/icon-32.png',
         '48': 'icon/icon-48.png',
-        '128': 'icon/icon-128.png'
-      }
+        '128': 'icon/icon-128.png',
+      },
     },
     icons: {
       '16': 'icon/icon-16.png',
@@ -29,11 +29,11 @@ export default defineConfig({
       '48': 'icon/icon-48.png',
       '128': 'icon/icon-128.png',
       '256': 'icon/icon-256.png',
-      '512': 'icon/icon-512.png'
+      '512': 'icon/icon-512.png',
     },
     options_ui: {
       page: 'options.html',
-      open_in_tab: true
-    }
+      open_in_tab: true,
+    },
   },
 });

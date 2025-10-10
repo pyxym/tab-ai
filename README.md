@@ -9,24 +9,28 @@ TabQuest is an intelligent browser tab management extension for Chrome and Edge 
 ## ✨ Key Features
 
 ### 📊 Smart Tab Organization
+
 - **Category-based Organization**: Create custom categories and organize tabs automatically
 - **Tab Groups Integration**: Seamlessly works with Chrome's native tab groups
 - **Undo/Redo**: Full undo/redo support for all organization actions
 - **Snapshot Management**: Save and restore tab states
 
 ### 📈 Usage Analytics
+
 - **Tab Tracking**: Monitor time spent and access frequency per tab
 - **Daily Statistics**: Track productivity with daily breakdowns and trends
 - **Productivity Score**: Real-time scoring based on browsing habits
 - **Visual Charts**: Interactive charts showing usage patterns
 
 ### 🎯 Intelligent Features
+
 - **Smart Tab Filtering**: Filter by domain, title, or usage patterns
 - **AI Insights**: Get suggestions to improve productivity
 - **Tab Group Management**: View and manage existing tab groups
 - **Custom Color Themes**: Choose from 10+ vibrant colors for categories
 
 ### 🎨 Modern UI/UX
+
 - **Glass Morphism Design**: Beautiful interface with blur effects and gradients
 - **Multi-language Interface**: Switch between English, Korean, and Japanese
 - **Responsive Layout**: Optimized for different screen sizes
@@ -47,17 +51,20 @@ TabQuest is an intelligent browser tab management extension for Chrome and Edge 
 ### Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/tab-quest.git
    cd tab-quest
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -147,13 +154,17 @@ tab-quest/
 ## 🔧 Configuration
 
 ### WXT Configuration
+
 The extension is configured through `wxt.config.ts`:
+
 - Manifest settings
 - Build options
 - Development server configuration
 
 ### Storage Schema
+
 TabQuest uses Chrome's storage API with two areas:
+
 - **Sync Storage**: User preferences and categories
 - **Local Storage**: Usage data and statistics
 
@@ -196,6 +207,7 @@ We welcome contributions! Please follow these steps:
 ## 📝 Roadmap
 
 ### ✅ Completed
+
 - [x] Multi-language support (EN, KO, JA)
 - [x] Category management with drag-and-drop
 - [x] Tab usage tracking and analytics
@@ -205,10 +217,12 @@ We welcome contributions! Please follow these steps:
 - [x] Interactive charts and visualizations
 
 ### 🚧 In Progress
+
 - [ ] Advanced AI insights
 - [ ] Keyboard shortcuts support
 
 ### 🔮 Future
+
 - [ ] Export/import settings
 - [ ] Firefox and Safari support
 - [ ] Cloud synchronization

@@ -7,27 +7,21 @@
  * 탭 ID 필터링 헬퍼
  */
 export function filterValidTabIds(tabs: chrome.tabs.Tab[]): number[] {
-  return tabs
-    .map((tab) => tab.id)
-    .filter((id): id is number => id !== undefined);
+  return tabs.map((tab) => tab.id).filter((id): id is number => id !== undefined);
 }
 
 /**
  * 병렬로 여러 탭 이동 (성능 최적화)
  */
-export async function moveTabsBatch(
-  tabIds: number[],
-  startIndex: number
-): Promise<void> {
+export async function moveTabsBatch(tabIds: number[], startIndex: number): Promise<void> {
   // Chrome API는 한 번에 여러 탭을 이동할 수 없으므로
   // Promise.all을 사용하여 병렬 처리
   await Promise.all(
     tabIds.map((tabId, offset) =>
-      chrome.tabs.move(tabId, { index: startIndex + offset })
-        .catch(() => {
-          // 개별 실패는 무시하고 계속 진행
-        })
-    )
+      chrome.tabs.move(tabId, { index: startIndex + offset }).catch(() => {
+        // 개별 실패는 무시하고 계속 진행
+      }),
+    ),
   );
 }
 
@@ -51,7 +45,7 @@ export async function createAndConfigureGroup(
   tabIds: number[],
   title: string,
   color: chrome.tabGroups.ColorEnum,
-  collapsed: boolean = false
+  collapsed: boolean = false,
 ): Promise<number | null> {
   if (tabIds.length === 0) return null;
 

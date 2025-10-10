@@ -1,6 +1,6 @@
-import { filterProtectedTabs, getProtectedTabStats } from './tabFilters';
-import { storageUtils } from './storage';
 import { PreflightCheckResult } from '../types/organize';
+import { storageUtils } from './storage';
+import { filterProtectedTabs, getProtectedTabStats } from './tabFilters';
 
 /**
  * Smart Organize 실행 전 사전 확인

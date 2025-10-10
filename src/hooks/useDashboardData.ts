@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { TabData } from '../types/analytics';
 import type { DailyStats } from '../types/storage';
+import { getColorHex } from '../utils/colorUtils';
 import { storageUtils } from '../utils/storage';
 import { TabTracker } from '../utils/tabTracker';
-import { getColorHex } from '../utils/colorUtils';
 
 interface CategoryStats {
   name: string;
@@ -112,12 +112,10 @@ export function useDashboardData(): DashboardData {
         .slice(0, 5);
 
       // Prepare productivity trend (last 7 days)
-      const productivityTrend = (dailyStats || [])
-        .slice(-7)
-        .map((stat: DailyStats) => ({
-          date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          score: stat.productivityScore || 0,
-        }));
+      const productivityTrend = (dailyStats || []).slice(-7).map((stat: DailyStats) => ({
+        date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        score: stat.productivityScore || 0,
+      }));
 
       // Total time today (in minutes)
       const totalTimeToday = Math.round((todayStats?.totalTimeSpent || 0) / 60000);

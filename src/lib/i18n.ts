@@ -3,8 +3,8 @@ import { initReactI18next } from 'react-i18next';
 
 // Import translations
 import enTranslations from '../locales/en.json';
-import koTranslations from '../locales/ko.json';
 import jaTranslations from '../locales/ja.json';
+import koTranslations from '../locales/ko.json';
 
 const resources = {
   en: {

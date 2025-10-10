@@ -232,6 +232,12 @@
       ],
       "tip": "Categories are assigned by domain. When you change a tab's category, all tabs from the same domain (e.g., all github.com tabs) will use the same category."
     },
+    "categorySelect": {
+      "title": "Select Category",
+      "searchPlaceholder": "Search categories...",
+      "noResults": "No categories found",
+      "tip": "💡 Tip: Use search to quickly find categories"
+    },
     "tabGroups": {
       "title": "Tab Groups Overview",
       "infoTitle": "Tab Group Management",

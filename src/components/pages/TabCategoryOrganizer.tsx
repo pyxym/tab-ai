@@ -4,6 +4,7 @@ import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
 import { filterProtectedTabs } from '../../utils/tabFilters';
 import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
 import { TabCategoryItem } from '../items/TabCategoryItem';
+import { CategorySelectModal } from '../modals/CategorySelectModal';
 import { InfoTooltip } from '../ui/InfoTooltip';
 
 interface TabCategoryOrganizerProps {
@@ -31,6 +32,19 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
   const [isUpdating, setIsUpdating] = useState(false);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
+  // 🚀 성능 개선: 모달 상태 관리 (단일 모달로 모든 탭 공유)
+  const [categoryModalState, setCategoryModalState] = useState<{
+    isOpen: boolean;
+    tabId: number | null;
+    tabUrl: string | null;
+    currentCategory: string;
+  }>({
+    isOpen: false,
+    tabId: null,
+    tabUrl: null,
+    currentCategory: 'uncategorized',
+  });
+
   // 🚀 성능 개선 2: 카테고리 배열 참조 안정화
   // 카테고리 전체 객체 대신 ID와 이름만 전달하여 불필요한 리렌더링 방지
   const categoryOptions = useMemo(
@@ -43,8 +57,19 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     [categories],
   );
 
-  // 🚀 성능: 반복된 URL 파싱을 피하기 위한 도메인 파싱 캐시
-  const domainCache = useMemo(() => new Map<string, string>(), []);
+  // 🚀 성능 개선 4: 카테고리 Map 생성 (O(1) 조회)
+  // 100개 탭 × 20개 카테고리 = 2,000번 find() 호출 → 100번 Map.get() 호출로 개선
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, { name: string; color: string }>();
+    categoryOptions.forEach((cat) => {
+      map.set(cat.id, { name: cat.name, color: cat.color });
+    });
+    return map;
+  }, [categoryOptions]);
+
+  // 🚀 성능 개선 6: 도메인 파싱 캐시를 useRef로 변경 (영구적인 캐시 보장)
+  // useMemo는 React가 메모리 압박 시 재생성할 수 있지만, useRef는 컴포넌트 생명주기 동안 보장
+  const domainCache = useRef(new Map<string, string>()).current;
 
   // 캐싱을 사용한 도메인 추출 헬퍼 함수
   const getDomainFromUrl = useCallback(
@@ -100,11 +125,40 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🚀 성능 개선 3: handleCategoryChange 최적화
-  // 카테고리 변경 처리 - 도메인별로 탭을 미리 그룹화하여 성능 개선
-  const handleCategoryChange = useCallback(
-    async (tabId: number, tabUrl: string, newCategoryId: string) => {
-      if (!tabUrl) return;
+  // 🚀 카테고리 선택 모달 열기
+  // 🚀 성능 개선 5: 이벤트 핸들러 최적화 - data attribute 사용으로 인라인 함수 제거
+  const handleTabClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    const tabId = target.getAttribute('data-tab-id');
+    const tabUrl = target.getAttribute('data-tab-url');
+    const currentCategory = target.getAttribute('data-category');
+
+    if (tabId && tabUrl && currentCategory) {
+      setCategoryModalState({
+        isOpen: true,
+        tabId: parseInt(tabId, 10),
+        tabUrl,
+        currentCategory,
+      });
+    }
+  }, []);
+
+  // 🚀 카테고리 선택 모달 닫기
+  const handleCloseCategoryModal = useCallback(() => {
+    setCategoryModalState({
+      isOpen: false,
+      tabId: null,
+      tabUrl: null,
+      currentCategory: 'uncategorized',
+    });
+  }, []);
+
+  // 🚀 성능 개선 3 & 7: handleCategorySelect 단일 패스 최적화
+  // 모달에서 카테고리 선택 시 호출
+  const handleCategorySelect = useCallback(
+    async (newCategoryId: string) => {
+      const { tabId, tabUrl } = categoryModalState;
+      if (!tabUrl || !tabId) return;
 
       setIsUpdating(true);
       try {
@@ -114,22 +168,20 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
 
         await assignDomainToCategoryRef.current(domain, newCategoryId);
 
-        // 🚀 최적화: 같은 도메인의 탭 ID들을 먼저 수집 (O(n) 1회)
-        const affectedTabIds = new Set<number>();
-        setTabs((prevTabs) => {
-          // 첫 번째 패스: 영향받는 탭 찾기
-          prevTabs.forEach((tab) => {
+        // 🚀 최적화 7: 단일 패스로 통합 (O(n) 1회)
+        // 이전: forEach + map = O(2n)
+        // 개선: map 1회 = O(n), 50% 성능 향상
+        setTabs((prevTabs) =>
+          prevTabs.map((tab) => {
             if (tab.url && tab.id) {
               const tabDomain = getDomainFromUrl(tab.url);
               if (tabDomain === domain) {
-                affectedTabIds.add(tab.id);
+                return { ...tab, category: newCategoryId };
               }
             }
-          });
-
-          // 두 번째 패스: 한 번에 업데이트
-          return prevTabs.map((tab) => (affectedTabIds.has(tab.id!) ? { ...tab, category: newCategoryId } : tab));
-        });
+            return tab;
+          }),
+        );
 
         // 성공 피드백 표시
         setSelectedTab(tabId);
@@ -140,7 +192,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
         setIsUpdating(false);
       }
     },
-    [getDomainFromUrl],
+    [categoryModalState, getDomainFromUrl],
   );
 
   // 🚀 성능 개선 1: organizeTabsByCategory 의존성 최적화
@@ -162,12 +214,21 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
     }
   }, [categories, loadTabs]);
 
-  // 메모이제이션된 탭 통계
+  // 🚀 성능 개선 8: 탭 통계 계산 최적화
+  // 이전: reduce + filter = O(2n)
+  // 개선: reduce 1회 = O(n), 50% 성능 향상
   const stats = useMemo(() => {
+    let categorized = 0;
     const categoryCounts = tabs.reduce(
       (acc, tab) => {
         const cat = tab.category || 'uncategorized';
         acc[cat] = (acc[cat] || 0) + 1;
+
+        // 카테고리화된 탭 카운트 (reduce 중에 함께 계산)
+        if (cat !== 'uncategorized') {
+          categorized++;
+        }
+
         return acc;
       },
       {} as Record<string, number>,
@@ -175,7 +236,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
 
     return {
       total: tabs.length,
-      categorized: tabs.filter((t) => t.category && t.category !== 'uncategorized').length,
+      categorized,
       categories: Object.keys(categoryCounts).length,
     };
   }, [tabs]);
@@ -223,19 +284,34 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
         {/* Tab List */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1.5">
-            {tabs.map((tab) => (
-              <TabCategoryItem
-                key={tab.id}
-                tab={tab}
-                categories={categoryOptions}
-                isSelected={selectedTab === tab.id}
-                isUpdating={isUpdating}
-                onCategoryChange={handleCategoryChange}
-              />
-            ))}
+            {tabs.map((tab) => {
+              // 🚀 성능 개선 4: O(n) find() → O(1) Map.get()
+              const categoryId = tab.category || 'uncategorized';
+              const category = categoryMap.get(categoryId);
+              return (
+                <div key={tab.id} data-tab-id={tab.id} data-tab-url={tab.url} data-category={categoryId} onClick={handleTabClick}>
+                  <TabCategoryItem
+                    tab={tab}
+                    categoryName={category?.name || 'Uncategorized'}
+                    categoryColor={(category?.color as any) || 'grey'}
+                    isSelected={selectedTab === tab.id}
+                    onClick={() => {}}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* 🚀 카테고리 선택 모달 (단일 모달로 모든 탭 공유) */}
+      <CategorySelectModal
+        isOpen={categoryModalState.isOpen}
+        currentCategory={categoryModalState.currentCategory}
+        categories={categoryOptions}
+        onSelect={handleCategorySelect}
+        onClose={handleCloseCategoryModal}
+      />
     </div>
   );
 };

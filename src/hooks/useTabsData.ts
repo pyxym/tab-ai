@@ -19,8 +19,8 @@ export function useTabsData() {
   const loadTabsAndAnalyze = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Load current tabs
-      const currentTabs = await chrome.tabs.query({});
+      // 🚀 최적화: 병렬로 데이터 가져오기
+      const [currentTabs, response] = await Promise.all([chrome.tabs.query({}), chrome.runtime.sendMessage({ action: 'getTabsAnalysis' })]);
 
       setTabs(
         currentTabs.map((tab) => ({
@@ -32,11 +32,10 @@ export function useTabsData() {
         })),
       );
 
-      // Get analysis from background
-      const response = await chrome.runtime.sendMessage({ action: 'getTabsAnalysis' });
       setAnalysis(response);
 
-      // Calculate and set productivity score
+      // 🚀 최적화: calculateProductivityScore는 이미 최적화되어 빠르므로 그대로 사용
+      // background의 분석 결과를 사용하지 않고 여기서 계산 (일관성 보장)
       const score = calculateProductivityScore(currentTabs);
       setProductivityScore(score);
 

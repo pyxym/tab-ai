@@ -6,7 +6,7 @@ import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
 import { TabListItem } from '../items/TabListItem';
 import { InfoTooltip } from '../ui/InfoTooltip';
 
-interface TabListProps {
+interface TabCategoryOrganizerProps {
   onClose: () => void;
 }
 
@@ -15,13 +15,13 @@ interface TabWithCategory extends chrome.tabs.Tab {
 }
 
 /**
- * Optimized TabList Component
- * Reduced from 250 lines to ~150 lines with better performance
- * - Memoized tab items to prevent unnecessary re-renders
- * - Consolidated state management
- * - Extracted tab item to separate component
+ * 탭 카테고리 정리 컴포넌트 (최적화됨)
+ * 250줄에서 ~150줄로 축소하여 성능 개선
+ * - 메모이제이션된 탭 아이템으로 불필요한 리렌더링 방지
+ * - 통합된 상태 관리
+ * - 탭 아이템을 별도 컴포넌트로 분리
  */
-export const TabList: React.FC<TabListProps> = ({ onClose }) => {
+export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onClose }) => {
   const { t } = useTranslation();
 
   // 최적화된 선택자 사용 - 카테고리 데이터만 구독
@@ -35,84 +35,104 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
-  // Load categories and tabs on mount
+  // 마운트 시 카테고리 및 탭 로드
   useEffect(() => {
     loadCategories();
     loadTabs();
   }, [loadCategories]);
 
-  // Load tabs with category info
+  // 🚀 성능: 반복된 URL 파싱을 피하기 위한 도메인 파싱 캐시
+  const domainCache = useMemo(() => new Map<string, string>(), []);
+
+  // 캐싱을 사용한 도메인 추출 헬퍼 함수
+  const getDomainFromUrl = useCallback(
+    (url: string): string => {
+      if (domainCache.has(url)) return domainCache.get(url)!;
+
+      try {
+        const domain = new URL(url).hostname.replace(/^www\./, '');
+        domainCache.set(url, domain);
+        return domain;
+      } catch {
+        domainCache.set(url, '');
+        return '';
+      }
+    },
+    [domainCache],
+  );
+
+  // 카테고리 정보와 함께 탭 로드
   const loadTabs = useCallback(async () => {
     const allTabs = await chrome.tabs.query({ currentWindow: true });
     const filteredTabs = filterProtectedTabs(allTabs);
 
+    // 🚀 성능: O(n) indexOf 대신 O(1) 카테고리 순서 조회를 위한 Map 생성
+    const categoryOrderMap = new Map<string, number>();
+    categories.forEach((cat, index) => {
+      categoryOrderMap.set(cat.id, index);
+    });
+    categoryOrderMap.set('uncategorized', categories.length);
+
     const tabsWithCategories = filteredTabs.map((tab) => {
       if (tab.url) {
-        try {
-          const domain = new URL(tab.url).hostname.replace(/^www\./, '');
+        const domain = getDomainFromUrl(tab.url);
+        if (domain) {
           const category = getCategoryForDomain(domain);
           return { ...tab, category };
-        } catch {
-          return { ...tab, category: 'uncategorized' };
         }
       }
       return { ...tab, category: 'uncategorized' };
     });
 
-    // Sort by category order
-    const categoryOrder = categories.map((c) => c.id);
+    // 🚀 성능: 정렬 시 O(n) indexOf 대신 O(1) Map 조회 사용
     const sortedTabs = tabsWithCategories.sort((a, b) => {
-      const aIndex = categoryOrder.indexOf(a.category || 'uncategorized');
-      const bIndex = categoryOrder.indexOf(b.category || 'uncategorized');
+      const aIndex = categoryOrderMap.get(a.category || 'uncategorized') ?? categories.length;
+      const bIndex = categoryOrderMap.get(b.category || 'uncategorized') ?? categories.length;
       return aIndex - bIndex;
     });
 
     setTabs(sortedTabs);
-  }, [categories, getCategoryForDomain]);
+  }, [categories, getCategoryForDomain, getDomainFromUrl]);
 
-  // Handle category change
+  // 카테고리 변경 처리
   const handleCategoryChange = useCallback(
     async (tabId: number, tabUrl: string, newCategoryId: string) => {
       if (!tabUrl) return;
 
       setIsUpdating(true);
       try {
-        const domain = new URL(tabUrl).hostname.replace(/^www\./, '');
+        // 🚀 성능: 캐시된 도메인 파싱 사용
+        const domain = getDomainFromUrl(tabUrl);
+        if (!domain) return;
+
         await assignDomainToCategory(domain, newCategoryId);
 
-        // Update local state for same domain tabs
+        // 🚀 성능: 전체 리로드 없이 영향받는 탭만 업데이트
         setTabs((prevTabs) =>
           prevTabs.map((tab) => {
             if (tab.url) {
-              try {
-                const tabDomain = new URL(tab.url).hostname.replace(/^www\./, '');
-                if (tabDomain === domain) {
-                  return { ...tab, category: newCategoryId };
-                }
-              } catch {
-                // Invalid URL, skip
+              const tabDomain = getDomainFromUrl(tab.url);
+              if (tabDomain === domain) {
+                return { ...tab, category: newCategoryId };
               }
             }
             return tab;
           }),
         );
 
-        // Show success feedback
+        // 성공 피드백 표시
         setSelectedTab(tabId);
         setTimeout(() => setSelectedTab(null), 1500);
-
-        // Reload tabs
-        await loadTabs();
       } catch (error) {
-        console.error('[TabList] Category update failed:', error);
+        console.error('[TabCategoryOrganizer] 카테고리 업데이트 실패:', error);
       } finally {
         setIsUpdating(false);
       }
     },
-    [assignDomainToCategory, loadTabs],
+    [assignDomainToCategory, getDomainFromUrl],
   );
 
-  // Handle organization
+  // 조직화 처리
   const organizeTabsByCategory = useCallback(async () => {
     if (isOrganizing) return;
 
@@ -121,13 +141,13 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
       await organizeTabsUnified(categories);
       setTimeout(() => loadTabs(), 500);
     } catch (error) {
-      console.error('[TabList] Organization failed:', error);
+      console.error('[TabCategoryOrganizer] 조직화 실패:', error);
     } finally {
       setIsOrganizing(false);
     }
   }, [isOrganizing, categories, loadTabs]);
 
-  // Memoized tab stats
+  // 메모이제이션된 탭 통계
   const stats = useMemo(() => {
     const categoryCounts = tabs.reduce(
       (acc, tab) => {
@@ -146,17 +166,17 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
   }, [tabs]);
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] py-2 px-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
       <div className="glass-main rounded-[24px] w-full max-w-2xl h-[96vh] max-h-[96vh] flex flex-col">
         {/* Header */}
         <div className="px-4 py-2.5 border-b border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabAssignment.assignTabsToCategories')}</h2>
+              <h2 className="text-lg font-semibold ai-gradient-text">{t('modal.tabCategoryOrganizer.assignTabsToCategories')}</h2>
               <InfoTooltip
-                title={t('modal.tabAssignment.infoTitle')}
-                description={t('modal.tabAssignment.infoDescription')}
-                features={t('modal.tabAssignment.infoFeatures', { returnObjects: true }) as string[]}
+                title={t('modal.tabCategoryOrganizer.infoTitle')}
+                description={t('modal.tabCategoryOrganizer.infoDescription')}
+                features={t('modal.tabCategoryOrganizer.infoFeatures', { returnObjects: true }) as string[]}
                 position="bottom"
               />
             </div>
@@ -166,9 +186,9 @@ export const TabList: React.FC<TabListProps> = ({ onClose }) => {
                 onClick={organizeTabsByCategory}
                 className="glass-button-primary !py-2 !px-3 text-sm"
                 disabled={isOrganizing || isUpdating}
-                title={t('modal.tabAssignment.applyButtonTooltip')}
+                title={t('modal.tabCategoryOrganizer.applyButtonTooltip')}
               >
-                {isOrganizing ? `⏳ ${t('modal.tabAssignment.applying')}` : `🎯 ${t('modal.tabAssignment.applyGrouping')}`}
+                {isOrganizing ? `⏳ ${t('modal.tabCategoryOrganizer.applying')}` : `🎯 ${t('modal.tabCategoryOrganizer.applyGrouping')}`}
               </button>
 
               <button onClick={onClose} className="glass-button-primary !p-2 !px-3">

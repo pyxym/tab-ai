@@ -50,18 +50,22 @@ export async function organizeTabsUnified(categories: Category[]): Promise<Organ
       const domain = extractDomain(tab.url);
       const categoryId = domain ? getCategoryForDomain(domain) : 'uncategorized';
 
-      if (!categorizedTabs.has(categoryId)) {
-        categorizedTabs.set(categoryId, []);
+      // Map 조회 최적화: has + get 대신 단일 get 사용
+      const existing = categorizedTabs.get(categoryId);
+      if (existing) {
+        existing.push(tab);
+      } else {
+        categorizedTabs.set(categoryId, [tab]);
       }
-      categorizedTabs.get(categoryId)!.push(tab);
     }
 
-    // 6. 탭 재정렬을 위한 ID 수집
+    // 6. 탭 재정렬을 위한 ID 수집 (이미 검증된 탭이므로 직접 추출)
     const reorderedTabIds: number[] = [];
     for (const category of categories) {
       const categoryTabs = categorizedTabs.get(category.id);
-      if (categoryTabs) {
-        reorderedTabIds.push(...filterValidTabIds(categoryTabs));
+      if (categoryTabs && categoryTabs.length > 0) {
+        // 47-48라인에서 이미 tab.id를 검증했으므로 직접 추출
+        reorderedTabIds.push(...categoryTabs.map((t) => t.id!));
       }
     }
 
@@ -79,7 +83,8 @@ export async function organizeTabsUnified(categories: Category[]): Promise<Organ
       const categoryTabs = categorizedTabs.get(category.id);
       if (!categoryTabs || categoryTabs.length === 0) return null;
 
-      const tabIds = filterValidTabIds(categoryTabs);
+      // 이미 검증된 탭이므로 직접 추출 (filterValidTabIds 호출 제거)
+      const tabIds = categoryTabs.map((t) => t.id!);
       // 🎯 UX 개선: 탭 그룹을 닫힌 상태(collapsed)로 생성하여 깔끔한 정리
       const groupId = await createAndConfigureGroup(tabIds, category.name, COLOR_TO_CHROME_GROUP[category.color], true);
 

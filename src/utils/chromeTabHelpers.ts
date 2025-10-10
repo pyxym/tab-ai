@@ -12,17 +12,24 @@ export function filterValidTabIds(tabs: chrome.tabs.Tab[]): number[] {
 
 /**
  * 병렬로 여러 탭 이동 (성능 최적화)
+ * Chrome API는 배열을 지원하므로 단일 호출로 처리
  */
 export async function moveTabsBatch(tabIds: number[], startIndex: number): Promise<void> {
-  // Chrome API는 한 번에 여러 탭을 이동할 수 없으므로
-  // Promise.all을 사용하여 병렬 처리
-  await Promise.all(
-    tabIds.map((tabId, offset) =>
-      chrome.tabs.move(tabId, { index: startIndex + offset }).catch(() => {
-        // 개별 실패는 무시하고 계속 진행
-      }),
-    ),
-  );
+  if (tabIds.length === 0) return;
+
+  try {
+    // Chrome API는 tabId 배열을 지원 - N개 호출을 1개로 감소
+    await chrome.tabs.move(tabIds, { index: startIndex });
+  } catch (error) {
+    // 실패 시 개별 처리로 폴백 (호환성)
+    await Promise.all(
+      tabIds.map((tabId, offset) =>
+        chrome.tabs.move(tabId, { index: startIndex + offset }).catch(() => {
+          // 개별 실패는 무시하고 계속 진행
+        }),
+      ),
+    );
+  }
 }
 
 /**

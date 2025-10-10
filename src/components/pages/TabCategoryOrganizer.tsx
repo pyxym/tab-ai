@@ -175,9 +175,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
           prevTabs.map((tab) => {
             if (tab.url && tab.id) {
               const tabDomain = getDomainFromUrl(tab.url);
-              if (tabDomain === domain) {
-                return { ...tab, category: newCategoryId };
-              }
+              if (tabDomain === domain) return { ...tab, category: newCategoryId };
             }
             return tab;
           }),
@@ -228,9 +226,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
         acc[cat] = (acc[cat] || 0) + 1;
 
         // 카테고리화된 탭 카운트 (reduce 중에 함께 계산)
-        if (cat !== 'uncategorized') {
-          categorized++;
-        }
+        if (cat !== 'uncategorized') categorized++;
 
         return acc;
       },

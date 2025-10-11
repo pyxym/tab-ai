@@ -20,19 +20,19 @@ export const PopupHeader = React.memo(function PopupHeader({
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 border-b border-white/20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <AILogo size="large" />
+    <div className="p-3 border-b border-white/20">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <AILogo size="medium" />
           <div>
-            <h1 className="font-bold text-lg ai-gradient-text">TabQuest</h1>
-            <p className="text-xs glass-text opacity-70">{t('header.subtitle')}</p>
+            <h1 className="font-bold text-base ai-gradient-text leading-tight">TabQuest</h1>
+            <p className="text-[10px] glass-text opacity-70 leading-tight">{t('header.subtitle')}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={onHelpClick} className="glass-card p-2 transition-all hover:scale-105" title="Help & Guide">
-            <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-1.5">
+          <button onClick={onHelpClick} className="glass-card p-1.5 transition-all hover:scale-105" title="Help & Guide">
+            <svg className="w-3.5 h-3.5 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -42,8 +42,8 @@ export const PopupHeader = React.memo(function PopupHeader({
             </svg>
           </button>
 
-          <button onClick={onTabGroupsClick} className="glass-card p-2 transition-all hover:scale-105" title={t('tooltips.tabGroups')}>
-            <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onTabGroupsClick} className="glass-card p-1.5 transition-all hover:scale-105" title={t('tooltips.tabGroups')}>
+            <svg className="w-3.5 h-3.5 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -53,8 +53,8 @@ export const PopupHeader = React.memo(function PopupHeader({
             </svg>
           </button>
 
-          <button onClick={onTabListClick} className="glass-card p-2 transition-all hover:scale-105" title={t('tooltips.assign')}>
-            <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onTabListClick} className="glass-card p-1.5 transition-all hover:scale-105" title={t('tooltips.assign')}>
+            <svg className="w-3.5 h-3.5 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -64,8 +64,8 @@ export const PopupHeader = React.memo(function PopupHeader({
             </svg>
           </button>
 
-          <button onClick={onCategoryManagerClick} className="glass-card p-2 transition-all hover:scale-105" title={t('tooltips.categories')}>
-            <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onCategoryManagerClick} className="glass-card p-1.5 transition-all hover:scale-105" title={t('tooltips.categories')}>
+            <svg className="w-3.5 h-3.5 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -75,8 +75,8 @@ export const PopupHeader = React.memo(function PopupHeader({
             </svg>
           </button>
 
-          <button className="glass-card p-2 transition-all hover:scale-105" title="Settings" onClick={onSettingsClick}>
-            <svg className="w-4 h-4 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button className="glass-card p-1.5 transition-all hover:scale-105" title="Settings" onClick={onSettingsClick}>
+            <svg className="w-3.5 h-3.5 glass-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

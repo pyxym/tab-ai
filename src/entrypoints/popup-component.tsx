@@ -192,7 +192,7 @@ function IndexPopup() {
   // Loading state
   if (!ready) {
     return (
-      <div className="w-[540px] h-[600px] flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -200,13 +200,13 @@ function IndexPopup() {
 
   return (
     <>
-      <div className="w-[540px] h-[600px] relative overflow-hidden">
+      <div className="w-full h-screen relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"></div>
 
-        {/* Main container */}
-        <div className="absolute inset-0 p-4">
-          <div className="h-full glass-main rounded-[24px] flex flex-col">
+        {/* Main container - サイドパネル用に最適化 */}
+        <div className="absolute inset-0 p-3">
+          <div className="h-full glass-main rounded-[20px] flex flex-col">
             {/* Header */}
             <PopupHeader
               onHelpClick={handleHelpClick}
@@ -220,11 +220,11 @@ function IndexPopup() {
             <PopupStats {...stats} />
 
             {/* AI Insights */}
-            <div className="px-4 py-2 flex-1 overflow-hidden flex flex-col min-h-[150px]">
-              <div className="flex items-center justify-between mb-3 flex-shrink-0">
+            <div className="px-3 py-2 flex-1 overflow-hidden flex flex-col min-h-[120px]">
+              <div className="flex items-center justify-between mb-2 flex-shrink-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🤖</span>
-                  <h2 className="font-semibold text-base glass-text">{t('insights.title')}</h2>
+                  <span className="text-base">🤖</span>
+                  <h2 className="font-semibold text-sm glass-text">{t('insights.title')}</h2>
                 </div>
                 <InfoTooltip
                   title={t('tooltips.insights.title')}
@@ -234,8 +234,8 @@ function IndexPopup() {
                 />
               </div>
 
-              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent">
-                <div className="space-y-3 pr-2">
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
+                <div className="space-y-2 pr-1">
                   {insights.length === 0 ? (
                     <div className="flex items-center justify-center h-full min-h-[120px]">
                       <div className="text-center space-y-2">
@@ -255,10 +255,10 @@ function IndexPopup() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="border-t border-white/20 px-4 py-3">
+            {/* Quick Actions - サイドパネル用に最適化 */}
+            <div className="border-t border-white/20 px-3 py-3">
               <div className="space-y-2">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-xs glass-text opacity-60">{t('actions.quickActions')}</span>
                   <InfoTooltip
                     title={t('tooltips.smartOrganize.title')}
@@ -269,29 +269,27 @@ function IndexPopup() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      className="glass-button-primary text-sm disabled:opacity-50 glass-text flex items-center justify-center gap-2 py-2.5"
-                      onClick={handleSmartOrganize}
-                      disabled={isOrganizing || tabs.length < 2}
-                    >
-                      {isOrganizing ? (
-                        <>
-                          <span className="animate-spin">⏳</span>
-                          <span>{t('actions.organizing')}</span>
-                        </>
-                      ) : (
-                        <>🧹 {t('actions.smartOrganize')}</>
-                      )}
-                    </button>
+                  <button
+                    className="w-full glass-button-primary text-sm disabled:opacity-50 glass-text flex items-center justify-center gap-2 py-2.5"
+                    onClick={handleSmartOrganize}
+                    disabled={isOrganizing || tabs.length < 2}
+                  >
+                    {isOrganizing ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        <span>{t('actions.organizing')}</span>
+                      </>
+                    ) : (
+                      <>🧹 {t('actions.smartOrganize')}</>
+                    )}
+                  </button>
 
-                    <button
-                      className="glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
-                      onClick={handleDashboardClick}
-                    >
-                      📊 {t('actions.viewAnalytics') + ' (Beta)'}
-                    </button>
-                  </div>
+                  <button
+                    className="w-full glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
+                    onClick={handleDashboardClick}
+                  >
+                    📊 {t('actions.viewAnalytics') + ' (Beta)'}
+                  </button>
 
                   {hasUndoSnapshot && (
                     <button

@@ -65,9 +65,9 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, onDismiss
   }, [insight.actionable, onAction]);
 
   return (
-    // 메인 카드 컨테이너 - glass-card 스타일과 우선순위별 색상 적용
-    <div className={`glass-card !p-3 border-l-4 ${PRIORITY_COLOR_CLASSES[insight.priority]} relative transition-all hover:scale-[1.01]`}>
-      <div className="flex items-start gap-2.5">
+    // 메인 카드 컨테이너 - glass-card 스타일과 우선순위별 색상 적용 (사이드패널 최적화)
+    <div className={`glass-card !p-2.5 border-l-2 ${PRIORITY_COLOR_CLASSES[insight.priority]} relative transition-all hover:scale-[1.01]`}>
+      <div className="flex items-start gap-2">
         {/* 인사이트 타입 아이콘 표시 */}
         <InsightIcon type={insight.type} />
 
@@ -88,10 +88,10 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, onDismiss
 };
 
 /**
- * 인사이트 아이콘 컴포넌트
+ * 인사이트 아이콘 컴포넌트 (사이드패널용 크기 축소)
  */
 const InsightIcon: React.FC<{ type: AIInsight['type'] }> = ({ type }) => (
-  <span className="text-xl flex-shrink-0 mt-0.5">{INSIGHT_TYPE_ICONS[type]}</span>
+  <span className="text-base flex-shrink-0 mt-0.5">{INSIGHT_TYPE_ICONS[type]}</span>
 );
 
 /**
@@ -103,7 +103,7 @@ const InsightHeader: React.FC<{
 }> = ({ title, onDismiss }) => (
   <div className="flex items-start justify-between gap-2">
     {/* 인사이트 제목 */}
-    <h4 className="font-medium glass-text text-sm leading-tight">{title}</h4>
+    <h4 className="font-medium glass-text text-[13px] leading-tight">{title}</h4>
 
     {/* 닫기 버튼 (onDismiss 핸들러가 있을 때만 표시) */}
     {onDismiss && <DismissButton onClick={onDismiss} />}
@@ -111,16 +111,16 @@ const InsightHeader: React.FC<{
 );
 
 /**
- * 닫기 버튼 컴포넌트
+ * 닫기 버튼 컴포넌트 (사이드패널용 크기 축소)
  */
 const DismissButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     onClick={onClick}
-    className="text-white/30 hover:text-white/50 flex-shrink-0 transition-colors -mt-1 -mr-1"
+    className="text-white/30 hover:text-white/50 flex-shrink-0 transition-colors -mt-0.5 -mr-0.5"
     title="Dismiss"
     aria-label="인사이트 닫기"
   >
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   </button>
@@ -128,20 +128,20 @@ const DismissButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 /**
  * 인사이트 설명 컴포넌트
- * 개행 문자(\n)를 <br> 태그로 변환하여 여러 줄 표시 지원
+ * 개행 문자(\n)를 <br> 태그로 변환하여 여러 줄 표시 지원 (사이드패널용 최적화)
  */
 const InsightDescription: React.FC<{ description: string }> = ({ description }) => (
-  <p className="text-xs glass-text opacity-70 mt-1 leading-relaxed whitespace-pre-line">{description}</p>
+  <p className="text-[11px] glass-text opacity-70 mt-0.5 leading-relaxed whitespace-pre-line">{description}</p>
 );
 
 /**
- * 인사이트 액션 버튼 컴포넌트
+ * 인사이트 액션 버튼 컴포넌트 (사이드패널용 크기 축소)
  */
 const InsightActionButton: React.FC<{
   label: string;
   onClick: () => void;
 }> = ({ label, onClick }) => (
-  <button onClick={onClick} className="glass-button-primary !py-1.5 !px-3 text-xs mt-2.5 hover:scale-105 transition-transform">
+  <button onClick={onClick} className="glass-button-primary !py-1 !px-2.5 text-[11px] mt-2 hover:scale-105 transition-transform">
     {label}
   </button>
 );

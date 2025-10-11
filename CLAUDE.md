@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Framework**: WXT (Web Extension Tools) - Modern web extension framework
 - **Frontend**: React 18 + TypeScript
+- **UI Surface**: Chrome Side Panel API (requires Chrome 114+)
 - **State Management**: Zustand
 - **Storage**: Chrome Storage API (sync and local)
 - **Internationalization**: i18next + react-i18next
@@ -39,8 +40,8 @@ npm run package
 tab-quest/
 ├── src/
 │   ├── entrypoints/           # WXT entry points
-│   │   ├── popup.tsx          # Popup entry point
-│   │   ├── popup-component.tsx # Main popup UI component
+│   │   ├── sidepanel.tsx      # Side panel entry point
+│   │   ├── popup-component.tsx # Main UI component (shared)
 │   │   ├── options.tsx        # Options page
 │   │   └── background.ts      # Background service worker
 │   ├── components/
@@ -138,21 +139,23 @@ tab-quest/
 
 - Glass morphism design with Tailwind CSS
 - Modular components for maintainability
-- Responsive and accessible UI
+- Responsive full-screen layout optimized for side panel
 - Dark mode compatible
+- Side panel provides persistent access and resizable width
 
 ## Key Features
 
-1. **Category-based Tab Organization**: Custom categories with automatic tab grouping
-2. **Tab Usage Tracking**: Monitor time spent, access frequency, and productivity metrics
-3. **Undo/Redo System**: Full undo/redo support for all organization actions
-4. **Snapshot Management**: Save and restore tab states with timestamps
-5. **Tab Filtering**: Filter by domain, title, or usage patterns
-6. **Interactive Charts**: Bar and line charts showing usage patterns
-7. **AI Insights**: AI-generated suggestions for productivity improvement
-8. **Multi-language Support**: English, Korean, and Japanese with i18next
-9. **Glass Morphism Design**: Modern UI with backdrop blur and gradients
-10. **Tab Groups Integration**: View and manage existing Chrome tab groups
+1. **Side Panel Interface**: Persistent sidebar UI with resizable width and always-on access
+2. **Category-based Tab Organization**: Custom categories with automatic tab grouping
+3. **Tab Usage Tracking**: Monitor time spent, access frequency, and productivity metrics
+4. **Undo/Redo System**: Full undo/redo support for all organization actions
+5. **Snapshot Management**: Save and restore tab states with timestamps
+6. **Tab Filtering**: Filter by domain, title, or usage patterns
+7. **Interactive Charts**: Bar and line charts showing usage patterns
+8. **AI Insights**: AI-generated suggestions for productivity improvement
+9. **Multi-language Support**: English, Korean, and Japanese with i18next
+10. **Glass Morphism Design**: Modern UI with backdrop blur and gradients
+11. **Tab Groups Integration**: View and manage existing Chrome tab groups
 
 ## Chrome Extension Permissions
 
@@ -164,6 +167,7 @@ Current permissions in manifest:
 - `activeTab`: Access to the currently active tab
 - `windows`: Access to browser windows
 - `alarms`: Schedule periodic tasks for tracking
+- `sidePanel`: Enable side panel UI (requires Chrome 114+)
 
 ## Development Tips
 
@@ -172,25 +176,34 @@ Current permissions in manifest:
    - Entry points go in src/entrypoints/
    - Public assets in public/ folder
    - TypeScript configs are handled by WXT
+   - WXT auto-generates HTML files for TSX entrypoints (don't create manual HTML files)
 
-2. **Storage Management**:
+2. **Side Panel Development**:
+   - Side panel opens when extension icon is clicked (chrome.action.onClicked)
+   - Use responsive layout (w-full h-screen) instead of fixed dimensions
+   - Side panel persists across tab navigation
+   - Requires Chrome 114+ for Side Panel API support
+
+3. **Storage Management**:
    - Use Chrome Storage API directly for persistence
    - Separate sync storage for preferences and local storage for data
    - Storage utilities defined in utils/storage.ts
 
-3. **Debugging**:
+4. **Debugging**:
    - Debug utilities are conditionally loaded only in development
    - Use Chrome DevTools for extension debugging
    - Check background script logs in service worker console
+   - Side panel can be inspected separately from the main page
 
-4. **Performance**:
+5. **Performance**:
    - Direct Chrome API calls for instant tab operations
    - Efficient state management with Zustand
    - Tailwind CSS purged in production build
 
-5. **Testing**:
+6. **Testing**:
    - Manual testing through Chrome extension developer mode
    - Use multiple browser profiles for testing different scenarios
+   - Test side panel resizing and persistence across tabs
 
 ## Common Issues & Solutions
 
@@ -198,6 +211,8 @@ Current permissions in manifest:
 2. **TypeScript Errors**: Ensure proper type guards for optional Chrome API values
 3. **Tab Group Ordering**: Use chrome.tabGroups.move() for consistent ordering
 4. **Storage Type Safety**: Use generic types with storage utilities
+5. **WXT Multiple Entrypoints Error**: Only use .tsx files for entrypoints, WXT auto-generates HTML
+6. **Side Panel Not Opening**: Ensure Chrome version is 114+ and sidePanel permission is granted
 
 ## Build & Deployment
 

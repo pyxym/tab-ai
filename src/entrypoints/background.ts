@@ -18,6 +18,15 @@ export default defineBackground(() => {
     24 * 60 * 60 * 1000,
   ); // Once per day
 
+  // 🚀 사이드 패널: 아이콘 클릭 시 사이드 패널 열기
+  chrome.action.onClicked.addListener((tab) => {
+    if (tab.id) {
+      chrome.sidePanel.open({ tabId: tab.id }).catch((error) => {
+        console.error('[TabQuest] Failed to open side panel:', error);
+      });
+    }
+  });
+
   // Message handler for tab organization
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'ping') {

@@ -13,15 +13,18 @@ export default defineConfig({
     name: 'TabQuest - AI-Powered Tab Manager',
     version: '1.0.0',
     description: 'AI-powered browser tab management extension',
-    permissions: ['tabs', 'storage', 'activeTab', 'tabGroups', 'windows', 'alarms'],
+    permissions: ['tabs', 'storage', 'activeTab', 'tabGroups', 'windows', 'alarms', 'sidePanel'],
     action: {
-      default_popup: 'popup.html',
+      default_title: 'TabQuest - Open Side Panel',
       default_icon: {
         '16': 'icon/icon-16.png',
         '32': 'icon/icon-32.png',
         '48': 'icon/icon-48.png',
         '128': 'icon/icon-128.png',
       },
+    },
+    side_panel: {
+      default_path: 'sidepanel.html',
     },
     icons: {
       '16': 'icon/icon-16.png',

@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import enTranslations from '../locales/en.json';
@@ -29,61 +29,54 @@ async function getSavedLanguage(): Promise<string> {
   return 'en'; // 기본 폴백 언어
 }
 
-// i18n 초기화 상태 플래그
-let isInitialized = false;
-
 /**
  * i18n 라이브러리를 초기화하는 함수
  * 저장된 언어 설정으로 초기화
+ * i18n.isInitialized를 사용하여 중복 초기화 방지
  */
 async function ensureI18nInitialized() {
-  if (!isInitialized) {
-    const savedLang = await getSavedLanguage();
+  if (i18n.isInitialized) return;
 
-    await i18n.use(initReactI18next).init({
-      resources: {
-        en: { translation: enTranslations }, // 영어 번역
-        ko: { translation: koTranslations }, // 한국어 번역
-        ja: { translation: jaTranslations }, // 일본어 번역
-      },
-      lng: savedLang, // 현재 언어
-      fallbackLng: 'en', // 폴백 언어
-      debug: false, // 디버그 모드
-      interpolation: {
-        escapeValue: false, // React는 자체 이스케이프 처리
-      },
-    });
+  const savedLang = await getSavedLanguage();
 
-    isInitialized = true;
-  }
+  await i18n.use(initReactI18next).init({
+    resources: {
+      en: { translation: enTranslations }, // 영어 번역
+      ko: { translation: koTranslations }, // 한국어 번역
+      ja: { translation: jaTranslations }, // 일본어 번역
+    },
+    lng: savedLang, // 현재 언어
+    fallbackLng: 'en', // 폴백 언어
+    debug: false, // 디버그 모드
+    interpolation: {
+      escapeValue: false, // React는 자체 이스케이프 처리
+    },
+  });
 }
 
 /**
  * 메인 팝업 컴포넌트
  * 언어 변경 감지만 처리 (초기화는 main()에서 완료됨)
+ * 성능 최적화: useCallback으로 리스너 안정화
  */
 function Popup() {
-  useEffect(() => {
-    // 스토리지의 언어 변경 감지
-    const storageListener = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (changes.language && changes.language.newValue) {
-        i18n.changeLanguage(changes.language.newValue);
-      }
-    };
+  // 스토리지 변경 리스너를 useCallback으로 메모이제이션
+  const handleStorageChange = useCallback((changes: { [key: string]: chrome.storage.StorageChange }) => {
+    if (changes.language?.newValue) {
+      i18n.changeLanguage(changes.language.newValue);
+    }
+  }, []);
 
-    chrome.storage.onChanged.addListener(storageListener);
+  useEffect(() => {
+    chrome.storage.onChanged.addListener(handleStorageChange);
 
     // 클린업: 리스너 제거
     return () => {
-      chrome.storage.onChanged.removeListener(storageListener);
+      chrome.storage.onChanged.removeListener(handleStorageChange);
     };
-  }, []);
+  }, [handleStorageChange]);
 
-  return (
-    <I18nextProvider i18n={i18n}>
-      <IndexPopup />
-    </I18nextProvider>
-  );
+  return <IndexPopup />;
 }
 
 // WXT expects a main function for popup entrypoints
@@ -96,11 +89,14 @@ export default {
     const rootElement = document.getElementById('root') || document.body;
 
     // Create React root and render the app
+    // I18nextProvider를 한 번만 사용 (중복 제거)
     const root = ReactDOM.createRoot(rootElement);
     root.render(
-      <I18nextProvider i18n={i18n}>
-        <Popup />
-      </I18nextProvider>,
+      <React.StrictMode>
+        <I18nextProvider i18n={i18n}>
+          <Popup />
+        </I18nextProvider>
+      </React.StrictMode>,
     );
   },
 };

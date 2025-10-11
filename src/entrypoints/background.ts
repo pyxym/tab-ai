@@ -10,13 +10,18 @@ export default defineBackground(() => {
     console.error('[TabQuest] Failed to initialize tab tracking:', error);
   });
 
-  // Clean up old data daily
-  setInterval(
-    () => {
+  // 🚀 성능 최적화: setInterval → chrome.alarms API
+  // Service Worker와 호환되며 배터리 효율적인 알람 사용
+  chrome.alarms.create('dailyCleanup', {
+    periodInMinutes: 24 * 60, // 24시간마다 실행
+  });
+
+  chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'dailyCleanup') {
+      console.log('[TabQuest] Running daily cleanup...');
       TabTracker.cleanupOldData();
-    },
-    24 * 60 * 60 * 1000,
-  ); // Once per day
+    }
+  });
 
   // 🚀 사이드 패널: 아이콘 클릭 시 사이드 패널 열기
   chrome.action.onClicked.addListener((tab) => {

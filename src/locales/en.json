@@ -271,6 +271,7 @@
       "importConfirm": "Import {{count}} group(s)?\n\n({{total}} group(s) found in file)",
       "importSuccess": "Successfully imported {{count}} new group(s)",
       "importError": "Failed to import groups. Please check the file format.",
+      "importDuplicates": "All groups already exist. No new groups to import.",
       "exportGroup": "Export Group",
       "exportGroupConfirm": "Export \"{{groupTitle}}\" group?\n\n• Number of tabs: {{tabCount}}\n• Will be saved as JSON file",
       "exportGroupSuccess": "Successfully exported \"{{groupTitle}}\" group"

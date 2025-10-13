@@ -259,6 +259,7 @@
       "importConfirm": "{{count}}개 그룹을 가져오시겠습니까?\n\n(파일에서 {{total}}개 그룹 발견)",
       "importSuccess": "{{count}}개의 새 그룹을 성공적으로 가져왔습니다",
       "importError": "그룹 가져오기에 실패했습니다. 파일 형식을 확인해주세요.",
+      "importDuplicates": "모든 그룹이 이미 존재합니다. 가져올 새 그룹이 없습니다.",
       "exportGroup": "그룹 내보내기",
       "exportGroupConfirm": "\"{{groupTitle}}\" 그룹을 내보내시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• JSON 파일로 저장됩니다",
       "exportGroupSuccess": "\"{{groupTitle}}\" 그룹을 성공적으로 내보냈습니다"

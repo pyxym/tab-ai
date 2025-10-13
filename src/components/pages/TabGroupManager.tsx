@@ -169,9 +169,28 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
       // Get existing snapshots
       const existingSnapshots = await getAllSnapshots();
 
-      // Merge with imported snapshots (avoid duplicates by ID)
-      const existingIds = new Set(existingSnapshots.map((s) => s.id));
-      const newSnapshots = importedSnapshots.filter((s) => !existingIds.has(s.id));
+      // 각 스냅샷에 새로운 ID를 부여하여 중복 방지 (이름+탭수로 중복 체크)
+      const existingSignatures = new Set(existingSnapshots.map((s) => `${s.name}-${s.tabs.length}`));
+
+      const newSnapshots = importedSnapshots
+        .filter((s) => {
+          const signature = `${s.name}-${s.tabs.length}`;
+          return !existingSignatures.has(signature);
+        })
+        .map((s) => ({
+          ...s,
+          id: `imported-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: Date.now(),
+        }));
+
+      if (newSnapshots.length === 0) {
+        showModal({
+          title: t('messages.error'),
+          message: t('modal.tabGroups.importDuplicates'),
+          variant: 'error',
+        });
+        return;
+      }
 
       // Save all snapshots
       const allSnapshots = [...existingSnapshots, ...newSnapshots];

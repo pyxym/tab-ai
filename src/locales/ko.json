@@ -241,7 +241,7 @@
       "untitledGroup": "제목 없는 그룹",
       "tabs": "개 탭",
       "noGroups": "탭 그룹이 없습니다",
-      "ungrouped": "그룹화되지 않은 탭",
+      "ungrouped": "그룹화 제외 탭",
       "takeSnapshot": "스냅샷 저장",
       "restoreSnapshot": "스냅샷 복원",
       "noSnapshots": "저장된 스냅샷이 없습니다",

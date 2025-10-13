@@ -251,7 +251,7 @@
       "untitledGroup": "Untitled Group",
       "tabs": "tabs",
       "noGroups": "No tab groups found",
-      "ungrouped": "Ungrouped Tabs",
+      "ungrouped": "Tabs Without Groups",
       "tip": "Click on group headers to toggle collapse/expand, or click on tabs to activate them.",
       "currentTabs": "Current Tabs",
       "savedGroups": "Saved Groups",

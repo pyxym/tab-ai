@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**TabQuest** is an intelligent browser tab management extension that helps users organize, analyze, and optimize their browsing experience. The extension provides smart tab grouping, usage tracking, and productivity insights.
+**TabQuest** is an intelligent browser tab management extension that helps users organize and optimize their browsing experience. The extension provides smart tab grouping, AI-powered insights, and a persistent side panel interface for easy access.
 
 ## Technology Stack
 
@@ -17,6 +17,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling**: Tailwind CSS with glass morphism design system
 - **Build System**: WXT + Vite
 - **Extension**: Chrome Extension Manifest V3
+
+## Recent Architecture Changes (2025-10-13)
+
+### Removed Features
+The following features were removed to simplify the extension and focus on core tab organization:
+
+- ❌ **Analytics System**: Dashboard, charts, productivity scores
+- ❌ **Usage Tracking**: TabTracker, time tracking, daily statistics
+- ❌ **Chart Components**: SimpleBarChart, SimpleLineChart
+- ❌ **Options Page**: Consolidated into side panel
+- ❌ **Background Alarms**: Tracking-related periodic tasks
+
+### Simplified Architecture
+- ✅ Streamlined storage (removed analytics types: TabUsageData, DailyStats)
+- ✅ Simplified configuration (removed tracking configs)
+- ✅ Focused on core tab organization features
+- ✅ Cleaner codebase (~2400 lines removed)
+- ✅ Better performance (no background tracking overhead)
 
 ## Development Commands
 
@@ -38,28 +56,32 @@ npm run package
 
 ```
 tab-quest/
+├── docs/                      # Documentation
+│   ├── README.md              # Documentation index
+│   ├── architecture.md        # System architecture
+│   ├── core-features.md       # Feature documentation
+│   ├── data-structure.md      # Storage structure
+│   ├── state-management.md    # State patterns
+│   ├── tab-organization.md    # Organization logic
+│   └── development-setup.md   # Setup guide
 ├── src/
 │   ├── entrypoints/           # WXT entry points
 │   │   ├── sidepanel.tsx      # Side panel entry point
-│   │   ├── popup-component.tsx # Main UI component (shared)
-│   │   ├── options.tsx        # Options page
+│   │   ├── popup-component.tsx # Main UI component
 │   │   └── background.ts      # Background service worker
 │   ├── components/
-│   │   ├── charts/            # Chart components
-│   │   │   ├── SimpleBarChart.tsx
-│   │   │   └── SimpleLineChart.tsx
 │   │   ├── modals/            # Modal dialogs
 │   │   │   └── CategoryEditModal.tsx
 │   │   ├── pages/             # Page-level components
 │   │   │   ├── CategoryManager.tsx  # Category management
-│   │   │   ├── DashboardModal.tsx   # Analytics dashboard
 │   │   │   ├── HelpModal.tsx        # Help documentation
-│   │   │   ├── TabGroupsModal.tsx   # Tab groups view
+│   │   │   ├── TabGroupManager.tsx  # Tab groups view
 │   │   │   └── TabList.tsx          # Tab listing
+│   │   ├── popup/             # Popup-specific components
+│   │   │   └── (shared components)
 │   │   ├── shared/            # Shared components
 │   │   │   ├── AIInsightCard.tsx    # AI insights display
-│   │   │   ├── AILogo.tsx           # AI logo component
-│   │   │   └── ProductivityScore.tsx # Score display
+│   │   │   └── AILogo.tsx           # AI logo component
 │   │   └── ui/                # UI primitives
 │   │       ├── ColorPicker.tsx      # Color selection
 │   │       ├── ConfirmModal.tsx     # Confirmation dialog
@@ -67,6 +89,9 @@ tab-quest/
 │   │       ├── FavIcon.tsx          # Favicon display
 │   │       ├── InfoTooltip.tsx      # Tooltip component
 │   │       └── LanguageSwitcher.tsx # Language selector
+│   ├── hooks/                 # Custom React hooks
+│   │   ├── useInsightsGenerator.ts  # AI insight generation
+│   │   └── useSmartOrganize.ts      # Smart organization
 │   ├── lib/                   # Core libraries
 │   │   ├── i18n.ts            # i18next configuration
 │   │   └── tabClassifier.ts   # Tab classification logic
@@ -76,7 +101,6 @@ tab-quest/
 │   │   └── ja.json            # Japanese
 │   ├── store/                 # Zustand state stores
 │   │   ├── categoryStore.ts   # Category management
-│   │   ├── tabStore.ts        # Tab state and operations
 │   │   └── aiStore.ts         # AI features state
 │   ├── utils/                 # Utility functions
 │   │   ├── chromeTabHelpers.ts    # Chrome API helpers
@@ -88,18 +112,14 @@ tab-quest/
 │   │   ├── storage.ts             # Chrome storage wrapper
 │   │   ├── tabAnalyzer.ts         # Tab analysis logic
 │   │   ├── tabFilters.ts          # Tab filtering utilities
-│   │   ├── tabTracker.ts          # Usage tracking
 │   │   ├── undoManager.ts         # Undo/Redo system
 │   │   └── unifiedOrganizer.ts    # Tab organization logic
-│   ├── types/                 # TypeScript definitions
-│   │   ├── analytics.ts       # Analytics types
-│   │   ├── category.ts        # Category types
-│   │   ├── css.d.ts           # CSS module types
-│   │   ├── organize.ts        # Organization types
-│   │   ├── snapshot.ts        # Snapshot types
-│   │   └── storage.ts         # Storage types
-│   └── tabs/                  # Full tab pages
-│       └── dashboard.tsx      # Analytics dashboard page
+│   └── types/                 # TypeScript definitions
+│       ├── category.ts        # Category types
+│       ├── css.d.ts           # CSS module types
+│       ├── organize.ts        # Organization types
+│       ├── snapshot.ts        # Snapshot types
+│       └── storage.ts         # Storage types
 ├── public/
 │   └── icon/                  # Extension icons (16, 32, 48, 128)
 ├── wxt.config.ts              # WXT framework configuration
@@ -121,8 +141,9 @@ tab-quest/
 ### State Management
 
 - **categoryStore**: Manages user-defined categories for tab organization
+- **aiStore**: Manages AI-generated insights
 - Local React state for UI components
-- Chrome Storage API for persistence via WXT utilities
+- Chrome Storage API for persistence
 
 ### Storage Architecture
 
@@ -130,16 +151,15 @@ tab-quest/
   - `categories`: User-defined tab categories
   - `categoryMapping`: Domain to category mappings
   - `language`: Selected interface language
-- **Local Storage**: Usage data and statistics
-  - `tabUsageData`: Tab usage metrics
-  - `dailyStats`: Daily productivity statistics
-  - `aiInsights`: AI-generated insights and suggestions
+- **Local Storage**: Temporary data
+  - `snapshots`: Saved tab states
+  - `aiInsights`: AI-generated insights
 
 ### Component Architecture
 
 - Glass morphism design with Tailwind CSS
 - Modular components for maintainability
-- Responsive full-screen layout optimized for side panel
+- Responsive layout optimized for side panel
 - Dark mode compatible
 - Side panel provides persistent access and resizable width
 
@@ -147,15 +167,14 @@ tab-quest/
 
 1. **Side Panel Interface**: Persistent sidebar UI with resizable width and always-on access
 2. **Category-based Tab Organization**: Custom categories with automatic tab grouping
-3. **Tab Usage Tracking**: Monitor time spent, access frequency, and productivity metrics
-4. **Undo/Redo System**: Full undo/redo support for all organization actions
-5. **Snapshot Management**: Save and restore tab states with timestamps
-6. **Tab Filtering**: Filter by domain, title, or usage patterns
-7. **Interactive Charts**: Bar and line charts showing usage patterns
-8. **AI Insights**: AI-generated suggestions for productivity improvement
-9. **Multi-language Support**: English, Korean, and Japanese with i18next
-10. **Glass Morphism Design**: Modern UI with backdrop blur and gradients
-11. **Tab Groups Integration**: View and manage existing Chrome tab groups
+3. **Undo/Redo System**: Full undo/redo support for all organization actions
+4. **Snapshot Management**: Save and restore tab states with timestamps
+5. **Tab Filtering**: Filter by domain, title, or category
+6. **AI Insights**: AI-generated suggestions for productivity improvement
+7. **Multi-language Support**: English, Korean, and Japanese with i18next
+8. **Glass Morphism Design**: Modern UI with backdrop blur and gradients
+9. **Tab Groups Integration**: View and manage existing Chrome tab groups
+10. **Smart Organization**: Intelligent tab grouping with pattern detection
 
 ## Chrome Extension Permissions
 
@@ -163,10 +182,9 @@ Current permissions in manifest:
 
 - `tabs`: Access to tab information and management
 - `tabGroups`: Create and manage tab groups
-- `storage`: Store user preferences and usage data
+- `storage`: Store user preferences and data
 - `activeTab`: Access to the currently active tab
 - `windows`: Access to browser windows
-- `alarms`: Schedule periodic tasks for tracking
 - `sidePanel`: Enable side panel UI (requires Chrome 114+)
 
 ## Development Tips
@@ -187,7 +205,7 @@ Current permissions in manifest:
 3. **Storage Management**:
    - Use Chrome Storage API directly for persistence
    - Separate sync storage for preferences and local storage for data
-   - Storage utilities defined in utils/storage.ts
+   - Storage utilities defined in [utils/storage.ts](src/utils/storage.ts)
 
 4. **Debugging**:
    - Debug utilities are conditionally loaded only in development
@@ -199,6 +217,8 @@ Current permissions in manifest:
    - Direct Chrome API calls for instant tab operations
    - Efficient state management with Zustand
    - Tailwind CSS purged in production build
+   - React.memo for list components
+   - Custom hooks for logic separation
 
 6. **Testing**:
    - Manual testing through Chrome extension developer mode
@@ -257,8 +277,7 @@ The extension supports multiple languages using i18next:
 
 ### State Management (Zustand Stores)
 
-- **categoryStore**: Category CRUD, reordering, color management
-- **tabStore**: Tab operations, filters, undo/redo, snapshots
+- **categoryStore**: Category CRUD, reordering, color management, domain mapping
 - **aiStore**: AI insights generation and management
 
 ### Core Utilities
@@ -266,17 +285,15 @@ The extension supports multiple languages using i18next:
 - **unifiedOrganizer**: Main tab organization logic
 - **undoManager**: Undo/redo stack management
 - **snapshotStorage**: Snapshot save/restore with compression
-- **tabTracker**: Usage tracking with time and frequency metrics
-- **tabAnalyzer**: Tab analysis and productivity scoring
+- **tabAnalyzer**: Tab analysis for insights generation
 - **chromeTabHelpers**: Chrome API wrapper functions
 
 ### UI Components
 
 - **CategoryManager**: Category list with drag-and-drop
 - **TabList**: Tab display with filtering and actions
-- **DashboardModal**: Analytics dashboard with charts
-- **TabGroupsModal**: Existing tab groups viewer
-- **Chart components**: Custom bar and line charts
+- **TabGroupManager**: Existing tab groups viewer
+- **AIInsightCard**: AI insights display
 
 ## Development Best Practices
 
@@ -317,3 +334,13 @@ set((state) => {
 const { t } = useTranslation();
 return <div>{t('tabs.organize')}</div>;
 ```
+
+## Documentation
+
+For more detailed information, see the [documentation](./docs/README.md):
+- [Architecture Overview](./docs/architecture.md)
+- [Core Features](./docs/core-features.md)
+- [Data Structure](./docs/data-structure.md)
+- [State Management](./docs/state-management.md)
+- [Tab Organization](./docs/tab-organization.md)
+- [Development Setup](./docs/development-setup.md)

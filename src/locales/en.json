@@ -260,7 +260,17 @@
       "noSnapshots": "No saved snapshots",
       "noSnapshotsTip": "Click the 📸 button on current tab groups to save snapshots.",
       "expandInChrome": "Expand in Chrome",
-      "collapseInChrome": "Collapse in Chrome"
+      "collapseInChrome": "Collapse in Chrome",
+      "export": "Export",
+      "import": "Import",
+      "exportTooltip": "Export saved groups to JSON file",
+      "importTooltip": "Import groups from JSON file",
+      "exportEmpty": "No saved groups to export",
+      "exportSuccess": "Successfully exported {{count}} group(s)",
+      "exportError": "Failed to export groups",
+      "importConfirm": "Import {{count}} group(s)?\n\n({{total}} group(s) found in file)",
+      "importSuccess": "Successfully imported {{count}} new group(s)",
+      "importError": "Failed to import groups. Please check the file format."
     },
     "dashboard": {
       "title": "Analytics Dashboard",

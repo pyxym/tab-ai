@@ -53,6 +53,148 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
     setSnapshots(savedSnapshots);
   };
 
+  /**
+   * Export snapshots to JSON file
+   */
+  const handleExportSnapshots = useCallback(() => {
+    if (snapshots.length === 0) {
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.exportEmpty'),
+        variant: 'error',
+      });
+      return;
+    }
+
+    try {
+      // Create export data with metadata
+      const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        snapshotCount: snapshots.length,
+        snapshots: snapshots,
+      };
+
+      // Create blob and download
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `tabquest-snapshots-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showModal({
+        title: t('messages.success'),
+        message: t('modal.tabGroups.exportSuccess', { count: snapshots.length }),
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Export failed:', error);
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.exportError'),
+        variant: 'error',
+      });
+    }
+  }, [snapshots, showModal, t]);
+
+  /**
+   * Import snapshots from JSON file
+   */
+  const handleImportSnapshots = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const importData = JSON.parse(text);
+
+        // Validate import data structure
+        if (!importData.snapshots || !Array.isArray(importData.snapshots)) {
+          throw new Error('Invalid file format');
+        }
+
+        // Validate each snapshot has required fields
+        const validSnapshots = importData.snapshots.filter((snapshot: any) => {
+          return (
+            snapshot.id &&
+            snapshot.name &&
+            snapshot.color &&
+            snapshot.createdAt &&
+            Array.isArray(snapshot.tabs) &&
+            snapshot.tabs.every((tab: any) => tab.url && tab.title)
+          );
+        });
+
+        if (validSnapshots.length === 0) {
+          throw new Error('No valid snapshots found');
+        }
+
+        // Show confirmation modal
+        showModal({
+          title: t('actions.confirm'),
+          message: t('modal.tabGroups.importConfirm', {
+            count: validSnapshots.length,
+            total: importData.snapshots.length,
+          }),
+          variant: 'info',
+          onConfirm: () => confirmImport(validSnapshots),
+        });
+      } catch (error) {
+        console.error('Import failed:', error);
+        showModal({
+          title: t('messages.error'),
+          message: t('modal.tabGroups.importError'),
+          variant: 'error',
+        });
+      }
+    };
+    input.click();
+  }, [showModal, t]);
+
+  /**
+   * Confirm and execute import
+   */
+  const confirmImport = async (importedSnapshots: TabGroupSnapshot[]) => {
+    closeModal();
+
+    try {
+      // Get existing snapshots
+      const existingSnapshots = await getAllSnapshots();
+
+      // Merge with imported snapshots (avoid duplicates by ID)
+      const existingIds = new Set(existingSnapshots.map((s) => s.id));
+      const newSnapshots = importedSnapshots.filter((s) => !existingIds.has(s.id));
+
+      // Save all snapshots
+      const allSnapshots = [...existingSnapshots, ...newSnapshots];
+      await chrome.storage.local.set({ snapshots: allSnapshots });
+
+      // Reload
+      await loadSnapshots();
+
+      showModal({
+        title: t('messages.success'),
+        message: t('modal.tabGroups.importSuccess', { count: newSnapshots.length }),
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Import execution failed:', error);
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.importError'),
+        variant: 'error',
+      });
+    }
+  };
+
   // 🚀 최적화: 이벤트 위임을 위한 통합 핸들러
   const handleGroupClick = useCallback(
     async (event: React.MouseEvent<HTMLElement>) => {
@@ -278,6 +420,43 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
               {t('modal.tabGroups.savedGroups')} ({snapshots.length})
             </button>
           </div>
+
+          {/* Export/Import 버튼 - 저장된 그룹 탭에서만 표시 */}
+          {activeTab === 'saved' && (
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={handleExportSnapshots}
+                disabled={snapshots.length === 0}
+                className="flex-1 glass-button-primary text-xs py-2 flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                title={t('modal.tabGroups.exportTooltip')}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+                <span>{t('modal.tabGroups.export')}</span>
+              </button>
+              <button
+                onClick={handleImportSnapshots}
+                className="flex-1 glass-button-primary text-xs py-2 flex items-center justify-center gap-1.5"
+                title={t('modal.tabGroups.importTooltip')}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+                <span>{t('modal.tabGroups.import')}</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 콘텐츠 */}

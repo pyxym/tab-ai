@@ -248,7 +248,17 @@
       "noSnapshotsTip": "현재 탭 그룹의 📸 버튼을 클릭하여 스냅샷을 저장할 수 있습니다.",
       "tip": "그룹 헤더를 클릭하여 접기/펼치기를 전환하거나, 탭을 클릭하여 활성화할 수 있습니다.",
       "expandInChrome": "Chrome에서 펼치기",
-      "collapseInChrome": "Chrome에서 접기"
+      "collapseInChrome": "Chrome에서 접기",
+      "export": "내보내기",
+      "import": "가져오기",
+      "exportTooltip": "저장된 그룹을 JSON 파일로 내보내기",
+      "importTooltip": "JSON 파일에서 그룹 가져오기",
+      "exportEmpty": "내보낼 저장된 그룹이 없습니다",
+      "exportSuccess": "{{count}}개 그룹을 성공적으로 내보냈습니다",
+      "exportError": "그룹 내보내기에 실패했습니다",
+      "importConfirm": "{{count}}개 그룹을 가져오시겠습니까?\n\n(파일에서 {{total}}개 그룹 발견)",
+      "importSuccess": "{{count}}개의 새 그룹을 성공적으로 가져왔습니다",
+      "importError": "그룹 가져오기에 실패했습니다. 파일 형식을 확인해주세요."
     },
     "dashboard": {
       "title": "분석 대시보드",

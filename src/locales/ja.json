@@ -247,7 +247,17 @@
       "noSnapshots": "保存されたスナップショットがありません",
       "noSnapshotsTip": "現在のタブグループの📸ボタンをクリックしてスナップショットを保存できます。",
       "expandInChrome": "Chromeで展開",
-      "collapseInChrome": "Chromeで折りたたむ"
+      "collapseInChrome": "Chromeで折りたたむ",
+      "export": "エクスポート",
+      "import": "インポート",
+      "exportTooltip": "保存されたグループをJSONファイルにエクスポート",
+      "importTooltip": "JSONファイルからグループをインポート",
+      "exportEmpty": "エクスポートする保存されたグループがありません",
+      "exportSuccess": "{{count}}個のグループを正常にエクスポートしました",
+      "exportError": "グループのエクスポートに失敗しました",
+      "importConfirm": "{{count}}個のグループをインポートしますか？\n\n（ファイル内に{{total}}個のグループが見つかりました）",
+      "importSuccess": "{{count}}個の新しいグループを正常にインポートしました",
+      "importError": "グループのインポートに失敗しました。ファイル形式を確認してください。"
     },
     "dashboard": {
       "title": "分析ダッシュボード",

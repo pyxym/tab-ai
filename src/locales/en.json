@@ -270,7 +270,10 @@
       "exportError": "Failed to export groups",
       "importConfirm": "Import {{count}} group(s)?\n\n({{total}} group(s) found in file)",
       "importSuccess": "Successfully imported {{count}} new group(s)",
-      "importError": "Failed to import groups. Please check the file format."
+      "importError": "Failed to import groups. Please check the file format.",
+      "exportGroup": "Export Group",
+      "exportGroupConfirm": "Export \"{{groupTitle}}\" group?\n\n• Number of tabs: {{tabCount}}\n• Will be saved as JSON file",
+      "exportGroupSuccess": "Successfully exported \"{{groupTitle}}\" group"
     },
     "dashboard": {
       "title": "Analytics Dashboard",

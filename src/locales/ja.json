@@ -257,7 +257,10 @@
       "exportError": "グループのエクスポートに失敗しました",
       "importConfirm": "{{count}}個のグループをインポートしますか？\n\n（ファイル内に{{total}}個のグループが見つかりました）",
       "importSuccess": "{{count}}個の新しいグループを正常にインポートしました",
-      "importError": "グループのインポートに失敗しました。ファイル形式を確認してください。"
+      "importError": "グループのインポートに失敗しました。ファイル形式を確認してください。",
+      "exportGroup": "グループをエクスポート",
+      "exportGroupConfirm": "「{{groupTitle}}」グループをエクスポートしますか？\n\n• タブ数: {{tabCount}}個\n• JSONファイルとして保存されます",
+      "exportGroupSuccess": "「{{groupTitle}}」グループを正常にエクスポートしました"
     },
     "dashboard": {
       "title": "分析ダッシュボード",

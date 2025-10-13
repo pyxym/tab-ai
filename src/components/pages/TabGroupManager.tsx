@@ -323,6 +323,100 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
   };
 
   /**
+   * Export individual group
+   */
+  const handleExportGroup = async (groupId: number) => {
+    // 그룹 정보 가져오기
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return;
+
+    // 확인 모달 표시
+    showModal({
+      title: t('actions.confirm'),
+      message: t('modal.tabGroups.exportGroupConfirm', {
+        groupTitle: group.title,
+        tabCount: group.tabs.length,
+      }),
+      variant: 'info',
+      onConfirm: () => confirmExportGroup(groupId),
+    });
+  };
+
+  /**
+   * Confirm and execute group export
+   */
+  const confirmExportGroup = async (groupId: number) => {
+    closeModal();
+
+    try {
+      // 그룹 정보 가져오기
+      const group = groups.find((g) => g.id === groupId);
+      if (!group) return;
+
+      // 스냅샷 형식으로 변환
+      const snapshot = {
+        id: `export-${Date.now()}-${groupId}`,
+        name: group.title,
+        color: group.color,
+        createdAt: Date.now(),
+        tabs: group.tabs.map((tab) => ({
+          url: tab.url || '',
+          title: tab.title || '',
+          favIconUrl: tab.favIconUrl,
+        })),
+      };
+
+      // Export data with metadata
+      const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        snapshotCount: 1,
+        snapshots: [snapshot],
+      };
+
+      // Create blob and download
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const fileName = `${group.title.replace(/[^a-zA-Z0-9가-힣]/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showModal({
+        title: t('messages.success'),
+        message: t('modal.tabGroups.exportGroupSuccess', { groupTitle: group.title }),
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Export group failed:', error);
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.exportError'),
+        variant: 'error',
+      });
+    }
+  };
+
+  /**
+   * Handle export button click
+   */
+  const handleExportClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      const target = event.currentTarget;
+      const groupId = target.getAttribute('data-group-id');
+      if (groupId) {
+        handleExportGroup(parseInt(groupId, 10));
+      }
+    },
+    [groups, showModal, closeModal, t],
+  );
+
+  /**
    * 스냅샷 복원
    */
   const handleRestoreSnapshot = async (snapshot: TabGroupSnapshot) => {
@@ -475,6 +569,7 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
                     group={group}
                     onGroupClick={handleGroupClick}
                     onSaveClick={handleSaveClick}
+                    onExportClick={handleExportClick}
                     onTabClick={handleTabClick}
                   />
                 ))

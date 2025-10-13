@@ -48,11 +48,11 @@
       "action": "Organize now"
     },
     "organizationComplete": {
-      "title": "🧹 Smart Organization Complete!",
+      "title": "Smart Organization Complete!",
       "description": "Successfully organized {{tabsProcessed}} tabs into {{groupsCreated}} groups",
-      "descriptionWithMeeting": "Successfully organized {{tabsProcessed}} tabs into {{groupsCreated}} groups\n🛡️ Protected Tabs ({{meetingCount}})\n• Meeting: {{meetingCount}} ({{meetingDomains}})",
-      "descriptionWithSystem": "Successfully organized {{tabsProcessed}} tabs into {{groupsCreated}} groups\n🛡️ Protected Tabs ({{systemCount}})\n• System pages: {{systemCount}}",
-      "descriptionWithBoth": "Successfully organized {{tabsProcessed}} tabs into {{groupsCreated}} groups\n🛡️ Protected Tabs ({{protectedCount}})\n• Meeting: {{meetingCount}} ({{meetingDomains}})\n• System pages: {{systemCount}}"
+      "protectedMeeting": "Excluded Tabs ({{meetingCount}})\n• Video Meeting: {{meetingCount}} ({{meetingDomains}})",
+      "protectedSystem": "Excluded Tabs ({{systemCount}})\n• System pages: {{systemCount}}",
+      "protectedBoth": "Excluded Tabs ({{protectedCount}})\n• Video Meeting: {{meetingCount}} ({{meetingDomains}})\n• System pages: {{systemCount}}"
     }
   },
   "categories": {

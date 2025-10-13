@@ -48,11 +48,11 @@
       "action": "今すぐ整理"
     },
     "organizationComplete": {
-      "title": "🧹 スマート整理完了！",
+      "title": "スマート整理完了！",
       "description": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました",
-      "descriptionWithMeeting": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{meetingCount}}個)\n• 会議: {{meetingCount}}個（{{meetingDomains}}）",
-      "descriptionWithSystem": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{systemCount}}個)\n• システムページ: {{systemCount}}個",
-      "descriptionWithBoth": "{{tabsProcessed}}個のタブを{{groupsCreated}}個のグループに整理しました\n🛡️ 保護されたタブ ({{protectedCount}}個)\n• 会議: {{meetingCount}}個（{{meetingDomains}}）\n• システムページ: {{systemCount}}個"
+      "protectedMeeting": "整理除外タブ ({{meetingCount}}個)\n• ビデオ会議: {{meetingCount}}個（{{meetingDomains}}）",
+      "protectedSystem": "整理除外タブ ({{systemCount}}個)\n• システムページ: {{systemCount}}個",
+      "protectedBoth": "整理除外タブ ({{protectedCount}}個)\n• ビデオ会議: {{meetingCount}}個（{{meetingDomains}}）\n• システムページ: {{systemCount}}個"
     }
   },
   "categories": {

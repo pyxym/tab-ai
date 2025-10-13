@@ -48,11 +48,11 @@
       "action": "지금 정리"
     },
     "organizationComplete": {
-      "title": "🧹 스마트 정리 완료!",
+      "title": "스마트 정리 완료!",
       "description": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다",
-      "descriptionWithMeeting": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{meetingCount}}개)\n• 회의: {{meetingCount}}개（{{meetingDomains}}）",
-      "descriptionWithSystem": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{systemCount}}개)\n• 시스템 페이지: {{systemCount}}개",
-      "descriptionWithBoth": "{{tabsProcessed}}개의 탭을 {{groupsCreated}}개 그룹으로 정리했습니다\n🛡️ 보호된 탭 ({{protectedCount}}개)\n• 회의: {{meetingCount}}개（{{meetingDomains}}）\n• 시스템 페이지: {{systemCount}}개"
+      "protectedMeeting": "정리 제외 탭 ({{meetingCount}}개)\n• 비디오 회의: {{meetingCount}}개（{{meetingDomains}}）",
+      "protectedSystem": "정리 제외 탭 ({{systemCount}}개)\n• 시스템 페이지: {{systemCount}}개",
+      "protectedBoth": "정리 제외 탭 ({{protectedCount}}개)\n• 비디오 회의: {{meetingCount}}개（{{meetingDomains}}）\n• 시스템 페이지: {{systemCount}}개"
     }
   },
   "categories": {

@@ -53,7 +53,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
   // - 초기 로드: 200-300ms → 50-80ms (70% 개선)
   const virtualScroll = useVirtualScroll(
     {
-      itemHeight: 52, // TabCategoryItem 높이
+      itemHeight: 58, // TabCategoryItem 높이 (52px) + 간격 (6px)
       containerHeight: 700, // 대략적인 컨테이너 높이
       overscan: 3, // 화면 밖 3개씩 추가 렌더링
     },
@@ -311,6 +311,7 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
                     left: 0,
                     right: 0,
                     height: '52px',
+                    marginBottom: '6px', // space-y-1.5 간격 복원
                   }}
                 >
                   <TabCategoryItem

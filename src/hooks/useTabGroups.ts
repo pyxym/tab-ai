@@ -111,13 +111,18 @@ export const useTabGroups = () => {
   );
 
   /**
-   * 🚀 실시간 활성 탭 추적
+   * 🚀 실시간 활성 탭 추적 (최적화)
    * Chrome tabs.onActivated 이벤트를 리스닝하여 실시간으로 녹색 점멸 업데이트
    */
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     const handleTabActivated = (activeInfo: chrome.tabs.TabActiveInfo) => {
-      // 활성 탭이 변경되면 모든 그룹 재로드
-      loadTabGroups();
+      // 🚀 성능 최적화: debounce로 연속 탭 전환 시 불필요한 재로드 방지
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        loadTabGroups();
+      }, 300); // 300ms 대기 후 실행
     };
 
     // Chrome API 이벤트 리스너 등록
@@ -125,6 +130,7 @@ export const useTabGroups = () => {
 
     // 컴포넌트 언마운트 시 리스너 제거
     return () => {
+      if (timeoutId) clearTimeout(timeoutId);
       chrome.tabs.onActivated.removeListener(handleTabActivated);
     };
   }, [loadTabGroups]);

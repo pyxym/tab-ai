@@ -35,6 +35,8 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
   const [snapshots, setSnapshots] = useState<TabGroupSnapshot[]>([]);
   // 스냅샷 전용 collapse 상태 관리
   const [snapshotCollapsedState, setSnapshotCollapsedState] = useState<Record<string, boolean>>({});
+  // 🚀 그룹화되지 않은 탭 접기/펼치기 상태
+  const [ungroupedCollapsed, setUngroupedCollapsed] = useState(false);
 
   // 초기 마운트 시에만 로드
   useEffect(() => {
@@ -303,35 +305,65 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
                 </div>
               )}
 
-              {/* 그룹화되지 않은 탭들 */}
+              {/* 그룹화되지 않은 탭들 - 아코디언 형식으로 변경 */}
               {ungroupedTabs.length > 0 && (
-                <div className="glass-card px-2.5 py-1.5">
-                  <div className="flex items-center mb-0.5">
-                    <h3 className="text-xs font-medium glass-text flex-1 leading-tight">{t('modal.tabGroups.ungrouped')}</h3>
-                    <span className="text-[10px] glass-text opacity-40">
-                      {ungroupedTabs.length} {t('modal.tabGroups.tabs')}
-                    </span>
-                  </div>
-                  <div className="space-y-0.5 ml-5">
-                    {ungroupedTabs.map((tab) => (
-                      <div
-                        key={tab.id}
-                        data-tab-id={tab.id}
-                        onClick={handleTabClick}
-                        className="glass-card !p-1 hover:bg-white/10 transition-colors cursor-pointer"
+                <div className="glass-card overflow-hidden">
+                  {/* 헤더 - 클릭하여 접기/펼치기 */}
+                  <div
+                    onClick={() => setUngroupedCollapsed(!ungroupedCollapsed)}
+                    className="flex items-center px-2.5 py-1.5 cursor-pointer hover:bg-gradient-to-r hover:from-purple-500/5 hover:to-transparent transition-all group border-b border-white/5"
+                  >
+                    {/* 아코디언 화살표 */}
+                    <div className="text-white/60 group-hover:text-white transition-colors mr-2 group-hover:scale-110">
+                      <svg
+                        className={`w-3 h-3 transition-transform ${ungroupedCollapsed ? '' : 'rotate-90'}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <div className="flex items-center gap-1.5">
-                          <FavIcon url={tab.favIconUrl || tab.url} size={10} className="flex-shrink-0" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+
+                    {/* 회색 인디케이터 (그룹 없음 표시) */}
+                    <div className="w-3 h-3 rounded flex-shrink-0 mr-2 ring-1 ring-white/10 bg-gray-500" />
+
+                    {/* 제목과 카운트 */}
+                    <div className="flex-1 min-w-0 mr-2 flex items-baseline gap-1">
+                      <h3 className="text-xs font-medium glass-text truncate leading-tight">{t('modal.tabGroups.ungrouped')}</h3>
+                      <span className="text-[10px] glass-text opacity-40 flex-shrink-0">
+                        {ungroupedTabs.length} {t('modal.tabGroups.tabs')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 탭 목록 - 접혔을 때만 숨김 */}
+                  {!ungroupedCollapsed && (
+                    <div className="px-2 pb-1 pt-0.5 space-y-0.5 border-l-2 border-white/5 ml-2">
+                      {ungroupedTabs.map((tab) => (
+                        <div
+                          key={tab.id}
+                          data-tab-id={tab.id}
+                          onClick={handleTabClick}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 hover:border-l-2 hover:border-purple-400/50 transition-all cursor-pointer group ml-2"
+                        >
+                          <FavIcon
+                            url={tab.favIconUrl || tab.url}
+                            size={12}
+                            className="flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                          />
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] glass-text truncate leading-tight">
+                            <p className="text-[11px] glass-text truncate group-hover:text-purple-300 group-hover:font-medium transition-all leading-tight">
                               {tab.title || t('modal.tabCategoryOrganizer.untitled')}
                             </p>
                           </div>
-                          {tab.active && <span className="w-1 h-1 bg-green-400 rounded-full flex-shrink-0 animate-pulse"></span>}
+                          {tab.active && (
+                            <span className="w-1 h-1 bg-green-400 rounded-full flex-shrink-0 animate-pulse shadow-lg shadow-green-400/50"></span>
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

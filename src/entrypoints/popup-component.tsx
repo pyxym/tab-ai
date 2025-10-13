@@ -1,9 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CategoryManager } from '../components/pages/CategoryManager';
-import { HelpModal } from '../components/pages/HelpModal';
-import { TabCategoryOrganizer } from '../components/pages/TabCategoryOrganizer';
-import { TabGroupManager } from '../components/pages/TabGroupManager';
 import { PopupHeader } from '../components/popup/PopupHeader';
 import { PopupStats } from '../components/popup/PopupStats';
 import { AIInsightCard } from '../components/shared/AIInsightCard';
@@ -18,6 +14,12 @@ import { tabSelectors, useTabStore } from '../store/tabStore';
 import '../styles/popup.css';
 import { storageUtils } from '../utils/storage';
 import { hasSnapshot, restoreSnapshot } from '../utils/undoManager';
+
+// 🚀 성능 최적화: Lazy load 모달 컴포넌트 (필요할 때만 로드)
+const CategoryManager = lazy(() => import('../components/pages/CategoryManager').then(m => ({ default: m.CategoryManager })));
+const HelpModal = lazy(() => import('../components/pages/HelpModal').then(m => ({ default: m.HelpModal })));
+const TabCategoryOrganizer = lazy(() => import('../components/pages/TabCategoryOrganizer').then(m => ({ default: m.TabCategoryOrganizer })));
+const TabGroupManager = lazy(() => import('../components/pages/TabGroupManager').then(m => ({ default: m.TabGroupManager })));
 
 /**
  * Optimized popup component with separated concerns
@@ -93,22 +95,28 @@ function IndexPopup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 초기화는 마운트 시 한 번만 실행 (모든 함수는 안정적이거나 내부에서만 사용)
 
-  // Real-time tab updates - 탭 변경사항 실시간 반영
+  // Real-time tab updates - 탭 변경사항 실시간 반영 (debounced)
   useEffect(() => {
-    const handleTabUpdate = () => {
-      loadTabsAndAnalyze();
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const debouncedUpdate = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        loadTabsAndAnalyze();
+      }, 500); // 500ms 대기 후 실행
     };
 
     // Chrome 탭 이벤트 리스너 등록
-    chrome.tabs.onCreated.addListener(handleTabUpdate);
-    chrome.tabs.onRemoved.addListener(handleTabUpdate);
-    chrome.tabs.onUpdated.addListener(handleTabUpdate);
+    chrome.tabs.onCreated.addListener(debouncedUpdate);
+    chrome.tabs.onRemoved.addListener(debouncedUpdate);
+    chrome.tabs.onUpdated.addListener(debouncedUpdate);
 
     return () => {
       // Cleanup
-      chrome.tabs.onCreated.removeListener(handleTabUpdate);
-      chrome.tabs.onRemoved.removeListener(handleTabUpdate);
-      chrome.tabs.onUpdated.removeListener(handleTabUpdate);
+      if (timeoutId) clearTimeout(timeoutId);
+      chrome.tabs.onCreated.removeListener(debouncedUpdate);
+      chrome.tabs.onRemoved.removeListener(debouncedUpdate);
+      chrome.tabs.onUpdated.removeListener(debouncedUpdate);
     };
   }, [loadTabsAndAnalyze]);
 
@@ -335,11 +343,17 @@ function IndexPopup() {
         )}
       </div>
 
-      {/* Modals */}
-      {categoryManagerOpen && <CategoryManager onClose={() => setCategoryManagerOpen(false)} />}
-      {tabListOpen && <TabCategoryOrganizer onClose={() => setTabListOpen(false)} />}
-      {tabGroupsOpen && <TabGroupManager onClose={() => setTabGroupsOpen(false)} />}
-      {helpOpen && <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />}
+      {/* Modals - 🚀 Suspense로 래핑하여 로딩 상태 처리 */}
+      <Suspense fallback={<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000]">
+        <div className="glass-main rounded-[20px] p-6">
+          <div className="animate-spin text-2xl">⏳</div>
+        </div>
+      </div>}>
+        {categoryManagerOpen && <CategoryManager onClose={() => setCategoryManagerOpen(false)} />}
+        {tabListOpen && <TabCategoryOrganizer onClose={() => setTabListOpen(false)} />}
+        {tabGroupsOpen && <TabGroupManager onClose={() => setTabGroupsOpen(false)} />}
+        {helpOpen && <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />}
+      </Suspense>
 
       {/* Undo Confirmation Modal */}
       {undoOpen && (

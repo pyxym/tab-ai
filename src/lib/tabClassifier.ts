@@ -386,23 +386,8 @@ export class TabClassifier {
 
   private async loadUserPatterns() {
     try {
-      const userPatterns = await storageUtils.getUserPatterns();
+      // 🚀 최적화: categoryHistory만 사용 (getUserPatterns는 제거됨)
       const categoryHistory = await storageUtils.getCategoryHistory();
-
-      if (userPatterns) {
-        // Convert stored data back to Maps
-        this.userPatterns = new Map(
-          Object.entries(userPatterns).map(([domain, pattern]: [string, any]) => [
-            domain,
-            {
-              ...pattern,
-              categories: new Map(Object.entries(pattern.categories || {})),
-              timePatterns: new Map(Object.entries(pattern.timePatterns || {})),
-              contextPatterns: new Map(Object.entries(pattern.contextPatterns || {})),
-            },
-          ]),
-        );
-      }
 
       if (categoryHistory) {
         // categoryHistory from storage is used for category -> domains mapping
@@ -416,18 +401,7 @@ export class TabClassifier {
 
   private async saveUserPatterns() {
     try {
-      // Convert Maps to plain objects for storage
-      const patternsObj: any = {};
-      for (const [domain, pattern] of this.userPatterns) {
-        patternsObj[domain] = {
-          ...pattern,
-          categories: Object.fromEntries(pattern.categories),
-          timePatterns: Object.fromEntries(pattern.timePatterns),
-          contextPatterns: Object.fromEntries(pattern.contextPatterns),
-        };
-      }
-
-      await storageUtils.setUserPatterns(patternsObj);
+      // 🚀 최적화: categoryHistory만 저장 (setUserPatterns는 제거됨)
       // Store category domain mapping as plain object
       await storageUtils.setCategoryHistory(Object.fromEntries(this.categoryDomainMapping) as any);
     } catch (error) {

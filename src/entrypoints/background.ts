@@ -1,8 +1,12 @@
 import { defineBackground } from 'wxt/utils/define-background';
 import { categorizeByDomain } from '../utils/tabAnalyzer';
 import { filterProtectedTabs, isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
+import { setupCacheInvalidation } from '../utils/chromeApiOptimizer';
 
 export default defineBackground(() => {
+  // 🚀 Chrome API 캐시 무효화 리스너 설정
+  setupCacheInvalidation();
+
   // 🚀 사이드 패널: 아이콘 클릭 시 사이드 패널 열기
   chrome.action.onClicked.addListener((tab) => {
     if (tab.id) {

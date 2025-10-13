@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import type { AIInsight } from '../../store/aiStore';
 
 /**
@@ -42,11 +42,12 @@ const INSIGHT_TYPE_LABELS = {
 /**
  * AI 인사이트 카드 컴포넌트
  * AI가 생성한 인사이트를 시각적으로 표시하는 카드 UI
+ * 🚀 성능 최적화: memo로 래핑하여 불필요한 리렌더링 방지
  *
  * @component
  * @param {AIInsightCardProps} props - 컴포넌트 속성
  */
-export const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, onDismiss, onAction }) => {
+export const AIInsightCard: React.FC<AIInsightCardProps> = memo(({ insight, onDismiss, onAction }) => {
   /**
    * 인사이트 닫기 핸들러
    * 상위 컴포넌트로 인사이트 ID를 전달
@@ -86,22 +87,24 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, onDismiss
       </div>
     </div>
   );
-};
+});
 
 /**
  * 인사이트 아이콘 컴포넌트 (사이드패널용 크기 축소)
+ * 🚀 성능 최적화: memo로 래핑
  */
-const InsightIcon: React.FC<{ type: AIInsight['type'] }> = ({ type }) => (
+const InsightIcon: React.FC<{ type: AIInsight['type'] }> = memo(({ type }) => (
   <span className="text-base flex-shrink-0 mt-0.5">{INSIGHT_TYPE_ICONS[type]}</span>
-);
+));
 
 /**
  * 인사이트 헤더 컴포넌트 (제목 + 닫기 버튼)
+ * 🚀 성능 최적화: memo로 래핑
  */
 const InsightHeader: React.FC<{
   title: string;
   onDismiss?: () => void;
-}> = ({ title, onDismiss }) => (
+}> = memo(({ title, onDismiss }) => (
   <div className="flex items-start justify-between gap-2">
     {/* 인사이트 제목 */}
     <h4 className="font-medium glass-text text-[13px] leading-tight">{title}</h4>
@@ -109,12 +112,13 @@ const InsightHeader: React.FC<{
     {/* 닫기 버튼 (onDismiss 핸들러가 있을 때만 표시) */}
     {onDismiss && <DismissButton onClick={onDismiss} />}
   </div>
-);
+));
 
 /**
  * 닫기 버튼 컴포넌트 (사이드패널용 크기 축소)
+ * 🚀 성능 최적화: memo로 래핑
  */
-const DismissButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+const DismissButton: React.FC<{ onClick: () => void }> = memo(({ onClick }) => (
   <button
     onClick={onClick}
     className="text-white/30 hover:text-white/50 flex-shrink-0 transition-colors -mt-0.5 -mr-0.5"
@@ -125,24 +129,26 @@ const DismissButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   </button>
-);
+));
 
 /**
  * 인사이트 설명 컴포넌트
  * 개행 문자(\n)를 <br> 태그로 변환하여 여러 줄 표시 지원 (사이드패널용 최적화)
+ * 🚀 성능 최적화: memo로 래핑
  */
-const InsightDescription: React.FC<{ description: string }> = ({ description }) => (
+const InsightDescription: React.FC<{ description: string }> = memo(({ description }) => (
   <p className="text-[11px] glass-text opacity-70 mt-0.5 leading-relaxed whitespace-pre-line">{description}</p>
-);
+));
 
 /**
  * 인사이트 액션 버튼 컴포넌트 (사이드패널용 크기 축소)
+ * 🚀 성능 최적화: memo로 래핑
  */
 const InsightActionButton: React.FC<{
   label: string;
   onClick: () => void;
-}> = ({ label, onClick }) => (
+}> = memo(({ label, onClick }) => (
   <button onClick={onClick} className="glass-button-primary !py-1 !px-2.5 text-[11px] mt-2 hover:scale-105 transition-transform">
     {label}
   </button>
-);
+));

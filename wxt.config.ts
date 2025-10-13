@@ -9,6 +9,30 @@ export default defineConfig({
     },
     reloadCommand: 'Alt+R',
   },
+  // 🚀 성능 최적화: Vite 빌드 설정
+  vite: () => ({
+    build: {
+      // 청크 크기 최적화
+      chunkSizeWarningLimit: 1000,
+      // 🚀 소스맵 최적화: 프로덕션에서는 완전히 제거
+      sourcemap: process.env.NODE_ENV === 'development',
+      // 번들 크기 최소화
+      minify: 'esbuild',
+      target: 'es2020',
+      // 압축 최적화
+      cssCodeSplit: true,
+      reportCompressedSize: false, // 빌드 속도 향상
+    },
+    // 최적화 설정
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'i18next', 'react-i18next', 'zustand'],
+    },
+    // Esbuild 최적화
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+      legalComments: 'none', // 라이센스 주석 제거
+    },
+  }),
   manifest: {
     name: 'TabQuest - AI-Powered Tab Manager',
     version: '1.0.0',

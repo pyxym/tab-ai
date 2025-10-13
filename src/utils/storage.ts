@@ -18,8 +18,61 @@ export interface StorageSchema {
 }
 
 /**
+ * 🚀 Storage 작업 배칭 큐
+ * 여러 storage 작업을 배칭하여 성능 향상
+ */
+interface StorageBatch {
+  key: keyof StorageSchema;
+  value: any;
+}
+
+let storageBatchQueue: StorageBatch[] = [];
+let storageBatchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * 🚀 배칭된 storage 쓰기 실행
+ */
+async function flushStorageBatch() {
+  if (storageBatchQueue.length === 0) return;
+
+  const batch = [...storageBatchQueue];
+  storageBatchQueue = [];
+
+  // 병렬로 모든 쓰기 작업 실행
+  await Promise.all(
+    batch.map(({ key, value }) =>
+      storage.setItem(key, value).catch(err => {
+        console.error(`[storage] Failed to set ${key}:`, err);
+      })
+    )
+  );
+}
+
+/**
+ * 🚀 배칭된 storage 쓰기
+ * 짧은 시간 내에 여러 번 호출되면 배칭하여 성능 향상
+ */
+function batchedSetItem<T>(key: keyof StorageSchema, value: T, delay: number = 100) {
+  // 기존 큐에서 같은 키 제거 (최신 값만 유지)
+  storageBatchQueue = storageBatchQueue.filter(item => item.key !== key);
+
+  // 새 항목 추가
+  storageBatchQueue.push({ key, value });
+
+  // 타이머 리셋
+  if (storageBatchTimeout) {
+    clearTimeout(storageBatchTimeout);
+  }
+
+  storageBatchTimeout = setTimeout(() => {
+    flushStorageBatch();
+  }, delay);
+}
+
+/**
  * 스토리지 유틸리티 객체
  * WXT 스토리지 API를 래핑하여 타입 안전성과 편의성 제공
+ * 🚀 성능 최적화: 배칭 및 캐싱 적용
  */
 export const storageUtils = {
   // === 동기화 스토리지 메서드 ===
@@ -33,9 +86,14 @@ export const storageUtils = {
 
   /**
    * 카테고리 목록 저장
+   * 🚀 성능 최적화: 배칭 적용 (빠른 연속 호출 시 병합)
    */
-  async setCategories(categories: Category[]) {
-    await storage.setItem('sync:categories', categories);
+  async setCategories(categories: Category[], batched: boolean = true) {
+    if (batched) {
+      batchedSetItem('sync:categories', categories);
+    } else {
+      await storage.setItem('sync:categories', categories);
+    }
   },
 
   /**
@@ -47,9 +105,14 @@ export const storageUtils = {
 
   /**
    * 도메인-카테고리 매핑 저장
+   * 🚀 성능 최적화: 배칭 적용
    */
-  async setCategoryMapping(mapping: Record<string, string>) {
-    await storage.setItem('sync:categoryMapping', mapping);
+  async setCategoryMapping(mapping: Record<string, string>, batched: boolean = true) {
+    if (batched) {
+      batchedSetItem('sync:categoryMapping', mapping);
+    } else {
+      await storage.setItem('sync:categoryMapping', mapping);
+    }
   },
 
   // === 로컬 스토리지 메서드 ===
@@ -104,9 +167,21 @@ export const storageUtils = {
   async clearLocalStorage() {
     const localKeys = ['local:hasSeenWelcome', 'local:categoryHistory', 'local:tabsData'];
 
-    for (const key of localKeys) {
-      await storage.removeItem(key as keyof StorageSchema);
-    }
+    // 🚀 최적화: 병렬로 삭제
+    await Promise.all(
+      localKeys.map(key =>
+        storage.removeItem(key as keyof StorageSchema).catch(err => {
+          console.error(`[storage] Failed to remove ${key}:`, err);
+        })
+      )
+    );
+  },
+
+  /**
+   * 🚀 배칭 큐 즉시 실행 (중요한 작업 전에 호출)
+   */
+  async flush() {
+    await flushStorageBatch();
   },
 };
 

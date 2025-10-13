@@ -85,8 +85,8 @@ export const TabGroupItem = React.memo(
         {/* 그룹 내 탭들 - Chrome 실제 상태에 따라 표시 */}
         {!group.collapsed && (
           <div className="px-2 pb-1 pt-0.5 space-y-0.5 relative ml-2">
-            {/* 🎨 개선된 트리 라인 - 그라디언트로 더 선명하게 */}
-            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-purple-500/30 via-purple-400/20 to-transparent"></div>
+            {/* 🎨 개선된 트리 라인 - 더 진하고 선명하게 */}
+            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-purple-400/60 via-purple-400/40 to-purple-400/20"></div>
 
             {group.tabs.map((tab) => (
               <div
@@ -95,8 +95,8 @@ export const TabGroupItem = React.memo(
                 onClick={onTabClick}
                 className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 transition-all cursor-pointer group ml-2 relative"
               >
-                {/* 🎨 개별 탭 연결선 */}
-                <div className="absolute left-[-8px] top-1/2 w-2 h-[1px] bg-gradient-to-r from-purple-400/30 to-transparent"></div>
+                {/* 🎨 개별 탭 연결선 - 더 선명하게 */}
+                <div className="absolute left-[-8px] top-1/2 w-2 h-[1px] bg-purple-400/50"></div>
                 <FavIcon
                   url={tab.favIconUrl || tab.url}
                   size={12}

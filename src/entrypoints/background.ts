@@ -1,28 +1,8 @@
 import { defineBackground } from 'wxt/utils/define-background';
-import { DOMAIN_CATEGORIES } from '../utils/configs';
 import { categorizeByDomain } from '../utils/tabAnalyzer';
 import { filterProtectedTabs, isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
-import { TabTracker } from '../utils/tabTracker';
 
 export default defineBackground(() => {
-  // Initialize tab tracking
-  TabTracker.initialize().catch((error) => {
-    console.error('[TabQuest] Failed to initialize tab tracking:', error);
-  });
-
-  // 🚀 성능 최적화: setInterval → chrome.alarms API
-  // Service Worker와 호환되며 배터리 효율적인 알람 사용
-  chrome.alarms.create('dailyCleanup', {
-    periodInMinutes: 24 * 60, // 24시간마다 실행
-  });
-
-  chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === 'dailyCleanup') {
-      console.log('[TabQuest] Running daily cleanup...');
-      TabTracker.cleanupOldData();
-    }
-  });
-
   // 🚀 사이드 패널: 아이콘 클릭 시 사이드 패널 열기
   chrome.action.onClicked.addListener((tab) => {
     if (tab.id) {
@@ -156,12 +136,6 @@ async function getTabsAnalysis() {
     const domainCounts: Record<string, number> = {};
     const categoryCounts: Record<string, number> = {};
     const urlCounts: Record<string, chrome.tabs.Tab[]> = {};
-
-    // Initialize categoryCounts with all available categories
-    Object.keys(DOMAIN_CATEGORIES).forEach((category) => {
-      categoryCounts[category] = 0;
-    });
-    categoryCounts.uncategorized = 0;
 
     // 🚀 단일 순회로 모든 계산 수행
     for (const tab of allTabs) {

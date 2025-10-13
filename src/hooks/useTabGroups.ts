@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -95,15 +95,39 @@ export const useTabGroups = () => {
   /**
    * 탭 활성화
    */
-  const activateTab = useCallback(async (tabId: number): Promise<{ success: boolean; error?: Error }> => {
-    try {
-      await chrome.tabs.update(tabId, { active: true });
-      return { success: true };
-    } catch (error) {
-      console.error('Failed to activate tab:', error);
-      return { success: false, error: error as Error };
-    }
-  }, []);
+  const activateTab = useCallback(
+    async (tabId: number): Promise<{ success: boolean; error?: Error }> => {
+      try {
+        await chrome.tabs.update(tabId, { active: true });
+        // 🚀 실시간 업데이트: 탭 활성화 후 즉시 상태 반영
+        await loadTabGroups();
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to activate tab:', error);
+        return { success: false, error: error as Error };
+      }
+    },
+    [loadTabGroups],
+  );
+
+  /**
+   * 🚀 실시간 활성 탭 추적
+   * Chrome tabs.onActivated 이벤트를 리스닝하여 실시간으로 녹색 점멸 업데이트
+   */
+  useEffect(() => {
+    const handleTabActivated = (activeInfo: chrome.tabs.TabActiveInfo) => {
+      // 활성 탭이 변경되면 모든 그룹 재로드
+      loadTabGroups();
+    };
+
+    // Chrome API 이벤트 리스너 등록
+    chrome.tabs.onActivated.addListener(handleTabActivated);
+
+    // 컴포넌트 언마운트 시 리스너 제거
+    return () => {
+      chrome.tabs.onActivated.removeListener(handleTabActivated);
+    };
+  }, [loadTabGroups]);
 
   return {
     groups,

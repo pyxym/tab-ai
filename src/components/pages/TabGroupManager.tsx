@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { storage } from 'wxt/utils/storage';
 import { useConfirmModal } from '../../hooks/useConfirmModal';
 import { useTabGroups } from '../../hooks/useTabGroups';
+import { useCategoryStore } from '../../store/categoryStore';
 import type { TabGroupSnapshot } from '../../types/snapshot';
+import { SNAPSHOTS_STORAGE_KEY } from '../../types/snapshot';
+import { getColorHex } from '../../utils/colorUtils';
 import { createSnapshotFromGroup, deleteSnapshot, getAllSnapshots, restoreSnapshotAsGroup } from '../../utils/snapshotStorage';
 import { SnapshotItem } from '../items/SnapshotItem';
 import { TabGroupItem } from '../items/TabGroupItem';
@@ -31,15 +35,27 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
   // 🚀 최적화 6: useConfirmModal 커스텀 훅 사용
   const { confirmModal, showModal, closeModal } = useConfirmModal();
 
+  // Category store for assigning uncategorized
+  const assignDomainToCategory = useCategoryStore((state) => state.assignDomainToCategory);
+
   const [activeTab, setActiveTab] = useState<'current' | 'saved'>('current');
   const [snapshots, setSnapshots] = useState<TabGroupSnapshot[]>([]);
   // 스냅샷 전용 collapse 상태 관리
   const [snapshotCollapsedState, setSnapshotCollapsedState] = useState<Record<string, boolean>>({});
   // 🚀 그룹화되지 않은 탭 접기/펼치기 상태
   const [ungroupedCollapsed, setUngroupedCollapsed] = useState(false);
+  // Export 모달 상태
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<number>>(new Set());
+
+  // Debug: Log component state
+  useEffect(() => {
+    console.log('[TabGroupManager] 🔧 Component rendered - activeTab:', activeTab, 'snapshots:', snapshots.length);
+  });
 
   // 초기 마운트 시에만 로드
   useEffect(() => {
+    console.log('[TabGroupManager] 🔧 Component mounted, loading data...');
     loadTabGroups();
     loadSnapshots();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,25 +65,63 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
    * 저장된 스냅샷 로드
    */
   const loadSnapshots = async () => {
+    console.log('[loadSnapshots] 🔄 Loading snapshots from storage...');
     const savedSnapshots = await getAllSnapshots();
+    console.log('[loadSnapshots] 🔄 Loaded snapshots:', savedSnapshots.length, 'items');
+    console.log('[loadSnapshots] 🔄 Snapshot details:', savedSnapshots);
     setSnapshots(savedSnapshots);
+    console.log('[loadSnapshots] 🔄 State updated with', savedSnapshots.length, 'snapshots');
   };
 
   /**
-   * Export snapshots to JSON file
+   * Export current tab groups (show selection modal)
    */
-  const handleExportSnapshots = useCallback(() => {
-    if (snapshots.length === 0) {
+  const handleExportCurrentGroups = useCallback(() => {
+    if (groups.length === 0) {
       showModal({
         title: t('messages.error'),
-        message: t('modal.tabGroups.exportEmpty'),
+        message: t('modal.tabGroups.noGroupsToExport'),
+        variant: 'error',
+      });
+      return;
+    }
+
+    // 모달 열기 전 모든 그룹 선택
+    setSelectedGroupIds(new Set(groups.map((g) => g.id)));
+    setShowExportModal(true);
+  }, [groups, showModal, t]);
+
+  /**
+   * Export selected groups
+   */
+  const confirmExportSelectedGroups = async () => {
+    setShowExportModal(false);
+
+    if (selectedGroupIds.size === 0) {
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.noGroupsSelected'),
         variant: 'error',
       });
       return;
     }
 
     try {
-      // Create export data with metadata
+      const selectedGroups = groups.filter((g) => selectedGroupIds.has(g.id));
+
+      // Convert to snapshot format
+      const snapshots = selectedGroups.map((group) => ({
+        id: `export-${Date.now()}-${group.id}`,
+        name: group.title,
+        color: group.color,
+        createdAt: Date.now(),
+        tabs: group.tabs.map((tab) => ({
+          url: tab.url || '',
+          title: tab.title || '',
+          favIconUrl: tab.favIconUrl,
+        })),
+      }));
+
       const exportData = {
         version: '1.0',
         exportDate: new Date().toISOString(),
@@ -75,12 +129,11 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
         snapshots: snapshots,
       };
 
-      // Create blob and download
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `tabquest-snapshots-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `tabquest-groups-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -92,52 +145,99 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
         variant: 'success',
       });
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error('Export selected groups failed:', error);
       showModal({
         title: t('messages.error'),
         message: t('modal.tabGroups.exportError'),
         variant: 'error',
       });
     }
-  }, [snapshots, showModal, t]);
+  };
+
+  /**
+   * Toggle group selection for export
+   */
+  const toggleGroupSelection = (groupId: number) => {
+    setSelectedGroupIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupId)) {
+        newSet.delete(groupId);
+      } else {
+        newSet.add(groupId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Toggle all groups selection
+   */
+  const toggleAllGroups = () => {
+    if (selectedGroupIds.size === groups.length) {
+      setSelectedGroupIds(new Set());
+    } else {
+      setSelectedGroupIds(new Set(groups.map((g) => g.id)));
+    }
+  };
 
   /**
    * Import snapshots from JSON file
    */
   const handleImportSnapshots = useCallback(() => {
+    console.log('[Import] 🔵 handleImportSnapshots button clicked!');
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
+    console.log('[Import] 🔵 File input created, waiting for user to select file...');
     input.onchange = async (e: Event) => {
+      console.log('[Import] 🔵 File input onchange triggered!');
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+      console.log('[Import] 🔵 Selected file:', file?.name, file?.size, 'bytes');
+      if (!file) {
+        console.log('[Import] ❌ No file selected, aborting');
+        return;
+      }
 
       try {
+        console.log('[Import] 🔵 Reading file contents...');
         const text = await file.text();
+        console.log('[Import] 🔵 File text length:', text.length);
+        console.log('[Import] 🔵 File contents:', text.substring(0, 200));
+
+        console.log('[Import] 🔵 Parsing JSON...');
         const importData = JSON.parse(text);
+        console.log('[Import] 🔵 Parsed import data:', importData);
 
         // Validate import data structure
+        console.log('[Import] 🔵 Validating import data structure...');
         if (!importData.snapshots || !Array.isArray(importData.snapshots)) {
+          console.log('[Import] ❌ Invalid file format - no snapshots array');
           throw new Error('Invalid file format');
         }
 
         // Validate each snapshot has required fields
+        console.log('[Import] 🔵 Validating each snapshot...');
         const validSnapshots = importData.snapshots.filter((snapshot: any) => {
-          return (
+          const isValid =
             snapshot.id &&
             snapshot.name &&
             snapshot.color &&
             snapshot.createdAt &&
             Array.isArray(snapshot.tabs) &&
-            snapshot.tabs.every((tab: any) => tab.url && tab.title)
-          );
+            snapshot.tabs.every((tab: any) => tab.url && tab.title);
+          console.log(`[Import] 🔵 Snapshot "${snapshot?.name}" valid:`, isValid);
+          return isValid;
         });
 
+        console.log('[Import] 🔵 Valid snapshots count:', validSnapshots.length);
+
         if (validSnapshots.length === 0) {
+          console.log('[Import] ❌ No valid snapshots found');
           throw new Error('No valid snapshots found');
         }
 
         // Show confirmation modal
+        console.log('[Import] 🔵 Showing confirmation modal...');
         showModal({
           title: t('actions.confirm'),
           message: t('modal.tabGroups.importConfirm', {
@@ -148,7 +248,7 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
           onConfirm: () => confirmImport(validSnapshots),
         });
       } catch (error) {
-        console.error('Import failed:', error);
+        console.error('[Import] ❌ Import failed with error:', error);
         showModal({
           title: t('messages.error'),
           message: t('modal.tabGroups.importError'),
@@ -156,26 +256,36 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
         });
       }
     };
+    console.log('[Import] 🔵 Triggering file input click...');
     input.click();
+    console.log('[Import] 🔵 File input clicked, waiting for user selection...');
   }, [showModal, t]);
 
   /**
    * Confirm and execute import
    */
   const confirmImport = async (importedSnapshots: TabGroupSnapshot[]) => {
+    console.log('[Import] 🟢 confirmImport called with', importedSnapshots.length, 'snapshots');
+    console.log('[Import] 🟢 Closing modal...');
     closeModal();
 
     try {
+      console.log('[Import] 🟢 Starting import with snapshots:', importedSnapshots);
+
       // Get existing snapshots
       const existingSnapshots = await getAllSnapshots();
+      console.log('[Import] Existing snapshots:', existingSnapshots);
 
       // 각 스냅샷에 새로운 ID를 부여하여 중복 방지 (이름+탭수로 중복 체크)
       const existingSignatures = new Set(existingSnapshots.map((s) => `${s.name}-${s.tabs.length}`));
+      console.log('[Import] Existing signatures:', Array.from(existingSignatures));
 
       const newSnapshots = importedSnapshots
         .filter((s) => {
           const signature = `${s.name}-${s.tabs.length}`;
-          return !existingSignatures.has(signature);
+          const isDuplicate = existingSignatures.has(signature);
+          console.log(`[Import] Checking "${s.name}": signature="${signature}", isDuplicate=${isDuplicate}`);
+          return !isDuplicate;
         })
         .map((s) => ({
           ...s,
@@ -183,7 +293,10 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
           createdAt: Date.now(),
         }));
 
+      console.log('[Import] New snapshots after filtering:', newSnapshots);
+
       if (newSnapshots.length === 0) {
+        console.log('[Import] No new snapshots to import (all duplicates)');
         showModal({
           title: t('messages.error'),
           message: t('modal.tabGroups.importDuplicates'),
@@ -192,12 +305,18 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
         return;
       }
 
-      // Save all snapshots
+      // Save all snapshots using WXT storage
       const allSnapshots = [...existingSnapshots, ...newSnapshots];
-      await chrome.storage.local.set({ snapshots: allSnapshots });
+      console.log('[Import] Saving all snapshots:', allSnapshots);
+      await storage.setItem(`local:${SNAPSHOTS_STORAGE_KEY}`, allSnapshots);
+
+      // Verify save
+      const savedSnapshots = await storage.getItem<TabGroupSnapshot[]>(`local:${SNAPSHOTS_STORAGE_KEY}`);
+      console.log('[Import] Verified saved snapshots:', savedSnapshots);
 
       // Reload
       await loadSnapshots();
+      console.log('[Import] Reloaded snapshots state');
 
       showModal({
         title: t('messages.success'),
@@ -205,7 +324,7 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
         variant: 'success',
       });
     } catch (error) {
-      console.error('Import execution failed:', error);
+      console.error('[Import] Import execution failed:', error);
       showModal({
         title: t('messages.error'),
         message: t('modal.tabGroups.importError'),
@@ -436,6 +555,93 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
   );
 
   /**
+   * 탭 그룹 삭제
+   */
+  const handleDeleteGroup = async (groupId: number) => {
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return;
+
+    showModal({
+      title: t('actions.confirm'),
+      message: t('modal.tabGroups.deleteGroupConfirm', {
+        groupTitle: group.title,
+        tabCount: group.tabs.length,
+      }),
+      variant: 'warning',
+      onConfirm: () => confirmDeleteGroup(groupId),
+    });
+  };
+
+  const confirmDeleteGroup = async (groupId: number) => {
+    closeModal();
+
+    try {
+      const group = groups.find((g) => g.id === groupId);
+      if (!group) return;
+
+      // 그룹 해제 전에 각 탭의 도메인을 추출
+      const domains = new Set<string>();
+      for (const tab of group.tabs) {
+        if (tab.url) {
+          try {
+            const url = new URL(tab.url);
+            const domain = url.hostname.replace(/^www\./, '');
+            domains.add(domain);
+          } catch (e) {
+            // Invalid URL, skip
+          }
+        }
+      }
+
+      // 그룹 해제 (탭들은 유지) - chrome.tabs.ungroup 사용
+      const tabIds = group.tabs.map((tab) => tab.id!).filter((id) => id !== undefined);
+      if (tabIds.length > 0) {
+        await chrome.tabs.ungroup(tabIds);
+      }
+
+      // 모든 도메인을 Uncategorized로 할당
+      for (const domain of domains) {
+        try {
+          await assignDomainToCategory(domain, 'uncategorized');
+        } catch (e) {
+          console.error('Failed to assign domain to uncategorized:', domain, e);
+        }
+      }
+
+      // 그룹 목록 새로고침
+      await loadTabGroups();
+
+      showModal({
+        title: t('messages.success'),
+        message: t('modal.tabGroups.deleteGroupSuccess', { groupTitle: group.title }),
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Delete group failed:', error);
+      showModal({
+        title: t('messages.error'),
+        message: t('modal.tabGroups.deleteGroupError'),
+        variant: 'error',
+      });
+    }
+  };
+
+  /**
+   * Handle delete group button click
+   */
+  const handleDeleteGroupClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      const target = event.currentTarget;
+      const groupId = target.getAttribute('data-group-id');
+      if (groupId) {
+        handleDeleteGroup(parseInt(groupId, 10));
+      }
+    },
+    [groups, showModal, closeModal, t],
+  );
+
+  /**
    * 스냅샷 복원
    */
   const handleRestoreSnapshot = async (snapshot: TabGroupSnapshot) => {
@@ -505,15 +711,59 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
                 position="bottom"
               />
             </div>
-            <button onClick={onClose} className="glass-button-primary !p-1.5 !px-2.5">
-              ✕
-            </button>
+
+            {/* Export/Import 버튼 + Close 버튼 */}
+            <div className="flex items-center gap-1.5">
+              {/* Export 버튼 */}
+              <button
+                onClick={handleExportCurrentGroups}
+                disabled={groups.length === 0}
+                className="glass-button-primary !p-1.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-500/20 transition-all"
+                title={t('modal.tabGroups.exportCurrentGroupsTooltip')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
+
+              {/* Import 버튼 */}
+              <button
+                onClick={handleImportSnapshots}
+                className="glass-button-primary !p-1.5 hover:bg-purple-500/20 transition-all"
+                title={t('modal.tabGroups.importTooltip')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+              </button>
+
+              {/* 구분선 */}
+              <div className="w-px h-4 bg-white/20"></div>
+
+              {/* Close 버튼 */}
+              <button onClick={onClose} className="glass-button-primary !p-1.5 !px-2.5">
+                ✕
+              </button>
+            </div>
           </div>
 
           {/* 탭 네비게이션 */}
           <div className="flex gap-1.5">
             <button
-              onClick={() => setActiveTab('current')}
+              onClick={() => {
+                console.log('[TabGroupManager] 🔧 Switching to "current" tab');
+                setActiveTab('current');
+              }}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
                 activeTab === 'current'
                   ? 'bg-purple-500/40 glass-text shadow-lg ring-2 ring-purple-400/50'
@@ -523,7 +773,10 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
               {t('modal.tabGroups.currentTabs')}
             </button>
             <button
-              onClick={() => setActiveTab('saved')}
+              onClick={() => {
+                console.log('[TabGroupManager] 🔧 Switching to "saved" tab');
+                setActiveTab('saved');
+              }}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
                 activeTab === 'saved'
                   ? 'bg-purple-500/40 glass-text shadow-lg ring-2 ring-purple-400/50'
@@ -533,43 +786,6 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
               {t('modal.tabGroups.savedGroups')} ({snapshots.length})
             </button>
           </div>
-
-          {/* Export/Import 버튼 - 저장된 그룹 탭에서만 표시 */}
-          {activeTab === 'saved' && (
-            <div className="flex gap-2 mt-3">
-              <button
-                onClick={handleExportSnapshots}
-                disabled={snapshots.length === 0}
-                className="flex-1 glass-button-primary text-xs py-2 flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
-                title={t('modal.tabGroups.exportTooltip')}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                <span>{t('modal.tabGroups.export')}</span>
-              </button>
-              <button
-                onClick={handleImportSnapshots}
-                className="flex-1 glass-button-primary text-xs py-2 flex items-center justify-center gap-1.5"
-                title={t('modal.tabGroups.importTooltip')}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                  />
-                </svg>
-                <span>{t('modal.tabGroups.import')}</span>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* 콘텐츠 */}
@@ -589,6 +805,7 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
                     onGroupClick={handleGroupClick}
                     onSaveClick={handleSaveClick}
                     onExportClick={handleExportClick}
+                    onDeleteClick={handleDeleteGroupClick}
                     onTabClick={handleTabClick}
                   />
                 ))
@@ -689,6 +906,58 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
           )}
         </div>
       </div>
+
+      {/* Export 그룹 선택 모달 */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[10000] p-4">
+          <div className="glass-main rounded-xl p-6 max-w-md w-full max-h-[70vh] flex flex-col">
+            <h3 className="text-lg font-semibold glass-text mb-4">{t('modal.tabGroups.selectGroupsToExport')}</h3>
+
+            {/* 전체 선택 체크박스 */}
+            <label className="flex items-center gap-2 mb-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={selectedGroupIds.size === groups.length && groups.length > 0}
+                onChange={toggleAllGroups}
+                className="w-4 h-4 rounded accent-purple-500"
+              />
+              <span className="text-sm glass-text font-medium">{t('modal.tabGroups.selectAll')}</span>
+              <span className="text-xs glass-text opacity-60">({groups.length})</span>
+            </label>
+
+            {/* 그룹 리스트 - 스크롤 가능 영역 */}
+            <div className="flex-1 overflow-y-auto space-y-1.5 mb-4 min-h-0">
+              {groups.map((group) => (
+                <label key={group.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={selectedGroupIds.has(group.id)}
+                    onChange={() => toggleGroupSelection(group.id)}
+                    className="w-4 h-4 rounded accent-purple-500"
+                  />
+                  <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: getColorHex(group.color) }} />
+                  <span className="text-sm glass-text flex-1 truncate">{group.title}</span>
+                  <span className="text-xs glass-text opacity-60">{group.tabs.length} tabs</span>
+                </label>
+              ))}
+            </div>
+
+            {/* 버튼들 - 하단 고정 */}
+            <div className="flex gap-2 flex-shrink-0 pt-2">
+              <button onClick={() => setShowExportModal(false)} className="flex-1 glass-button-secondary py-2 text-sm">
+                {t('actions.cancel')}
+              </button>
+              <button
+                onClick={confirmExportSelectedGroups}
+                disabled={selectedGroupIds.size === 0}
+                className="flex-1 glass-button-primary py-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {t('modal.tabGroups.exportSelected', { count: selectedGroupIds.size })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 확인 모달 */}
       <ConfirmModal

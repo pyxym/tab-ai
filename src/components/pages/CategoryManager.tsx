@@ -19,15 +19,7 @@ interface CategoryManagerProps {
  */
 export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const {
-    categories,
-    loadCategories,
-    addCategory,
-    updateCategory,
-    deleteCategory,
-    reorderCategories,
-    resetToMinimal,
-  } = useCategoryStore();
+  const { categories, loadCategories, addCategory, updateCategory, deleteCategory, reorderCategories, resetToMinimal } = useCategoryStore();
 
   // 🚀 성능 최적화: 개별 모달 상태로 분리 (불필요한 리렌더링 방지)
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -161,30 +153,35 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {/* 스마트 정리 버튼 (빗자루 아이콘만) */}
               <button
                 onClick={handleApplyGrouping}
                 disabled={isOrganizing}
-                className="glass-button-primary !py-2 !px-3 text-sm flex items-center gap-1.5 disabled:opacity-50"
+                className="glass-button-primary !p-1.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-500/20 transition-all"
                 title={t('modal.tabCategoryOrganizer.applyButtonTooltip')}
               >
                 {isOrganizing ? (
-                  <>
-                    <span className="animate-spin">⏳</span>
-                    <span>{t('modal.tabCategoryOrganizer.applying')}</span>
-                  </>
+                  <span className="w-4 h-4 flex items-center justify-center animate-spin">⏳</span>
                 ) : (
-                  <>🎯 {t('modal.tabCategoryOrganizer.applyGrouping')}</>
+                  <span className="text-sm">🧹</span>
                 )}
               </button>
+
+              {/* 리셋 버튼 */}
               <button
                 onClick={() => setResetModalOpen(true)}
-                className="glass-button-primary !p-2 !px-3"
+                className="glass-button-primary !p-1.5 hover:bg-purple-500/20 transition-all"
                 title={t('modal.categoryManager.resetTooltip')}
               >
-                🔄
+                <span className="text-sm">🔄</span>
               </button>
-              <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
+
+              {/* 구분선 */}
+              <div className="w-px h-4 bg-white/20"></div>
+
+              {/* Close 버튼 */}
+              <button onClick={onClose} className="glass-button-primary !p-1.5 !px-2.5">
                 ✕
               </button>
             </div>

@@ -47,11 +47,39 @@ export function useSmartOrganize() {
             }),
           );
 
-          // Duplicate tabs message
+          // Duplicate tabs message with truncated URLs
           if (result.duplicatesRemoved > 0) {
+            // URL을 짧게 표시하는 헬퍼 함수
+            const truncateUrl = (url: string, maxLength: number = 50): string => {
+              if (url.length <= maxLength) return url;
+
+              // URL에서 도메인과 경로 추출
+              try {
+                const urlObj = new URL(url);
+                const domain = urlObj.hostname;
+                const path = urlObj.pathname + urlObj.search;
+
+                // 도메인이 너무 길면 도메인도 자르기
+                if (domain.length > maxLength - 3) {
+                  return domain.substring(0, maxLength - 3) + '...';
+                }
+
+                // 도메인 + 일부 경로
+                const availableLength = maxLength - domain.length - 3;
+                if (path.length > availableLength) {
+                  return domain + path.substring(0, availableLength) + '...';
+                }
+
+                return domain + path;
+              } catch (e) {
+                // URL 파싱 실패 시 그냥 자르기
+                return url.substring(0, maxLength - 3) + '...';
+              }
+            };
+
             descriptionParts.push(
               `\n\n🗑️ ${t('insights.duplicatesRemoved.title')}\n` +
-                result.duplicateDetails.map((d) => `• ${d.url}: ${d.count}개`).join('\n'),
+                result.duplicateDetails.map((d) => `• ${truncateUrl(d.url)}: ${d.count}개`).join('\n'),
             );
           }
 

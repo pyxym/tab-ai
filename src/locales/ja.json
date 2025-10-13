@@ -261,7 +261,17 @@
       "importDuplicates": "すべてのグループがすでに存在します。インポートする新しいグループがありません。",
       "exportGroup": "グループをエクスポート",
       "exportGroupConfirm": "「{{groupTitle}}」グループをエクスポートしますか？\n\n• タブ数: {{tabCount}}個\n• JSONファイルとして保存されます",
-      "exportGroupSuccess": "「{{groupTitle}}」グループを正常にエクスポートしました"
+      "exportGroupSuccess": "「{{groupTitle}}」グループを正常にエクスポートしました",
+      "deleteGroup": "グループを削除",
+      "deleteGroupConfirm": "「{{groupTitle}}」グループを削除しますか？\n\n• タブ数: {{tabCount}}個\n• タブはグループ解除されます（閉じられません）",
+      "deleteGroupSuccess": "「{{groupTitle}}」グループを正常に削除しました",
+      "deleteGroupError": "グループの削除に失敗しました",
+      "exportCurrentGroupsTooltip": "現在のタブグループをJSONファイルにエクスポート",
+      "selectGroupsToExport": "エクスポートするグループを選択",
+      "selectAll": "すべて選択",
+      "exportSelected": "エクスポート ({{count}}個)",
+      "noGroupsSelected": "グループが選択されていません",
+      "noGroupsToExport": "エクスポートするタブグループがありません"
     },
     "dashboard": {
       "title": "分析ダッシュボード",

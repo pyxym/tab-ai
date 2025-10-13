@@ -74,11 +74,13 @@ export const CategoryItem = React.memo(function CategoryItem({
             )}
           </div>
 
-          {/* Domain count badge - more prominent */}
-          <div className="flex items-center gap-1.5 text-[11px] glass-text opacity-60 flex-shrink-0">
-            <span className="font-mono font-semibold">{category.domains.length}</span>
-            <span>{t('categories.domains')}</span>
-          </div>
+          {/* Domain count badge - more prominent (hide for uncategorized) */}
+          {category.id !== 'uncategorized' && (
+            <div className="flex items-center gap-1.5 text-[11px] glass-text opacity-60 flex-shrink-0">
+              <span className="font-mono font-semibold">{category.domains.length}</span>
+              <span>{t('categories.domains')}</span>
+            </div>
+          )}
         </div>
 
         {/* Action buttons - slimmer and icon-only */}
@@ -90,7 +92,12 @@ export const CategoryItem = React.memo(function CategoryItem({
               title="Edit category"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             </button>
             <button
@@ -99,7 +106,12 @@ export const CategoryItem = React.memo(function CategoryItem({
               title="Delete category"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>

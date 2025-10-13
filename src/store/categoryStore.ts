@@ -143,18 +143,30 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       }
 
       // Migrate any 'other' mappings to 'uncategorized'
+      // AND remove any 'uncategorized' mappings (uncategorized should not have domain mappings)
       let updatedMapping = categoryMapping || {};
       if (categoryMapping) {
         let needsUpdate = false;
         Object.keys(updatedMapping).forEach((domain) => {
           if (updatedMapping[domain] === 'other') {
-            updatedMapping[domain] = 'uncategorized';
+            // Remove 'other' mappings (deprecated category)
+            delete updatedMapping[domain];
+            needsUpdate = true;
+          }
+          if (updatedMapping[domain] === 'uncategorized') {
+            // Remove 'uncategorized' mappings (uncategorized shouldn't have domain learning)
+            delete updatedMapping[domain];
             needsUpdate = true;
           }
         });
         if (needsUpdate) {
           await storageUtils.setCategoryMapping(updatedMapping);
         }
+      }
+
+      // Also remove any domains from the uncategorized category object
+      if (uncategorizedCat && uncategorizedCat.domains.length > 0) {
+        uncategorizedCat.domains = [];
       }
 
       set({
@@ -299,6 +311,29 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         const { categories, categoryMapping } = get();
         if (!categories.some((c) => c.id === categoryId)) {
           throw new Error('Invalid category ID');
+        }
+
+        // ⚠️ IMPORTANT: Uncategorized는 도메인 학습(mapping) 저장 안 함
+        // Uncategorized는 "미분류" 상태를 나타내므로 도메인을 저장하면 안 됨
+        if (categoryId === 'uncategorized') {
+          // 기존 매핑에서 해당 도메인 제거만 수행
+          const { [normalizedDomain]: _, ...restMapping } = categoryMapping;
+
+          // 모든 카테고리에서 도메인 제거
+          const updatedCategories = categories.map((cat) => ({
+            ...cat,
+            domains: cat.domains.filter((d) => d !== normalizedDomain),
+          }));
+
+          // Clear cache when domain assignments change
+          domainCache.clear();
+          // 🚀 도메인 인덱스 재구성
+          rebuildDomainIndex(updatedCategories);
+
+          await storageUtils.setCategoryMapping(restMapping);
+          await storageUtils.setCategories(updatedCategories);
+          set({ categoryMapping: restMapping, categories: updatedCategories });
+          return;
         }
 
         // Update category mapping

@@ -262,7 +262,17 @@
       "importDuplicates": "모든 그룹이 이미 존재합니다. 가져올 새 그룹이 없습니다.",
       "exportGroup": "그룹 내보내기",
       "exportGroupConfirm": "\"{{groupTitle}}\" 그룹을 내보내시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• JSON 파일로 저장됩니다",
-      "exportGroupSuccess": "\"{{groupTitle}}\" 그룹을 성공적으로 내보냈습니다"
+      "exportGroupSuccess": "\"{{groupTitle}}\" 그룹을 성공적으로 내보냈습니다",
+      "deleteGroup": "그룹 삭제",
+      "deleteGroupConfirm": "\"{{groupTitle}}\" 그룹을 삭제하시겠습니까?\n\n• 탭 개수: {{tabCount}}개\n• 탭은 그룹 해제됩니다 (닫히지 않음)",
+      "deleteGroupSuccess": "\"{{groupTitle}}\" 그룹을 성공적으로 삭제했습니다",
+      "deleteGroupError": "그룹 삭제에 실패했습니다",
+      "exportCurrentGroupsTooltip": "현재 탭 그룹을 JSON 파일로 내보내기",
+      "selectGroupsToExport": "내보낼 그룹 선택",
+      "selectAll": "전체 선택",
+      "exportSelected": "내보내기 ({{count}}개)",
+      "noGroupsSelected": "선택된 그룹이 없습니다",
+      "noGroupsToExport": "내보낼 탭 그룹이 없습니다"
     },
     "dashboard": {
       "title": "분석 대시보드",

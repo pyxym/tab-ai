@@ -274,7 +274,17 @@
       "importDuplicates": "All groups already exist. No new groups to import.",
       "exportGroup": "Export Group",
       "exportGroupConfirm": "Export \"{{groupTitle}}\" group?\n\n• Number of tabs: {{tabCount}}\n• Will be saved as JSON file",
-      "exportGroupSuccess": "Successfully exported \"{{groupTitle}}\" group"
+      "exportGroupSuccess": "Successfully exported \"{{groupTitle}}\" group",
+      "deleteGroup": "Delete Group",
+      "deleteGroupConfirm": "Delete \"{{groupTitle}}\" group?\n\n• Number of tabs: {{tabCount}}\n• Tabs will be ungrouped (not closed)",
+      "deleteGroupSuccess": "Successfully deleted \"{{groupTitle}}\" group",
+      "deleteGroupError": "Failed to delete group",
+      "exportCurrentGroupsTooltip": "Export current tab groups to JSON file",
+      "selectGroupsToExport": "Select Groups to Export",
+      "selectAll": "Select All",
+      "exportSelected": "Export ({{count}})",
+      "noGroupsSelected": "No groups selected",
+      "noGroupsToExport": "No tab groups to export"
     },
     "dashboard": {
       "title": "Analytics Dashboard",

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useVirtualScroll } from '../../hooks/useVirtualScroll';
 import { categorySelectors, useCategoryStore } from '../../store/categoryStore';
 import { extractDomain } from '../../utils/chromeTabHelpers';
 import { filterProtectedTabs } from '../../utils/tabFilters';
@@ -7,7 +8,6 @@ import { organizeTabsUnified } from '../../utils/unifiedOrganizer';
 import { TabCategoryItem } from '../items/TabCategoryItem';
 import { CategorySelectModal } from '../modals/CategorySelectModal';
 import { InfoTooltip } from '../ui/InfoTooltip';
-import { useVirtualScroll } from '../../hooks/useVirtualScroll';
 
 interface TabCategoryOrganizerProps {
   onClose: () => void;
@@ -266,17 +266,26 @@ export const TabCategoryOrganizer: React.FC<TabCategoryOrganizerProps> = ({ onCl
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {/* 스마트 정리 버튼 (빗자루 아이콘만) */}
               <button
                 onClick={organizeTabsByCategory}
-                className="glass-button-primary !py-2 !px-3 text-sm"
                 disabled={isOrganizing || isUpdating}
+                className="glass-button-primary !p-1.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-500/20 transition-all"
                 title={t('modal.tabCategoryOrganizer.applyButtonTooltip')}
               >
-                {isOrganizing ? `⏳ ${t('modal.tabCategoryOrganizer.applying')}` : `🎯 ${t('modal.tabCategoryOrganizer.applyGrouping')}`}
+                {isOrganizing ? (
+                  <span className="w-4 h-4 flex items-center justify-center animate-spin">⏳</span>
+                ) : (
+                  <span className="text-sm">🧹</span>
+                )}
               </button>
 
-              <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
+              {/* 구분선 */}
+              <div className="w-px h-4 bg-white/20"></div>
+
+              {/* Close 버튼 */}
+              <button onClick={onClose} className="glass-button-primary !p-1.5 !px-2.5">
                 ✕
               </button>
             </div>

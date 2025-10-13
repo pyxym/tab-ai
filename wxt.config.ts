@@ -29,7 +29,8 @@ export default defineConfig({
     },
     // Esbuild 최적화
     esbuild: {
-      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+      // 🔍 디버깅을 위해 console.log 유지 (임시)
+      drop: process.env.NODE_ENV === 'production' ? ['debugger'] : [],
       legalComments: 'none', // 라이센스 주석 제거
     },
   }),

@@ -15,6 +15,7 @@ interface TabGroupItemProps {
   onGroupClick: (event: React.MouseEvent<HTMLElement>) => void;
   onSaveClick: (event: React.MouseEvent<HTMLElement>) => void;
   onExportClick: (event: React.MouseEvent<HTMLElement>) => void;
+  onDeleteClick: (event: React.MouseEvent<HTMLElement>) => void;
   onTabClick: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
@@ -30,7 +31,7 @@ interface TabGroupItemProps {
  * - 유지보수 용이
  */
 export const TabGroupItem = React.memo(
-  function TabGroupItem({ group, onGroupClick, onSaveClick, onExportClick, onTabClick }: TabGroupItemProps) {
+  function TabGroupItem({ group, onGroupClick, onSaveClick, onExportClick, onDeleteClick, onTabClick }: TabGroupItemProps) {
     const { t } = useTranslation();
 
     return (
@@ -98,6 +99,23 @@ export const TabGroupItem = React.memo(
                   d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
                 />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+
+            {/* 그룹 삭제 버튼 */}
+            <button
+              data-group-id={group.id}
+              onClick={onDeleteClick}
+              className="p-1 rounded text-white/60 hover:text-white hover:bg-red-500/20 transition-all"
+              title={t('modal.tabGroups.deleteGroup')}
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>

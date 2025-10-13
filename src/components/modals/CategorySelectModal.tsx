@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ExtendedColorEnum } from '../../types/category';
 import { getColorHex } from '../../utils/colorUtils';
@@ -25,13 +25,23 @@ interface CategorySelectModalProps {
 export const CategorySelectModal: React.FC<CategorySelectModalProps> = ({ isOpen, currentCategory, categories, onSelect, onClose }) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  // 검색 필터링
+  // Debounce 검색어 (150ms 지연)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // 검색 필터링 (debounced query 사용)
   const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) return categories;
-    const query = searchQuery.toLowerCase();
+    if (!debouncedQuery.trim()) return categories;
+    const query = debouncedQuery.toLowerCase();
     return categories.filter((cat) => cat.name.toLowerCase().includes(query));
-  }, [categories, searchQuery]);
+  }, [categories, debouncedQuery]);
 
   if (!isOpen) return null;
 

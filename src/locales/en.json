@@ -1,10 +1,10 @@
 {
   "header": {
-    "subtitle": "Tab Assistant"
+    "subtitle": "Create, Share, Use Your Workspaces"
   },
   "app": {
     "name": "TabQuest",
-    "tagline": "Tab Assistant"
+    "tagline": "Create, Share, Use Your Workspaces"
   },
   "stats": {
     "activeTabs": "Active Tabs",

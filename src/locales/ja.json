@@ -1,10 +1,10 @@
 {
   "header": {
-    "subtitle": "タブアシスタント"
+    "subtitle": "ワークスペースを作成、共有、使用"
   },
   "app": {
     "name": "TabQuest",
-    "tagline": "タブアシスタント"
+    "tagline": "ワークスペースを作成、共有、使用"
   },
   "stats": {
     "activeTabs": "アクティブタブ",

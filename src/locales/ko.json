@@ -1,10 +1,10 @@
 {
   "header": {
-    "subtitle": "탭 어시스턴트"
+    "subtitle": "나만의 워크스페이스 만들기, 공유하기, 사용하기"
   },
   "app": {
     "name": "TabQuest",
-    "tagline": "탭 어시스턴트"
+    "tagline": "나만의 워크스페이스 만들기, 공유하기, 사용하기"
   },
   "stats": {
     "activeTabs": "활성 탭",

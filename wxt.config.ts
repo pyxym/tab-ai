@@ -34,9 +34,9 @@ export default defineConfig({
     },
   }),
   manifest: {
-    name: 'TabQuest - AI-Powered Tab Manager',
+    name: 'TabQuest - Create & Share Tab Workspaces',
     version: '1.0.0',
-    description: 'AI-powered browser tab management extension',
+    description: 'Create your own tab workspaces, share them with others, and discover new ways to organize your browsing',
     permissions: ['tabs', 'storage', 'activeTab', 'tabGroups', 'windows', 'alarms', 'sidePanel'],
     action: {
       default_title: 'TabQuest - Open Side Panel',

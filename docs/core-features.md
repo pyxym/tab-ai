@@ -24,36 +24,18 @@ Main organization flow:
 
 ---
 
-## 2. Tab Usage Tracking
-
-### Overview
-Tracks tab usage time in real-time and generates statistical data.
-
-### TabTracker ([tabTracker.ts](../src/utils/tabTracker.ts))
-
-**Tracking Events:**
-- Tab activation, URL changes, window focus
-- Periodic updates every 6 seconds
-
-**Key Metrics:**
-- Total time spent per tab
-- Access count and frequency
-- Category breakdown
-- Daily statistics
-
----
-
-## 3. Category System
+## 2. Category System
 
 ### Overview
 Category management system to organize tabs into meaningful groups.
 
 ### Default Categories
-- **Work**: Development tools (GitHub, GitLab)
-- **Productivity**: Productivity apps (Notion, Trello)
-- **Entertainment**: Media sites
-- **Social**: Social media
-- **Shopping**: E-commerce
+- **Work**: Development tools (GitHub, GitLab, VS Code)
+- **Productivity**: Productivity apps (Notion, Trello, Asana)
+- **Learning**: Educational sites (Coursera, Udemy, documentation)
+- **Entertainment**: Media sites (YouTube, Netflix, Spotify)
+- **Social**: Social media (Twitter, LinkedIn, Facebook)
+- **Shopping**: E-commerce (Amazon, eBay)
 - **Uncategorized**: Unassigned tabs
 
 ### Category Mapping
@@ -63,66 +45,62 @@ Priority order:
 3. Subdomain pattern matching
 4. Default to uncategorized
 
+### Category Management
+- Create, edit, delete categories
+- Assign custom colors
+- Reorder categories with drag-and-drop
+- Map domains to categories
+- System categories cannot be deleted
+
 ---
 
-## 4. AI Insights
+## 3. AI Insights
 
 ### Overview
 AI-powered suggestions to improve productivity based on browsing patterns.
 
 ### Insight Types
-- **Tips**: Helpful suggestions
-- **Alerts**: Important notifications
+- **Tips**: Helpful suggestions for better tab management
+- **Alerts**: Important notifications about tab status
 - **Warnings**: Issues requiring attention
 - **Achievements**: Productivity milestones
 
 ### Generation Triggers
-- Duplicate tabs detected
-- Low productivity score (<50)
-- Unusual usage patterns
+- Duplicate tabs detected (same domain)
+- Too many open tabs (>20)
+- Unorganized tabs (no groups)
 - Category imbalance
 
----
-
-## 5. Productivity Score
-
-### Calculation Logic ([tabAnalyzer.ts](../src/utils/tabAnalyzer.ts))
-
-**Factors:**
-- Tab count (penalty for >20 tabs)
-- Category distribution
-- Usage time patterns
-- Focus metrics
-
-**Score Range:** 0-100
-- 80+: Excellent productivity
-- 60-79: Good
-- 40-59: Fair
-- <40: Needs improvement
+### Implementation
+Located in [useInsightsGenerator.ts](../src/hooks/useInsightsGenerator.ts):
+- Analyzes current tab state
+- Generates contextual insights
+- Provides actionable recommendations
 
 ---
 
-## 6. Undo/Redo System
+## 4. Undo/Redo System
 
 ### Overview
 Full undo/redo support for all tab organization actions.
 
 ### Implementation ([undoManager.ts](../src/utils/undoManager.ts))
 
-**Tracked Actions:**
+**Tracked Actions**:
 - Smart organize
 - Category changes
 - Tab movements
 - Group creation/deletion
 
-**Features:**
+**Features**:
 - Snapshot-based state management
-- Configurable history size
+- Configurable history size (default: 10)
 - Efficient state compression
+- Keyboard shortcuts support (Ctrl+Z, Ctrl+Shift+Z)
 
 ---
 
-## 7. Snapshot Management
+## 5. Snapshot Management
 
 ### Overview
 Save and restore complete tab states with timestamps.
@@ -133,10 +111,16 @@ Save and restore complete tab states with timestamps.
 - Restore previous states
 - Compress snapshot data
 - Automatic cleanup of old snapshots
+- Named snapshots for easy identification
+
+### Use Cases
+- Save workspace before switching tasks
+- Restore session after browser crash
+- Experiment with different organizations
 
 ---
 
-## 8. Multi-language Support
+## 6. Multi-language Support
 
 ### Supported Languages
 - 🇺🇸 English (en)
@@ -145,7 +129,7 @@ Save and restore complete tab states with timestamps.
 
 ### Implementation ([i18n.ts](../src/lib/i18n.ts))
 
-**Features:**
+**Features**:
 - i18next + react-i18next
 - Dynamic language switching
 - Persistent language preference
@@ -154,33 +138,75 @@ Save and restore complete tab states with timestamps.
 ### Usage
 ```typescript
 const { t } = useTranslation();
-<h1>{t('dashboard.title')}</h1>
+<h1>{t('tabs.organize')}</h1>
 ```
 
 ---
 
-## 9. Tab Filtering
+## 7. Tab Filtering
 
 ### Filter Types ([tabFilters.ts](../src/utils/tabFilters.ts))
 
 - By domain
 - By title
 - By category
-- By usage pattern
-- By time range
+- By active status
+- By pinned status
+
+### Implementation
+- Real-time search
+- Multiple filter criteria
+- Efficient filtering algorithms
 
 ---
 
-## 10. Interactive Charts
+## 8. Side Panel Interface
 
-### Chart Components
+### Overview
+Modern Chrome Side Panel API integration for persistent access.
 
-**SimpleBarChart** ([SimpleBarChart.tsx](../src/components/charts/SimpleBarChart.tsx))
-- Category usage breakdown
-- Domain statistics
-- Time-based metrics
+### Features
+- Always visible alongside browsing
+- Resizable width
+- Persistent across tab navigation
+- Responsive layout
+- Glass morphism design
 
-**SimpleLineChart** ([SimpleLineChart.tsx](../src/components/charts/SimpleLineChart.tsx))
-- Usage trends over time
-- Productivity score history
-- Daily patterns
+### Requirements
+- Chrome 114+ for Side Panel API
+- Enabled in manifest V3
+
+---
+
+## 9. Tab Groups Integration
+
+### Overview
+View and manage existing Chrome tab groups.
+
+### Features
+- Display all tab groups in current window
+- Show group colors and names
+- Tab count per group
+- Quick navigation to groups
+
+### Implementation
+Located in [TabGroupManager.tsx](../src/components/pages/TabGroupManager.tsx)
+
+---
+
+## 10. Smart Organization Algorithm
+
+### Enhanced Organization ([useSmartOrganize.ts](../src/hooks/useSmartOrganize.ts))
+
+**Process**:
+1. Analyze current tab distribution
+2. Detect patterns and duplicates
+3. Categorize tabs intelligently
+4. Create optimal tab groups
+5. Generate insights
+
+**Features**:
+- Duplicate detection
+- Pattern recognition
+- Optimal grouping
+- Performance optimization

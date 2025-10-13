@@ -33,34 +33,60 @@ export function useSmartOrganize() {
 
         if (result.success) {
           // Generate success message
-          let descriptionKey = 'insights.organizationComplete.description';
+          let descriptionParts: string[] = [];
           let params: any = {
             tabsProcessed: result.tabsProcessed,
             groupsCreated: result.groupsCreated,
           };
 
+          // Main organization message
+          descriptionParts.push(
+            t('insights.organizationComplete.description', {
+              tabsProcessed: result.tabsProcessed,
+              groupsCreated: result.groupsCreated,
+            }),
+          );
+
+          // Duplicate tabs message
+          if (result.duplicatesRemoved > 0) {
+            descriptionParts.push(
+              `\n\n🗑️ ${t('insights.duplicatesRemoved.title')}\n` +
+                result.duplicateDetails.map((d) => `• ${d.url}: ${d.count}개`).join('\n'),
+            );
+          }
+
+          // Protected tabs message
           if (result.protectedStats) {
             const { meetingCount, systemCount, domains } = result.protectedStats;
             const protectedCount = meetingCount + systemCount;
             const meetingDomains = domains.join(', ');
 
             if (meetingCount > 0 && systemCount > 0) {
-              descriptionKey = 'insights.organizationComplete.descriptionWithBoth';
-              params = { ...params, meetingCount, systemCount, protectedCount, meetingDomains };
+              descriptionParts.push(
+                `\n\n🛡️ ${t('insights.organizationComplete.protectedBoth', {
+                  protectedCount,
+                  meetingCount,
+                  systemCount,
+                  meetingDomains,
+                })}`,
+              );
             } else if (meetingCount > 0) {
-              descriptionKey = 'insights.organizationComplete.descriptionWithMeeting';
-              params = { ...params, meetingCount, meetingDomains };
+              descriptionParts.push(
+                `\n\n🛡️ ${t('insights.organizationComplete.protectedMeeting', {
+                  meetingCount,
+                  meetingDomains,
+                })}`,
+              );
             } else if (systemCount > 0) {
-              descriptionKey = 'insights.organizationComplete.descriptionWithSystem';
-              params = { ...params, systemCount };
+              descriptionParts.push(`\n\n🛡️ ${t('insights.organizationComplete.protectedSystem', { systemCount })}`);
             }
           }
 
           addInsight({
             id: `organize-success-${Date.now()}`,
             type: 'tip',
-            title: t('insights.organizationComplete.title') as string,
-            description: t(descriptionKey, params) as string,
+            title: '✨ ' + t('insights.organizationComplete.title'),
+            description: descriptionParts.join(''),
             priority: 'medium',
             timestamp: Date.now(),
           });

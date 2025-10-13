@@ -1,4 +1,5 @@
-import { DOMAIN_CATEGORIES, KEYWORD_CATEGORIES, PRODUCTIVITY_SCORE_CONFIG } from './configs';
+import { PRODUCTIVITY_SCORE_CONFIG } from './configs';
+import { useCategoryStore } from '../store/categoryStore';
 
 export interface DuplicateGroup {
   url: string;
@@ -7,23 +8,13 @@ export interface DuplicateGroup {
   recommendation: string;
 }
 
-// Categorize tabs by domain
+// Categorize tabs by domain using user's custom categories
+// ✅ FIX: categoryStore 사용하여 사용자 커스텀 카테고리로 분류
 export function categorizeByDomain(domain: string): string {
-  // 도메인 기반 카테고리 매칭
-  for (const [category, domains] of Object.entries(DOMAIN_CATEGORIES)) {
-    if (domains.some((d) => domain.includes(d))) {
-      return category;
-    }
-  }
-
-  // 키워드 기반 추가 카테고리 매칭
-  for (const [category, keywords] of Object.entries(KEYWORD_CATEGORIES)) {
-    if (keywords.some((keyword) => domain.includes(keyword))) {
-      return category;
-    }
-  }
-
-  return 'uncategorized';
+  // Use the category store to get the category for a domain
+  // This respects user's custom categories and domain mappings
+  const getCategoryForDomain = useCategoryStore.getState().getCategoryForDomain;
+  return getCategoryForDomain(domain);
 }
 
 // Find duplicate tabs

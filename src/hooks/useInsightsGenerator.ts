@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { aiSelectors, useAIStore } from '../store/aiStore';
+import { useCategoryStore } from '../store/categoryStore';
 import { isNewTabUrl, isSystemUrl } from '../utils/tabFilters';
 
 /**
@@ -110,20 +111,32 @@ export function useInsightsGenerator() {
         });
       }
 
-      // Add category insight (exclude uncategorized)
+      // ✅ FIX: 사용자의 실제 커스텀 카테고리만 필터링하여 인사이트 생성
+      // - uncategorized 제외
+      // - 사용자가 생성한 카테고리만 표시 (DOMAIN_CATEGORIES의 work 등 사전 정의 카테고리 제외)
       if (analysis.categoryCounts) {
+        // Get actual user categories from store
+        const { categories } = useCategoryStore.getState();
+        const userCategoryIds = new Set(categories.map((c) => c.id));
+
         const topCategory = Object.entries(analysis.categoryCounts)
-          .filter(([category]) => category !== 'uncategorized')
+          .filter(([category]) => {
+            // Exclude uncategorized and non-existent categories
+            return category !== 'uncategorized' && userCategoryIds.has(category);
+          })
           .sort(([, a], [, b]) => (b as number) - (a as number))[0];
 
         if (topCategory && (topCategory[1] as number) > 5) {
+          // Find the actual category name from store
+          const categoryName = categories.find((c) => c.id === topCategory[0])?.name || topCategory[0];
+
           addInsight({
             id: 'category-focus',
             type: 'pattern',
-            title: t('insights.categoryFocus.title', { category: topCategory[0] }),
+            title: t('insights.categoryFocus.title', { category: categoryName }),
             description: t('insights.categoryFocus.description', {
               count: topCategory[1] as number,
-              category: topCategory[0],
+              category: categoryName,
             }),
             priority: 'low',
             timestamp: Date.now(),

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Category, CategoryMapping } from '../types/category';
-import { DEFAULT_CATEGORIES, RECOMMENDED_CATEGORIES } from '../types/category';
+import { DEFAULT_CATEGORIES } from '../types/category';
 import { DataValidator, ErrorBoundary } from '../utils/errorBoundary';
 import { storageUtils } from '../utils/storage';
 
@@ -22,7 +22,6 @@ interface CategoryStore {
   getCategoryForDomain: (domain: string) => string; // 도메인의 카테고리 가져오기
   resetToDefaults: () => Promise<void>; // 기본값으로 초기화
   resetToMinimal: () => Promise<void>; // 미니멀로 초기화 (Uncategorized만)
-  applyRecommendedCategories: () => Promise<void>; // 추천 카테고리 적용
   reorderCategories: (categories: Category[]) => Promise<void>; // 카테고리 순서 변경
   clearCache: () => void; // 캐시 초기화
 }
@@ -418,32 +417,6 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     });
   },
 
-  applyRecommendedCategories: async () => {
-    const currentCategories = get().categories;
-    const categoryIds = new Set(currentCategories.map((c) => c.id));
-
-    // Add recommended categories that don't already exist
-    const newCategories: Category[] = [...currentCategories];
-
-    RECOMMENDED_CATEGORIES.forEach((rec) => {
-      if (!categoryIds.has(rec.id)) {
-        newCategories.push({
-          ...rec,
-          createdAt: Date.now(),
-        });
-      }
-    });
-
-    // Ensure uncategorized is always at the end
-    const uncategorized = newCategories.find((c) => c.id === 'uncategorized');
-    const otherCategories = newCategories.filter((c) => c.id !== 'uncategorized');
-    const sorted = uncategorized ? [...otherCategories, uncategorized] : newCategories;
-
-    domainCache.clear();
-    await storageUtils.setCategories(sorted);
-    set({ categories: sorted });
-  },
-
   reorderCategories: async (newCategories) => {
     // Ensure uncategorized is always at the end
     const uncategorized = newCategories.find((c) => c.id === 'uncategorized');
@@ -500,7 +473,6 @@ export const categorySelectors = {
     getCategoryForDomain: state.getCategoryForDomain,
     resetToDefaults: state.resetToDefaults,
     resetToMinimal: state.resetToMinimal,
-    applyRecommendedCategories: state.applyRecommendedCategories,
     reorderCategories: state.reorderCategories,
     clearCache: state.clearCache,
   }),

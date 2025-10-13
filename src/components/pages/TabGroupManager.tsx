@@ -339,14 +339,19 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
 
                   {/* 탭 목록 - 접혔을 때만 숨김 */}
                   {!ungroupedCollapsed && (
-                    <div className="px-2 pb-1 pt-0.5 space-y-0.5 border-l-2 border-white/5 ml-2">
+                    <div className="px-2 pb-1 pt-0.5 space-y-0.5 relative ml-2">
+                      {/* 🎨 개선된 트리 라인 - 그라디언트로 더 선명하게 */}
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-gray-500/30 via-gray-400/20 to-transparent"></div>
+
                       {ungroupedTabs.map((tab) => (
                         <div
                           key={tab.id}
                           data-tab-id={tab.id}
                           onClick={handleTabClick}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 hover:border-l-2 hover:border-purple-400/50 transition-all cursor-pointer group ml-2"
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-purple-500/10 transition-all cursor-pointer group ml-2 relative"
                         >
+                          {/* 🎨 개별 탭 연결선 */}
+                          <div className="absolute left-[-8px] top-1/2 w-2 h-[1px] bg-gradient-to-r from-gray-400/30 to-transparent"></div>
                           <FavIcon
                             url={tab.favIconUrl || tab.url}
                             size={12}

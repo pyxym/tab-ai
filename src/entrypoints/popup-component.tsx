@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CategoryManager } from '../components/pages/CategoryManager';
-import { DashboardModal } from '../components/pages/DashboardModal';
 import { HelpModal } from '../components/pages/HelpModal';
 import { TabCategoryOrganizer } from '../components/pages/TabCategoryOrganizer';
 import { TabGroupManager } from '../components/pages/TabGroupManager';
@@ -44,7 +43,6 @@ function IndexPopup() {
   // Modal states - 개별 상태로 분리하여 불필요한 리렌더링 방지
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const [tabListOpen, setTabListOpen] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [tabGroupsOpen, setTabGroupsOpen] = useState(false);
   const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false);
@@ -57,7 +55,6 @@ function IndexPopup() {
   const handleTabListClick = useCallback(() => setTabListOpen(true), []);
   const handleCategoryManagerClick = useCallback(() => setCategoryManagerOpen(true), []);
   const handleSettingsClick = useCallback(() => setSettingsDropdownOpen((prev) => !prev), []);
-  const handleDashboardClick = useCallback(() => setDashboardOpen(true), []);
   const handleUndoClick = useCallback(() => setUndoOpen(true), []);
 
   // Initialize
@@ -95,6 +92,25 @@ function IndexPopup() {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 초기화는 마운트 시 한 번만 실행 (모든 함수는 안정적이거나 내부에서만 사용)
+
+  // Real-time tab updates - 탭 변경사항 실시간 반영
+  useEffect(() => {
+    const handleTabUpdate = () => {
+      loadTabsAndAnalyze();
+    };
+
+    // Chrome 탭 이벤트 리스너 등록
+    chrome.tabs.onCreated.addListener(handleTabUpdate);
+    chrome.tabs.onRemoved.addListener(handleTabUpdate);
+    chrome.tabs.onUpdated.addListener(handleTabUpdate);
+
+    return () => {
+      // Cleanup
+      chrome.tabs.onCreated.removeListener(handleTabUpdate);
+      chrome.tabs.onRemoved.removeListener(handleTabUpdate);
+      chrome.tabs.onUpdated.removeListener(handleTabUpdate);
+    };
+  }, [loadTabsAndAnalyze]);
 
   // Smart organize handler
   const handleSmartOrganize = useCallback(async () => {
@@ -284,13 +300,6 @@ function IndexPopup() {
                     )}
                   </button>
 
-                  <button
-                    className="w-full glass-button-primary text-sm glass-text flex items-center justify-center gap-2 py-2.5"
-                    onClick={handleDashboardClick}
-                  >
-                    📊 {t('actions.viewAnalytics') + ' (Beta)'}
-                  </button>
-
                   {hasUndoSnapshot && (
                     <button
                       className="w-full glass-button text-xs glass-text py-2 opacity-80 hover:opacity-100 transition-opacity"
@@ -330,7 +339,6 @@ function IndexPopup() {
       {categoryManagerOpen && <CategoryManager onClose={() => setCategoryManagerOpen(false)} />}
       {tabListOpen && <TabCategoryOrganizer onClose={() => setTabListOpen(false)} />}
       {tabGroupsOpen && <TabGroupManager onClose={() => setTabGroupsOpen(false)} />}
-      {dashboardOpen && <DashboardModal onClose={() => setDashboardOpen(false)} />}
       {helpOpen && <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />}
 
       {/* Undo Confirmation Modal */}

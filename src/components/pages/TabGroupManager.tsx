@@ -51,42 +51,36 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
     setSnapshots(savedSnapshots);
   };
 
-  /**
-   * 모달 내 아코디언 토글 + Chrome 탭 그룹 상태 동기화
-   * 🚀 최적화: useTabGroups hook의 toggleGroup 활용
-   */
-  const toggleModalGroup = async (groupId: string | number) => {
-    // 현재 탭 그룹인 경우 (숫자 ID) - Chrome 상태도 함께 토글
-    if (typeof groupId === 'number') {
-      const result = await toggleGroup(groupId);
-      if (!result.success) {
-        showModal({
-          title: t('messages.error'),
-          message: t('messages.toggleFailed'),
-          variant: 'error',
-        });
-      }
-      return;
-    }
-
-    // 저장된 스냅샷의 경우 로컬 상태만 변경
-    setSnapshotCollapsedState((prev) => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
-  };
-
   // 🚀 최적화: 이벤트 위임을 위한 통합 핸들러
   const handleGroupClick = useCallback(
     async (event: React.MouseEvent<HTMLElement>) => {
       const target = event.currentTarget;
       const groupId = target.getAttribute('data-group-id');
-      if (groupId) {
-        const numericId = parseInt(groupId, 10);
-        await toggleModalGroup(isNaN(numericId) ? groupId : numericId);
+      if (!groupId) return;
+
+      const numericId = parseInt(groupId, 10);
+
+      // 현재 탭 그룹인 경우 (숫자 ID) - Chrome 상태도 함께 토글
+      if (!isNaN(numericId)) {
+        const result = await toggleGroup(numericId);
+        if (!result.success) {
+          showModal({
+            title: t('messages.error'),
+            message: t('messages.toggleFailed'),
+            variant: 'error',
+          });
+        }
+        return;
       }
+
+      // 저장된 스냅샷의 경우 로컬 상태만 변경
+      // ✅ FIX: undefined인 경우 true로 간주하여 첫 클릭에서 false(열림)로 변경
+      setSnapshotCollapsedState((prev) => ({
+        ...prev,
+        [groupId]: prev[groupId] === undefined ? false : !prev[groupId],
+      }));
     },
-    [toggleGroup, showModal],
+    [toggleGroup, showModal, t],
   );
 
   const handleTabClick = useCallback(
@@ -349,7 +343,7 @@ export const TabGroupManager: React.FC<TabGroupManagerProps> = React.memo(({ onC
                   <SnapshotItem
                     key={snapshot.id}
                     snapshot={snapshot}
-                    isCollapsed={snapshotCollapsedState[snapshot.id] || false}
+                    isCollapsed={snapshotCollapsedState[snapshot.id] ?? true}
                     onToggleClick={handleGroupClick}
                     onRestoreClick={handleRestoreClick}
                     onDeleteClick={handleDeleteClick}

@@ -27,13 +27,11 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
     deleteCategory,
     reorderCategories,
     resetToMinimal,
-    applyRecommendedCategories,
   } = useCategoryStore();
 
   // 🚀 성능 최적화: 개별 모달 상태로 분리 (불필요한 리렌더링 방지)
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
-  const [recommendedModalOpen, setRecommendedModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -126,11 +124,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
     setResetModalOpen(false);
   }, [resetToMinimal]);
 
-  const handleConfirmRecommended = useCallback(async () => {
-    await applyRecommendedCategories();
-    setRecommendedModalOpen(false);
-  }, [applyRecommendedCategories]);
-
   // Apply grouping handler
   const handleApplyGrouping = useCallback(async () => {
     if (isOrganizing) return;
@@ -190,13 +183,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
                 title={t('modal.categoryManager.resetTooltip')}
               >
                 🔄
-              </button>
-              <button
-                onClick={() => setRecommendedModalOpen(true)}
-                className="glass-button-primary !p-2 !px-3"
-                title={t('modal.categoryManager.applyRecommendedTooltip')}
-              >
-                📦
               </button>
               <button onClick={onClose} className="glass-button-primary !p-2 !px-3">
                 ✕
@@ -279,16 +265,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => 
         onConfirm={handleConfirmReset}
         onCancel={() => setResetModalOpen(false)}
         variant="warning"
-      />
-
-      <ConfirmModal
-        isOpen={recommendedModalOpen}
-        title={t('modal.categoryManager.recommendedConfirmTitle')}
-        message={t('modal.categoryManager.recommendedConfirmMessage')}
-        confirmText={t('actions.apply')}
-        cancelText={t('actions.cancel')}
-        onConfirm={handleConfirmRecommended}
-        onCancel={() => setRecommendedModalOpen(false)}
       />
     </div>
   );

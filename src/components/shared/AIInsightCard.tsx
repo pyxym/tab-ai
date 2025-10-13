@@ -66,7 +66,8 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({ insight, onDismiss
 
   return (
     // 메인 카드 컨테이너 - glass-card 스타일과 우선순위별 색상 적용 (사이드패널 최적화)
-    <div className={`glass-card !p-2.5 border-l-2 ${PRIORITY_COLOR_CLASSES[insight.priority]} relative transition-all hover:scale-[1.01]`}>
+    // ✅ FIX: hover:scale 제거하고 brightness + shadow 효과로 대체 (보더 잘림 방지)
+    <div className={`glass-card !p-2.5 border-l-2 ${PRIORITY_COLOR_CLASSES[insight.priority]} relative transition-all hover:brightness-110 hover:shadow-lg`}>
       <div className="flex items-start gap-2">
         {/* 인사이트 타입 아이콘 표시 */}
         <InsightIcon type={insight.type} />

@@ -29,8 +29,8 @@ export default defineConfig({
     },
     // Esbuild 최적화
     esbuild: {
-      // 🔍 디버깅을 위해 console.log 유지 (임시)
-      drop: process.env.NODE_ENV === 'production' ? ['debugger'] : [],
+      // 🚀 프로덕션: console, debugger 모두 제거
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
       legalComments: 'none', // 라이센스 주석 제거
     },
   }),
@@ -38,7 +38,7 @@ export default defineConfig({
     name: 'TabQuest - Create & Share Tab Workspaces',
     version: '1.0.0',
     description: 'Create your own tab workspaces, share them with others, and discover new ways to organize your browsing',
-    permissions: ['tabs', 'storage', 'activeTab', 'tabGroups', 'windows', 'alarms', 'sidePanel'],
+    permissions: ['tabs', 'storage', 'activeTab', 'tabGroups', 'windows', 'sidePanel'],
     action: {
       default_title: 'TabQuest - Open Side Panel',
       default_icon: {

@@ -1,8 +1,8 @@
 {
   "name": "tab-quest",
-  "displayName": "TabQuest - Tab Assistant",
-  "version": "0.0.1",
-  "description": "브라우저 탭 관리",
+  "displayName": "TabQuest - Create & Share Tab Workspaces",
+  "version": "1.0.0",
+  "description": "Create your own tab workspaces, share them with others, and discover new ways to organize your browsing",
   "author": "YonYonWare",
   "license": "MIT",
   "scripts": {
@@ -46,8 +46,7 @@
       "storage",
       "activeTab",
       "tabGroups",
-      "windows",
-      "alarms"
+      "windows"
     ],
     "options_ui": {
       "page": "options.html",

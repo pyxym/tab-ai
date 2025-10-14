@@ -285,45 +285,127 @@
       "visits": "방문"
     },
     "help": {
-      "title": "도움말 & 가이드",
-      "gettingStarted": "시작하기",
-      "shortcuts": "키보드 단축키",
-      "faq": "자주 묻는 질문",
-      "tabQuestGuide": "TabQuest 사용 가이드",
-      "aiLearningStatus": {
-        "title": "AI 학습 상태",
-        "description": "TabQuest는 현재 당신의 브라우징 패턴을 학습 중입니다. 탭을 재분류하거나 새로운 탭을 열 때마다 AI가 더 똑똑해집니다.",
-        "learning": "학습 중..."
+      "title": "TabQuest 사용 가이드",
+      "subtitle": "효율적인 탭 관리 방법을 배워보세요",
+      "tabs": {
+        "quickStart": "빠른 시작",
+        "features": "기능",
+        "tips": "팁 & 트릭"
       },
-      "features": {
-        "aiSmartOrganize": {
-          "title": "AI Smart Organize",
-          "description": "AI가 당신의 브라우징 패턴을 학습하여 탭을 자동으로 정리합니다.",
-          "details": ["사용 시간대와 맥락을 고려한 지능형 분류", "함께 사용하는 탭들의 관계 분석", "사용할수록 정확해지는 개인화 학습"]
+      "quickStart": {
+        "welcome": {
+          "title": "TabQuest에 오신 것을 환영합니다!",
+          "description": "스마트한 탭 관리로 브라우징 경험을 혁신하세요. 3단계로 시작할 수 있습니다."
         },
-        "categoryManagement": {
-          "title": "Category Management",
-          "description": "나만의 카테고리를 만들고 색상과 아이콘을 커스터마이징하세요.",
-          "details": ["드래그 앤 드롭으로 쉬운 탭 분류", "도메인별 자동 카테고리 매핑", "AI가 학습하는 카테고리 패턴"]
+        "step1": {
+          "title": "사이드 패널 열기",
+          "description": "TabQuest 확장 프로그램 아이콘을 클릭하여 사이드 패널을 여세요. 브라우징 중에도 계속 열려있어 모든 기능에 빠르게 접근할 수 있습니다."
         },
-        "productivityInsights": {
-          "title": "Productivity Insights",
-          "description": "AI가 분석한 브라우징 패턴과 생산성 점수를 확인하세요.",
-          "details": ["시간대별 사용 패턴 분석", "카테고리별 시간 추적", "생산성 향상을 위한 AI 제안"]
+        "step2": {
+          "title": "카테고리 만들기",
+          "description": "🏷️ 버튼을 클릭하여 업무, 쇼핑, 학습 등 커스텀 카테고리를 만드세요. 색상을 선택하면 쉽게 구분할 수 있습니다."
         },
-        "smartCleanup": {
-          "title": "Smart Cleanup",
-          "description": "중복 탭 자동 감지 및 정리로 브라우저 성능을 최적화합니다.",
-          "details": ["URL 기반 중복 탭 감지", "가장 최근 탭 유지 옵션", "메모리 사용량 최적화"]
+        "step3": {
+          "title": "탭 정리하기",
+          "description": "'스마트 정리'를 클릭하면 카테고리별로 탭이 자동으로 그룹화됩니다. TabQuest는 AI를 사용하여 브라우징 패턴을 이해합니다."
         }
       },
-      "proTips": {
-        "title": "Tips",
-        "tips": [
-          "탭을 수동으로 재분류하면 AI가 당신의 선호도를 학습합니다",
-          "업무 시간과 개인 시간에 다른 카테고리를 사용하면 AI가 시간대별로 구분합니다",
-          "관련 탭을 함께 열면 AI가 컨텍스트를 이해하고 더 정확하게 분류합니다"
-        ]
+      "features": {
+        "smartOrganize": {
+          "title": "스마트 정리",
+          "description": "AI 기반 원클릭 자동 탭 정리",
+          "details": [
+            "탭 URL과 제목을 분석하여 카테고리 결정",
+            "관련 탭을 자동으로 그룹화",
+            "커스텀 색상으로 Chrome 탭 그룹 생성",
+            "시스템 탭과 화상 회의 탭 보존"
+          ],
+          "example": "예시: '스마트 정리'를 클릭하면 쇼핑 탭, 업무 탭, 소셜 미디어 탭이 자동으로 그룹화됩니다."
+        },
+        "categoryManagement": {
+          "title": "카테고리 관리",
+          "description": "워크플로우에 맞는 카테고리 생성 및 커스터마이징",
+          "details": [
+            "무제한 커스텀 카테고리 추가",
+            "10가지 이상의 생생한 색상 선택",
+            "드래그 앤 드롭으로 카테고리 순서 변경",
+            "도메인-카테고리 자동 매핑"
+          ],
+          "example": "예시: 주황색 '쇼핑' 카테고리를 만들면 모든 Amazon, eBay 탭이 자동으로 해당 카테고리를 사용합니다."
+        },
+        "snapshots": {
+          "title": "스냅샷",
+          "description": "탭 상태를 즉시 저장하고 복원",
+          "details": [
+            "원클릭으로 현재 탭 배치 저장",
+            "언제든지 이전 탭 상태 복원",
+            "타임스탬프가 있는 여러 스냅샷",
+            "로컬 저장, 서버 전송 없음"
+          ],
+          "example": "예시: 회의 전 스냅샷을 저장하고, 회의 탭으로 전환한 후 회의 후에 업무 탭을 복원하세요."
+        },
+        "undoRedo": {
+          "title": "실행 취소/다시 실행",
+          "description": "실수 걱정 없이 - 모든 정리 작업 취소 가능",
+          "details": [
+            "스마트 정리에 대한 완전한 실행 취소 지원",
+            "정확한 탭 위치와 그룹 복원",
+            "정리 후 원클릭 실행 취소 버튼",
+            "이전 상태 자동 저장"
+          ],
+          "example": "예시: 실수로 탭을 정리했나요? '실행 취소'를 클릭하면 즉시 이전 배치로 복원됩니다."
+        },
+        "aiInsights": {
+          "title": "AI 인사이트",
+          "description": "브라우징을 기반으로 한 스마트 추천",
+          "details": [
+            "중복 탭 감지로 메모리 절약",
+            "많은 탭을 정리할 시기 제안",
+            "카테고리 사용 패턴 식별",
+            "생산성을 위한 실행 가능한 팁"
+          ],
+          "example": "예시: TabQuest가 5개의 중복 탭을 감지하고 닫아서 200MB 메모리를 확보할 것을 제안합니다."
+        },
+        "tabGroups": {
+          "title": "탭 그룹 뷰어",
+          "description": "기존 Chrome 탭 그룹 보기 및 관리",
+          "details": [
+            "모든 탭 그룹을 한눈에 확인",
+            "Chrome에서 그룹 확장/축소",
+            "그룹을 JSON 파일로 내보내기",
+            "파일에서 저장된 그룹 가져오기"
+          ],
+          "example": "예시: '업무 프로젝트' 탭 그룹을 내보내고 JSON 파일을 통해 팀원과 공유하세요."
+        }
+      },
+      "tips": {
+        "domainMapping": {
+          "title": "도메인 자동 매핑",
+          "description": "도메인에 카테고리를 할당하면(예: github.com → 개발) 해당 도메인의 모든 탭이 자동으로 동일한 카테고리를 사용합니다."
+        },
+        "colorCoding": {
+          "title": "색상 코딩",
+          "description": "다른 컨텍스트에 다른 색상 사용: 업무는 보라색, 학습은 녹색, 쇼핑은 주황색. 시각적 색상은 탭 그룹을 빠르게 식별하는 데 도움이 됩니다."
+        },
+        "autoSync": {
+          "title": "Chrome 동기화",
+          "description": "Chrome 동기화가 활성화되면 카테고리와 환경 설정이 기기 간 동기화됩니다. 탭 스냅샷은 개인정보 보호를 위해 로컬에 유지됩니다."
+        },
+        "multiLanguage": {
+          "title": "다국어 지원",
+          "description": "TabQuest는 영어, 한국어, 일본어(日本語)를 지원합니다. 설정 메뉴(⚙️)에서 언어를 전환하세요."
+        },
+        "dataManagement": {
+          "title": "데이터 관리",
+          "description": "설정 > 데이터 초기화에서 언제든지 로컬 데이터를 지울 수 있습니다. 이렇게 하면 스냅샷과 AI 인사이트가 제거되지만 카테고리는 유지됩니다."
+        },
+        "privacy": {
+          "title": "개인정보 보호 우선",
+          "description": "모든 데이터는 기기에 저장됩니다. TabQuest는 브라우징 데이터를 외부 서버로 절대 전송하지 않습니다. 100% 로컬, 100% 프라이빗."
+        }
+      },
+      "footer": {
+        "madeWith": "제작:"
       }
     }
   },

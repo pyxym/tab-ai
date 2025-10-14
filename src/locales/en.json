@@ -297,53 +297,127 @@
       "visits": "Visits"
     },
     "help": {
-      "title": "Help & Guide",
-      "gettingStarted": "Getting Started",
-      "shortcuts": "Keyboard Shortcuts",
-      "faq": "FAQ",
-      "tabQuestGuide": "TabQuest Usage Guide",
-      "aiLearningStatus": {
-        "title": "AI Learning Status",
-        "description": "TabQuest is currently learning your browsing patterns. The AI gets smarter every time you recategorize tabs or open new ones.",
-        "learning": "Learning..."
+      "title": "TabQuest User Guide",
+      "subtitle": "Learn how to manage your tabs efficiently",
+      "tabs": {
+        "quickStart": "Quick Start",
+        "features": "Features",
+        "tips": "Tips & Tricks"
+      },
+      "quickStart": {
+        "welcome": {
+          "title": "Welcome to TabQuest!",
+          "description": "Transform your browsing experience with smart tab management. Follow these 3 steps to get started."
+        },
+        "step1": {
+          "title": "Open Side Panel",
+          "description": "Click the TabQuest extension icon to open the side panel. It stays open while you browse, giving you quick access to all features."
+        },
+        "step2": {
+          "title": "Create Categories",
+          "description": "Click the 🏷️ button to create custom categories like Work, Shopping, or Learning. Choose colors to easily identify them."
+        },
+        "step3": {
+          "title": "Organize Tabs",
+          "description": "Click 'Smart Organize' to automatically group your tabs by category. TabQuest uses AI to understand your browsing patterns."
+        }
       },
       "features": {
-        "aiSmartOrganize": {
-          "title": "AI Smart Organize",
-          "description": "AI learns your browsing patterns and automatically organizes your tabs.",
+        "smartOrganize": {
+          "title": "Smart Organize",
+          "description": "One-click automatic tab organization powered by AI",
           "details": [
-            "Intelligent classification considering usage time and context",
-            "Relationship analysis of tabs used together",
-            "Personalized learning that becomes more accurate with use"
-          ]
+            "Analyzes tab URLs and titles to determine categories",
+            "Groups related tabs together automatically",
+            "Creates Chrome tab groups with custom colors",
+            "Preserves system tabs and video meetings"
+          ],
+          "example": "Example: Click 'Smart Organize' to group all your shopping tabs, work tabs, and social media tabs automatically."
         },
         "categoryManagement": {
           "title": "Category Management",
-          "description": "Create your own categories and customize colors and icons.",
+          "description": "Create and customize categories to match your workflow",
           "details": [
-            "Easy tab classification with drag and drop",
-            "Automatic category mapping by domain",
-            "Category patterns learned by AI"
-          ]
+            "Add unlimited custom categories",
+            "Choose from 10+ vibrant colors",
+            "Drag and drop to reorder categories",
+            "Domain-to-category automatic mapping"
+          ],
+          "example": "Example: Create a 'Shopping' category with orange color, and all Amazon, eBay tabs will automatically use it."
         },
-        "productivityInsights": {
-          "title": "Productivity Insights",
-          "description": "Check browsing patterns and productivity scores analyzed by AI.",
-          "details": ["Usage pattern analysis by time period", "Time tracking by category", "AI suggestions for productivity improvement"]
+        "snapshots": {
+          "title": "Snapshots",
+          "description": "Save and restore your tab states instantly",
+          "details": [
+            "Save current tab arrangement with one click",
+            "Restore previous tab states anytime",
+            "Multiple snapshots with timestamps",
+            "Saved locally, never sent to servers"
+          ],
+          "example": "Example: Save a snapshot before a meeting, switch to meeting tabs, then restore your work tabs after."
         },
-        "smartCleanup": {
-          "title": "Smart Cleanup",
-          "description": "Optimize browser performance with automatic duplicate tab detection and cleanup.",
-          "details": ["URL-based duplicate tab detection", "Option to keep the most recent tab", "Memory usage optimization"]
+        "undoRedo": {
+          "title": "Undo/Redo",
+          "description": "Never worry about mistakes - undo any organization",
+          "details": [
+            "Full undo support for Smart Organize",
+            "Restores exact tab positions and groups",
+            "One-click undo button after organizing",
+            "Saves previous state automatically"
+          ],
+          "example": "Example: Accidentally organized tabs? Click 'Undo' to instantly restore the previous arrangement."
+        },
+        "aiInsights": {
+          "title": "AI Insights",
+          "description": "Get smart recommendations based on your browsing",
+          "details": [
+            "Detects duplicate tabs to save memory",
+            "Suggests when to organize many tabs",
+            "Identifies heavy category usage patterns",
+            "Actionable tips for productivity"
+          ],
+          "example": "Example: TabQuest detects 5 duplicate tabs and suggests closing them to free up 200MB of memory."
+        },
+        "tabGroups": {
+          "title": "Tab Groups Viewer",
+          "description": "View and manage existing Chrome tab groups",
+          "details": [
+            "See all tab groups at a glance",
+            "Expand/collapse groups in Chrome",
+            "Export groups to JSON files",
+            "Import saved groups from files"
+          ],
+          "example": "Example: Export your 'Work Project' tab group and share it with teammates via JSON file."
         }
       },
-      "proTips": {
-        "title": "Tips",
-        "tips": [
-          "When you manually recategorize tabs, AI learns your preferences",
-          "Using different categories during work and personal time helps AI distinguish by time period",
-          "Opening related tabs together helps AI understand context and classify more accurately"
-        ]
+      "tips": {
+        "domainMapping": {
+          "title": "Domain Auto-Mapping",
+          "description": "When you assign a category to a domain (like github.com → Development), all tabs from that domain automatically use the same category."
+        },
+        "colorCoding": {
+          "title": "Color Coding",
+          "description": "Use different colors for different contexts: Purple for work, Green for learning, Orange for shopping. Visual colors help you quickly identify tab groups."
+        },
+        "autoSync": {
+          "title": "Chrome Sync",
+          "description": "Your categories and preferences sync across devices if Chrome Sync is enabled. Your tab snapshots stay local for privacy."
+        },
+        "multiLanguage": {
+          "title": "Multi-Language",
+          "description": "TabQuest supports English, Korean (한국어), and Japanese (日本語). Switch languages from the settings menu (⚙️)."
+        },
+        "dataManagement": {
+          "title": "Data Management",
+          "description": "Clear local data anytime from Settings > Clear Data. This removes snapshots and AI insights but keeps your categories."
+        },
+        "privacy": {
+          "title": "Privacy First",
+          "description": "All your data stays on your device. TabQuest never sends your browsing data to external servers. 100% local, 100% private."
+        }
+      },
+      "footer": {
+        "madeWith": "Made with"
       }
     }
   },
